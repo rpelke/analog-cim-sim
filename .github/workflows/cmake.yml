@@ -1,0 +1,59 @@
+name: CMake
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        BUILD_TYPE: [Release, Debug]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake
+
+      - name: CMake configure
+        run: |
+          mkdir build
+          mkdir install
+          cd build
+          cmake \
+            -DCMAKE_BUILD_TYPE=${{matrix.BUILD_TYPE}} \
+            -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
+            -DBNN_TNN_TESTS=ON \
+            ../cpp
+      
+      - name: Build libs and tests
+        run: cmake --build ${{github.workspace}}/build -j $(nproc)
+      
+      - name: Tests
+        working-directory: ${{github.workspace}}/build
+        run: |
+          ctest -C ${{matrix.BUILD_TYPE}} \
+            --output-on-failure \
+            --output-junit \
+            testreport.xml
+      
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always()
+        with:
+          report_paths: ${{github.workspace}}/build/testreport.xml
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lib-files
+          path: ${{github.workspace}}/install
