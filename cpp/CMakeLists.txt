@@ -1,3 +1,10 @@
+##############################################################################
+# Copyright (C) 2025 Rebecca Pelke                                           #
+# All Rights Reserved                                                        #
+#                                                                            #
+# This is work is licensed under the terms described in the LICENSE file     #
+# found in the root directory of this source tree.                           #
+##############################################################################
 cmake_minimum_required(VERSION 3.10)
 project(analog-cim-sim)
 set(CMAKE_CXX_STANDARD 14)

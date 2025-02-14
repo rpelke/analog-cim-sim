@@ -1,3 +1,10 @@
+##############################################################################
+# Copyright (C) 2025 Rebecca Pelke                                           #
+# All Rights Reserved                                                        #
+#                                                                            #
+# This is work is licensed under the terms described in the LICENSE file     #
+# found in the root directory of this source tree.                           #
+##############################################################################
 add_subdirectory(googletest EXCLUDE_FROM_ALL)
 
 get_target_property(bnn_tnn_lib_path BNN_TNN_Interface BINARY_DIR)
