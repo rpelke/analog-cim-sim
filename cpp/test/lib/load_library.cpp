@@ -10,9 +10,13 @@ TEST(LibraryTests, LoadTest) {
         std::cout << "LD_LIBRARY_PATH is not set." << std::endl;
     }
 
-    void *handle = dlopen("libBNN_TNN_Interface.so", RTLD_LAZY);
-    ASSERT_NE(handle, nullptr);
-    dlclose(handle);
+    void *handle_lbnntnn = dlopen("libBNN_TNN_Interface.so", RTLD_LAZY);
+    ASSERT_NE(handle_lbnntnn, nullptr);
+    dlclose(handle_lbnntnn);
+
+    void *handle_lint = dlopen("libINT_Interface.so", RTLD_LAZY);
+    ASSERT_NE(handle_lint, nullptr);
+    dlclose(handle_lint);
 }
 
 TEST(LibraryTests, MVMTest) {

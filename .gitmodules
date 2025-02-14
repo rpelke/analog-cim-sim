@@ -1,3 +1,6 @@
 [submodule "cpp/test/googletest"]
 	path = cpp/test/googletest
 	url = https://github.com/google/googletest.git
+[submodule "cpp/extern/json"]
+	path = cpp/extern/json
+	url = https://github.com/nlohmann/json.git

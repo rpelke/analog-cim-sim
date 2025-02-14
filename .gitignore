@@ -1,3 +1,4 @@
 build/
 .vscode/
-compile_commands.json
+*.json
+!cpp/example/config.json

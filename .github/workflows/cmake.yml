@@ -32,7 +32,7 @@ jobs:
           cmake \
             -DCMAKE_BUILD_TYPE=${{matrix.BUILD_TYPE}} \
             -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
-            -DBNN_TNN_TESTS=ON \
+            -DLIB_TESTS=ON \
             ../cpp
       
       - name: Build libs and tests
