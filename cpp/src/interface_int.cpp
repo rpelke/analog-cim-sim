@@ -4,7 +4,7 @@
 
 #include "helper/config.h"
 
-bool load_cfg = nq::Config::get_cfg().load_cfg("example/config.json");
+bool load_cfg = nq::Config::get_cfg().load_cfg();
 
 nq::CrossbarMapping xbar(
     CFG.M,

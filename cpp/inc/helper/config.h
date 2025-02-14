@@ -2,6 +2,7 @@
 #define CONFIG_H
 
 #include <cstdint> 
+#include <cstdlib>
 #include <vector>
 #include <fstream>
 #include <iostream>
@@ -22,7 +23,7 @@ class Config
         virtual ~Config();
 
         static Config& get_cfg();
-        bool load_cfg(const std::string& file);
+        bool load_cfg();
 
         uint32_t M;
         uint32_t N;

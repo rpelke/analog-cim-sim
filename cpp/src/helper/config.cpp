@@ -13,11 +13,17 @@ Config& Config::get_cfg() {
     return instance;
 }
 
-bool Config::load_cfg(const std::string& file) {
+bool Config::load_cfg() {
     if (cfg_loaded_) {
         return false;
     }
-    std::ifstream file_stream(file);
+
+    const char* cfg_file = std::getenv("CFG_FILE");
+    if (!cfg_file) {
+        throw std::runtime_error("CFG_FILE environment variable is not set!");
+    }
+
+    std::ifstream file_stream(cfg_file);
     if(!file_stream.is_open()) {
         return false;
     }
