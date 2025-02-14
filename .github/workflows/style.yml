@@ -1,0 +1,26 @@
+name: Style
+
+on:
+  push:
+    branches:
+      - main
+      - dev*
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format-12
+
+      - name: Check style
+        run: |
+          ./util/format.py

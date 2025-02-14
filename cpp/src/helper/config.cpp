@@ -9,13 +9,11 @@
 
 namespace nq {
 
-Config::~Config(){}
+Config::~Config() {}
 
-Config::Config() :
-    cfg_loaded_(false) {
-}
+Config::Config() : cfg_loaded_(false) {}
 
-Config& Config::get_cfg() {
+Config &Config::get_cfg() {
     static Config instance;
     return instance;
 }
@@ -25,13 +23,13 @@ bool Config::load_cfg() {
         return false;
     }
 
-    const char* cfg_file = std::getenv("CFG_FILE");
+    const char *cfg_file = std::getenv("CFG_FILE");
     if (!cfg_file) {
         throw std::runtime_error("CFG_FILE environment variable is not set!");
     }
 
     std::ifstream file_stream(cfg_file);
-    if(!file_stream.is_open()) {
+    if (!file_stream.is_open()) {
         throw std::runtime_error("Could not open config file!");
     }
     file_stream >> cfg_data_;
@@ -45,13 +43,8 @@ bool Config::load_cfg() {
     HRS = cfg_data_["HRS"];
     LRS = cfg_data_["LRS"];
 
-    if ((M <= 0) ||
-        (N <= 0) ||
-        (W_BIT <= 0) ||
-        (I_BIT <= 0) ||
-        (HRS <= 0.0) ||
-        (LRS <= 0.0)
-    ) {
+    if ((M <= 0) || (N <= 0) || (W_BIT <= 0) || (I_BIT <= 0) || (HRS <= 0.0) ||
+        (LRS <= 0.0)) {
         throw std::runtime_error("Error in config parameters.");
     }
 
@@ -71,30 +64,35 @@ bool Config::load_cfg() {
     verbose = cfg_data_["verbose"];
 
     std::string m_mode_name = cfg_data_["m_mode"].get<std::string>();
-    if(m_mode_name == "I_DIFF_W_DIFF_1XB") {
+    if (m_mode_name == "I_DIFF_W_DIFF_1XB") {
         m_mode = INT8MappingMode::I_DIFF_W_DIFF_1XB;
-    } else if(m_mode_name == "I_DIFF_W_DIFF_2XB") {
+    } else if (m_mode_name == "I_DIFF_W_DIFF_2XB") {
         m_mode = INT8MappingMode::I_DIFF_W_DIFF_2XB;
-    } else if(m_mode_name == "I_OFFS_W_DIFF") {
+    } else if (m_mode_name == "I_OFFS_W_DIFF") {
         m_mode = INT8MappingMode::I_OFFS_W_DIFF;
-    } else if(m_mode_name == "I_TC_W_DIFF") {
+    } else if (m_mode_name == "I_TC_W_DIFF") {
         m_mode = INT8MappingMode::I_TC_W_DIFF;
-    } else if(m_mode_name == "I_UINT_W_DIFF") {
+    } else if (m_mode_name == "I_UINT_W_DIFF") {
         m_mode = INT8MappingMode::I_UINT_W_DIFF;
-    } else if(m_mode_name == "I_UINT_W_OFFS") {
+    } else if (m_mode_name == "I_UINT_W_OFFS") {
         m_mode = INT8MappingMode::I_UINT_W_OFFS;
     }
 
-    if ((m_mode == INT8MappingMode::I_UINT_W_OFFS) && !((adc_type == ADCType::INF_ADC) || (adc_type == ADCType::POS_RANGE_ONLY_ADC))) {
-        throw std::runtime_error("I_UINT_W_OFFS needs INF_ADC or POS_RANGE_ONLY_ADC.");
-    }
-    else if ((m_mode == INT8MappingMode::I_DIFF_W_DIFF_1XB)
-    || (m_mode == INT8MappingMode::I_DIFF_W_DIFF_2XB)
-    || (m_mode == INT8MappingMode::I_TC_W_DIFF)
-    || (m_mode == INT8MappingMode::I_TC_W_DIFF)
-    || (m_mode == INT8MappingMode::I_UINT_W_DIFF)) {
-        if (!((adc_type == ADCType::INF_ADC) || (adc_type == ADCType::SYM_RANGE_ADC))) {
-            throw std::runtime_error("I_DIFF_W_DIFF_1XB, I_DIFF_W_DIFF_2XB, I_TC_W_DIFF, I_TC_W_DIFF, I_UINT_W_DIFF need INF_ADC or SYM_RANGE_ADC.");
+    if ((m_mode == INT8MappingMode::I_UINT_W_OFFS) &&
+        !((adc_type == ADCType::INF_ADC) ||
+          (adc_type == ADCType::POS_RANGE_ONLY_ADC))) {
+        throw std::runtime_error(
+            "I_UINT_W_OFFS needs INF_ADC or POS_RANGE_ONLY_ADC.");
+    } else if ((m_mode == INT8MappingMode::I_DIFF_W_DIFF_1XB) ||
+               (m_mode == INT8MappingMode::I_DIFF_W_DIFF_2XB) ||
+               (m_mode == INT8MappingMode::I_TC_W_DIFF) ||
+               (m_mode == INT8MappingMode::I_TC_W_DIFF) ||
+               (m_mode == INT8MappingMode::I_UINT_W_DIFF)) {
+        if (!((adc_type == ADCType::INF_ADC) ||
+              (adc_type == ADCType::SYM_RANGE_ADC))) {
+            throw std::runtime_error(
+                "I_DIFF_W_DIFF_1XB, I_DIFF_W_DIFF_2XB, I_TC_W_DIFF, "
+                "I_TC_W_DIFF, I_UINT_W_DIFF need INF_ADC or SYM_RANGE_ADC.");
         }
     }
 
@@ -103,4 +101,4 @@ bool Config::load_cfg() {
     return true;
 }
 
-}
+} // namespace nq

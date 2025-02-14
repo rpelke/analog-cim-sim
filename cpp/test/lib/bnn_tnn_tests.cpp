@@ -5,15 +5,16 @@
  * This is work is licensed under the terms described in the LICENSE file     *
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
-#include <gtest/gtest.h>
-#include <dlfcn.h>
 #include <cstdlib>
+#include <dlfcn.h>
+#include <gtest/gtest.h>
 
 TEST(BNNTNNLibTests, MVMTest) {
     void *handle = dlopen("libBNN_TNN_Interface.so", RTLD_LAZY);
     ASSERT_NE(handle, nullptr);
 
-    auto exe_mvm_ptr = (int32_t (*)(int32_t *, int32_t *, int32_t *, int32_t, int32_t)) dlsym(handle, "exe_mvm");
+    auto exe_mvm_ptr = (int32_t(*)(int32_t *, int32_t *, int32_t *, int32_t,
+                                   int32_t))dlsym(handle, "exe_mvm");
     ASSERT_NE(exe_mvm_ptr, nullptr) << "Failed to load function exe_mvm";
 
     int32_t res[2] = {0, 0};
