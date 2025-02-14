@@ -12,5 +12,6 @@
     "max_adc_curr": 34500.0,
     "alpha": 1.0,
     "resolution": 20,
-    "m_mode": "I_UINT_W_OFFS"
+    "m_mode": "I_DIFF_W_DIFF_1XB",
+    "verbose": false
 }

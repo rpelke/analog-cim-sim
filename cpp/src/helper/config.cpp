@@ -25,7 +25,7 @@ bool Config::load_cfg() {
 
     std::ifstream file_stream(cfg_file);
     if(!file_stream.is_open()) {
-        return false;
+        throw std::runtime_error("Could not open config file!");
     }
     file_stream >> cfg_data_;
 
@@ -37,6 +37,16 @@ bool Config::load_cfg() {
     digital_only = cfg_data_["digital_only"];
     HRS = cfg_data_["HRS"];
     LRS = cfg_data_["LRS"];
+
+    if ((M <= 0) ||
+        (N <= 0) ||
+        (W_BIT <= 0) ||
+        (I_BIT <= 0) ||
+        (HRS <= 0.0) ||
+        (LRS <= 0.0)
+    ) {
+        throw std::runtime_error("Error in config parameters.");
+    }
 
     std::string adc_type_name = cfg_data_["adc_type"].get<std::string>();
     if (adc_type_name == "INF_ADC") {
@@ -51,6 +61,7 @@ bool Config::load_cfg() {
     max_adc_curr = cfg_data_["max_adc_curr"];
     alpha = cfg_data_["alpha"];
     resolution = cfg_data_["resolution"];
+    verbose = cfg_data_["verbose"];
 
     std::string m_mode_name = cfg_data_["m_mode"].get<std::string>();
     if(m_mode_name == "I_DIFF_W_DIFF_1XB") {

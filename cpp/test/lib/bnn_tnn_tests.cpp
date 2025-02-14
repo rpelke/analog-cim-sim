@@ -2,7 +2,7 @@
 #include <dlfcn.h>
 #include <cstdlib>
 
-TEST(LibraryTests, MVMTest) {
+TEST(BNNTNNLibTests, MVMTest) {
     void *handle = dlopen("libBNN_TNN_Interface.so", RTLD_LAZY);
     ASSERT_NE(handle, nullptr);
 

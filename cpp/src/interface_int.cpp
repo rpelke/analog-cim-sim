@@ -20,7 +20,8 @@ nq::CrossbarMapping xbar(
     CFG.min_adc_curr,
     CFG.max_adc_curr,
     CFG.alpha,
-    CFG.resolution
+    CFG.resolution,
+    CFG.verbose
 );
 
 // Typedef for the function pointer for the C - Python conversion

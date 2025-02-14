@@ -39,6 +39,7 @@ class Config
         float alpha;
         uint32_t resolution;
         INT8MappingMode m_mode;
+        bool verbose;
 
     private:
         Config();

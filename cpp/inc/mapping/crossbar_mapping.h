@@ -16,7 +16,8 @@ class CrossbarMapping {
         explicit CrossbarMapping(uint32_t M, uint32_t N, uint32_t W_BIT, uint32_t I_BIT,
             std::vector<uint32_t> SPLIT, const bool digital_only, const INT8MappingMode m_mode,
             const float HRS, const float LRS, const ADCType adc_type,
-            const float min_adc_curr, const float max_adc_curr, const float alpha, const uint32_t resolution);
+            const float min_adc_curr, const float max_adc_curr, const float alpha,
+            const uint32_t resolution, const bool verbose);
         CrossbarMapping() = delete;
         CrossbarMapping(const CrossbarMapping&) = delete;
         virtual ~CrossbarMapping();
@@ -33,6 +34,7 @@ class CrossbarMapping {
         const INT8MappingMode m_mode_;
         uint64_t write_xbar_counter_; // Number of write function calls
         uint64_t mvm_counter_;  // Number of MVM function calls
+        const bool verbose_;
 };
 
 } // end namespace
