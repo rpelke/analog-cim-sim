@@ -1,4 +1,4 @@
 build/
 .vscode/
 *.json
-!cpp/test/lib/configs/*.json
+!cpp/test/lib/configs/*/*.json

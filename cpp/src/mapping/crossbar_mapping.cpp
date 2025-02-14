@@ -31,7 +31,7 @@ void CrossbarMapping::write(const int32_t *mat, int32_t m_matrix,
         if ((m_mode_ == INT8MappingMode::I_DIFF_W_DIFF_1XB) ||
             (m_mode_ == INT8MappingMode::I_DIFF_W_DIFF_2XB) ||
             (m_mode_ == INT8MappingMode::I_TC_W_DIFF) ||
-            (m_mode_ == INT8MappingMode::I_TC_W_DIFF) ||
+            (m_mode_ == INT8MappingMode::I_OFFS_W_DIFF) ||
             (m_mode_ == INT8MappingMode::I_UINT_W_DIFF)) {
             a_xbar_.write_p_m(d_xbar_.get_gd_p(), d_xbar_.get_gd_m(), m_matrix,
                               n_matrix);
