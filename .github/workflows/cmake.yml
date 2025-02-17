@@ -37,7 +37,8 @@ jobs:
             ../cpp
       
       - name: Build libs and tests
-        run: cmake --build ${{github.workspace}}/build -j $(nproc)
+        run: |
+          cmake --build ${{github.workspace}}/build -j $(nproc)
       
       - name: Tests
         working-directory: ${{github.workspace}}/build

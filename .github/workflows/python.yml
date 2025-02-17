@@ -1,0 +1,65 @@
+name: Python
+
+on:
+  push:
+    branches:
+      - main
+      - dev*
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake
+
+      - name: CMake configure
+        run: |
+          mkdir build
+          mkdir install
+          cd build
+          cmake \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
+            -DLIB_TESTS=OFF \
+            ../cpp
+      
+      - name: Build lib
+        run: |
+          cmake --build ${{github.workspace}}/build -j $(nproc)
+          cmake --build ${{github.workspace}}/build --target install
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+      
+      - name: Build package
+        run: |
+          source .venv/bin/activate
+          python -m build
+          pip install .
+      
+      - name: Execute tests
+        env :
+          LD_LIBRARY_PATH: "${{github.workspace}}/install/lib"
+          CFG_FILE: "${{github.workspace}}/cpp/test/lib/configs/config.json"
+        run: |
+          source .venv/bin/activate
+          python -m unittest int-bindings/test/interface_test.py
