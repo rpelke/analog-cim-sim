@@ -55,6 +55,8 @@ bool Config::load_cfg() {
         adc_type = ADCType::SYM_RANGE_ADC;
     } else if (adc_type_name == "POS_RANGE_ONLY_ADC") {
         adc_type = ADCType::POS_RANGE_ONLY_ADC;
+    } else {
+        throw std::runtime_error("Unkown ADC type.");
     }
 
     min_adc_curr = cfg_data_["min_adc_curr"];

@@ -1,4 +1,15 @@
+# Build and setup
 build/
 .vscode/
+.venv/*
+
+# Config files
 *.json
 !cpp/test/lib/configs/*/*.json
+
+# Python packages
+dist/*
+*.egg-info/*
+
+# Cache
+__pycache__/

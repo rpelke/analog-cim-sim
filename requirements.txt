@@ -1,0 +1,7 @@
+# Package installation
+wheel
+build
+setuptools
+
+# Package dependencies
+numpy
