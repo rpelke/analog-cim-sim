@@ -1,21 +1,81 @@
 import unittest
 import numpy as np
-from acs_int.interface import load_mvm_lib, exe_mvm, cpy_mtrx
+import acs_int
+import os
 
 
 class TestIntInterface(unittest.TestCase):
-    def test_simple_mvm(self):
-        lib = load_mvm_lib(file="libINT_Interface.so")
-        
-        m_matrix = 2
-        n_matrix = 3
-        mat = np.array([1, 2, 3, 4, 5, 6], dtype=np.int32)
-        vec = np.array([1, 1, 1], dtype=np.int32)
-        res = np.array([0, 0], dtype=np.int32)
-        
-        cpy_mtrx(lib, mat, m_matrix, n_matrix)
-        exe_mvm(lib, res, vec, mat, m_matrix, n_matrix)
-        np.testing.assert_array_equal(res, np.array([6, 15], dtype=np.int32))
+    def test_simple_I_DIFF_W_DIFF_1XB(self):
+        m_matrix = 3
+        n_matrix = 2
+        mat = np.array([100, -32, 1, 0, 12, 1], dtype=np.int32)
+        vec = np.array([-120, 55], dtype=np.int32)
+        res = np.array([1, 1, -1], dtype=np.int32)
+
+        acs_int.set_config(os.path.abspath("int-bindings/test/configs/I_DIFF_W_DIFF_1XB.json"))
+        acs_int.cpy_mtrx(mat, m_matrix, n_matrix)
+        acs_int.exe_mvm(res, vec, mat, m_matrix, n_matrix)
+        np.testing.assert_array_equal(res, np.array([-13759, -119, -1386], dtype=np.int32))
+
+    def test_simple_I_DIFF_W_DIFF_2XB(self):
+        m_matrix = 3
+        n_matrix = 2
+        mat = np.array([100, -32, 1, 0, 12, 1], dtype=np.int32)
+        vec = np.array([-120, 55], dtype=np.int32)
+        res = np.array([1, 1, -1], dtype=np.int32)
+
+        acs_int.set_config(os.path.abspath("int-bindings/test/configs/I_DIFF_W_DIFF_2XB.json"))
+        acs_int.cpy_mtrx(mat, m_matrix, n_matrix)
+        acs_int.exe_mvm(res, vec, mat, m_matrix, n_matrix)
+        np.testing.assert_array_equal(res, np.array([-13759, -119, -1386], dtype=np.int32))
+
+    def test_simple_I_OFFS_W_DIFF(self):
+        m_matrix = 3
+        n_matrix = 2
+        mat = np.array([100, -32, 1, 0, 12, 1], dtype=np.int32)
+        vec = np.array([-120, 55], dtype=np.int32)
+        res = np.array([1, 1, -1], dtype=np.int32)
+
+        acs_int.set_config(os.path.abspath("int-bindings/test/configs/I_OFFS_W_DIFF.json"))
+        acs_int.cpy_mtrx(mat, m_matrix, n_matrix)
+        acs_int.exe_mvm(res, vec, mat, m_matrix, n_matrix)
+        np.testing.assert_array_equal(res, np.array([-13759, -119, -1386], dtype=np.int32))
+
+    def test_simple_I_TC_W_DIFF(self):
+        m_matrix = 3
+        n_matrix = 2
+        mat = np.array([100, -32, 1, 0, 12, 1], dtype=np.int32)
+        vec = np.array([-120, 55], dtype=np.int32)
+        res = np.array([1, 1, -1], dtype=np.int32)
+
+        acs_int.set_config(os.path.abspath("int-bindings/test/configs/I_TC_W_DIFF.json"))
+        acs_int.cpy_mtrx(mat, m_matrix, n_matrix)
+        acs_int.exe_mvm(res, vec, mat, m_matrix, n_matrix)
+        np.testing.assert_array_equal(res, np.array([-13759, -119, -1386], dtype=np.int32))
+
+    def test_simple_I_UINT_W_DIFF(self):
+        m_matrix = 3
+        n_matrix = 2
+        mat = np.array([100, -32, 1, 0, -12, 1], dtype=np.int32)
+        vec = np.array([120, 55], dtype=np.int32)
+        res = np.array([1, 1, -1], dtype=np.int32)
+
+        acs_int.set_config(os.path.abspath("int-bindings/test/configs/I_UINT_W_DIFF.json"))
+        acs_int.cpy_mtrx(mat, m_matrix, n_matrix)
+        acs_int.exe_mvm(res, vec, mat, m_matrix, n_matrix)
+        np.testing.assert_array_equal(res, np.array([10241, 121, -1386], dtype=np.int32))
+
+    def test_simple_I_UINT_W_OFFS(self):
+        m_matrix = 3
+        n_matrix = 2
+        mat = np.array([100, -32, 1, 0, -12, 1], dtype=np.int32)
+        vec = np.array([120, 55], dtype=np.int32)
+        res = np.array([1, 1, -1], dtype=np.int32)
+
+        acs_int.set_config(os.path.abspath("int-bindings/test/configs/I_UINT_W_OFFS.json"))
+        acs_int.cpy_mtrx(mat, m_matrix, n_matrix)
+        acs_int.exe_mvm(res, vec, mat, m_matrix, n_matrix)
+        np.testing.assert_array_equal(res, np.array([10241, 121, -1386], dtype=np.int32))
 
 
 if __name__ == "__main__":

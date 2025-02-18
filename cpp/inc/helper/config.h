@@ -29,7 +29,7 @@ class Config {
     virtual ~Config();
 
     static Config &get_cfg();
-    bool load_cfg();
+    bool load_cfg(const char *cfg_file);
 
     uint32_t M;
     uint32_t N;
@@ -50,7 +50,6 @@ class Config {
   private:
     Config();
     static Config cfg_;
-    bool cfg_loaded_;
     nlohmann::json cfg_data_;
 };
 

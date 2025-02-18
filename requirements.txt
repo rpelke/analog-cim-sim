@@ -2,6 +2,10 @@
 wheel
 build
 setuptools
+pybind11
+scikit-build
+cmake
+ninja
 
 # Package dependencies
 numpy

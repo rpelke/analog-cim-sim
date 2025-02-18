@@ -11,23 +11,14 @@ namespace nq {
 
 Config::~Config() {}
 
-Config::Config() : cfg_loaded_(false) {}
+Config::Config() {}
 
 Config &Config::get_cfg() {
     static Config instance;
     return instance;
 }
 
-bool Config::load_cfg() {
-    if (cfg_loaded_) {
-        return false;
-    }
-
-    const char *cfg_file = std::getenv("CFG_FILE");
-    if (!cfg_file) {
-        throw std::runtime_error("CFG_FILE environment variable is not set!");
-    }
-
+bool Config::load_cfg(const char *cfg_file) {
     std::ifstream file_stream(cfg_file);
     if (!file_stream.is_open()) {
         throw std::runtime_error("Could not open config file!");
@@ -98,7 +89,6 @@ bool Config::load_cfg() {
         }
     }
 
-    cfg_loaded_ = true;
     file_stream.close();
     return true;
 }

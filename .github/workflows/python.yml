@@ -21,28 +21,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake
-
-      - name: CMake configure
-        run: |
-          mkdir build
-          mkdir install
-          cd build
-          cmake \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
-            -DLIB_TESTS=OFF \
-            ../cpp
-      
-      - name: Build lib
-        run: |
-          cmake --build ${{github.workspace}}/build -j $(nproc)
-          cmake --build ${{github.workspace}}/build --target install
+          sudo apt-get install -y cmake python3.8-dev
 
       - name: Setup python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.8'
       
       - name: Create virtual environment
         run: |
@@ -50,11 +34,23 @@ jobs:
           source .venv/bin/activate
           pip install -r requirements.txt
       
-      - name: Build package
+      - name: CMake configure
         run: |
           source .venv/bin/activate
-          python -m build
-          pip install .
+          mkdir build
+          mkdir install
+          cd build
+          cmake \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
+            -DLIB_TESTS=OFF \
+            -DBUILD_LIB_ACS_INT=ON \
+            ../cpp
+      
+      - name: Build lib
+        run: |
+          cmake --build ${{github.workspace}}/build -j $(nproc)
+          cmake --build ${{github.workspace}}/build --target install
       
       - name: Execute tests
         env :
