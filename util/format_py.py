@@ -6,33 +6,26 @@
 # This is work is licensed under the terms described in the LICENSE file     #
 # found in the root directory of this source tree.                           #
 ##############################################################################
-import os
 import sys
 import subprocess
-import tempfile
 from pathlib import Path
 
 proj_dir = Path(__file__).resolve().parents[1]
-formatter = 'clang-format-12'
-src_dirs = [
-    f"{proj_dir}/cpp/inc",
-    f"{proj_dir}/cpp/src",
-    f"{proj_dir}/cpp/inc",
-    f"{proj_dir}/cpp/test/lib"
+formatter = "yapf"
+src_dirs = [f"{proj_dir}"]
+exclude = [f"{proj_dir}/.venv", "__init__.py", f"{proj_dir}/cpp"]
+
+files = [
+    f for d in src_dirs for f in Path(d).rglob('*')
+    if f.is_file() and f.suffix == ".py" and all(xcl not in f._str for xcl in exclude)
 ]
+for f in files:
+    r = subprocess.run([formatter, "--diff", ".style.yapf", f"{f._str}"],
+                       capture_output=True,
+                       text=True)
 
-with tempfile.NamedTemporaryFile(mode='w+', delete=False) as temp:
-    files = [f for d in src_dirs for f in Path(d).rglob('*') if f.is_file() and f.suffix in (".cpp", ".h")]
-    for f in files :
-        temp.write(f"{str(f)}\n")
+    if r.stdout:
+        print(f"Unformatted Python file: {f}")
+        sys.exit(1)
 
-r = subprocess.run([
-    formatter,
-    "--Werror",
-    "--dry-run",
-    f"--style=file",
-    *files
-] + sys.argv[1:])
-
-os.remove(temp.name)
-sys.exit(r.returncode)
+sys.exit(0)

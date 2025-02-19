@@ -12,6 +12,7 @@ import os
 
 
 class TestIntInterface(unittest.TestCase):
+
     def test_simple_I_DIFF_W_DIFF_1XB(self):
         m_matrix = 3
         n_matrix = 2

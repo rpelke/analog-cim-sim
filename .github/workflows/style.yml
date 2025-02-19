@@ -21,6 +21,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang-format-12
 
-      - name: Check style
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      
+      - name: Create virtual environment
         run: |
-          ./util/format.py
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r util/requirements_style.txt
+          ./util/format_cpp.py
+          ./util/format_py.py
