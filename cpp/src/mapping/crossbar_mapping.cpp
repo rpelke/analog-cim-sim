@@ -121,7 +121,8 @@ CrossbarMapping::~CrossbarMapping() {
             cells_per_value *= 1;
             break;
         default:
-            throw std::runtime_error("Unknown mode.");
+            std::cerr << "Unknown mode encountered!" << std::endl;
+            std::abort();
         }
 
         std::cout << "num_write: " << num_write << std::endl;

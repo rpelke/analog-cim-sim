@@ -31,12 +31,6 @@ if(BUILD_LIB_ACS_BNNTNN)
     add_library(acs_bnntnn SHARED ${SOURCES_BNN_TNN})
     set_target_properties(acs_bnntnn PROPERTIES POSITION_INDEPENDENT_CODE ON)
     install(TARGETS acs_bnntnn DESTINATION lib)
-
-    if(LIB_TESTS)
-        message(STATUS "Enabling INT tests.")
-        enable_testing()
-        add_subdirectory(test)
-    endif()
 endif()
 
 
@@ -63,9 +57,17 @@ if(BUILD_LIB_ACS_INT)
     )
 
     # Build pybind module
-    pybind11_add_module(acs_int MODULE ${SOURCES_INT})
+    pybind11_add_module(acs_int SHARED ${SOURCES_INT})
     include_directories(inc extern/json/include)
     target_link_libraries(acs_int PRIVATE nlohmann_json::nlohmann_json pybind11::module)
     set_target_properties(acs_int PROPERTIES POSITION_INDEPENDENT_CODE ON)
     install(TARGETS acs_int DESTINATION ${CMAKE_CURRENT_LIST_DIR}/../.venv/lib/python${PYTHON_VERSION}/site-packages)
+    install(TARGETS acs_int DESTINATION lib)
+endif()
+
+
+if(LIB_TESTS)
+    message(STATUS "Enabling cpp tests.")
+    enable_testing()
+    add_subdirectory(test)
 endif()
