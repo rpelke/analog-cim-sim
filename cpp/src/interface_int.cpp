@@ -13,9 +13,20 @@
 
 #include "helper/config.h"
 
-nq::CrossbarMapping *xbar = nullptr;
+#ifndef EXPORT_API
+#define EXPORT_API __attribute__((visibility("default")))
+#endif
 
-extern "C" void set_config(const char *cfg_file) {
+bool cfg_loaded = nq::Config::get_cfg().load_cfg("");
+nq::CrossbarMapping *xbar =
+    (cfg_loaded)
+        ? new nq::CrossbarMapping(
+              CFG.M, CFG.N, CFG.W_BIT, CFG.I_BIT, CFG.SPLIT, CFG.digital_only,
+              CFG.m_mode, CFG.HRS, CFG.LRS, CFG.adc_type, CFG.min_adc_curr,
+              CFG.max_adc_curr, CFG.alpha, CFG.resolution, CFG.verbose)
+        : nullptr;
+
+extern "C" EXPORT_API void set_config(const char *cfg_file) {
     if (xbar != nullptr) {
         delete xbar;
         xbar = nullptr;
@@ -27,8 +38,8 @@ extern "C" void set_config(const char *cfg_file) {
         CFG.max_adc_curr, CFG.alpha, CFG.resolution, CFG.verbose);
 }
 
-extern "C" int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
-                           int32_t m_matrix, int32_t n_matrix) {
+extern "C" EXPORT_API int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
+                                      int32_t m_matrix, int32_t n_matrix) {
     if (xbar == nullptr) {
         std::cerr << "Error: Crossbar is not initialized. Please call "
                      "set_config() first."
@@ -55,7 +66,8 @@ extern "C" int32_t exe_mvm_pb(pybind11::array_t<int32_t> res,
     return 0;
 }
 
-extern "C" int32_t cpy_mtrx(int32_t *mat, int32_t m_matrix, int32_t n_matrix) {
+extern "C" EXPORT_API int32_t cpy_mtrx(int32_t *mat, int32_t m_matrix,
+                                       int32_t n_matrix) {
     if (xbar == nullptr) {
         std::cerr << "Error: Crossbar is not initialized. Please call "
                      "set_config() first."

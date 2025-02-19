@@ -18,12 +18,27 @@ Config &Config::get_cfg() {
     return instance;
 }
 
-bool Config::load_cfg(const char *cfg_file) {
-    std::ifstream file_stream(cfg_file);
-    if (!file_stream.is_open()) {
-        throw std::runtime_error("Could not open config file!");
+bool Config::load_cfg(const char *cfg_file = "") {
+    if (strcmp(cfg_file, "") == 0) {
+        const char *cfg_file = std::getenv("CFG_FILE");
+        if (cfg_file == nullptr) {
+            return false;
+        }
+        std::cout << "Load config from " << cfg_file << std::endl;
+        std::ifstream file_stream(cfg_file);
+        if (!file_stream.is_open()) {
+            throw std::runtime_error("Could not open config file!");
+        }
+        file_stream >> cfg_data_;
+        file_stream.close();
+    } else {
+        std::ifstream file_stream(cfg_file);
+        if (!file_stream.is_open()) {
+            throw std::runtime_error("Could not open config file!");
+        }
+        file_stream >> cfg_data_;
+        file_stream.close();
     }
-    file_stream >> cfg_data_;
 
     M = cfg_data_["M"];
     N = cfg_data_["N"];
@@ -89,7 +104,6 @@ bool Config::load_cfg(const char *cfg_file) {
         }
     }
 
-    file_stream.close();
     return true;
 }
 
