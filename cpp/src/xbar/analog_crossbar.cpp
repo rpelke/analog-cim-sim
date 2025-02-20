@@ -21,9 +21,8 @@ AnalogCrossbar::AnalogCrossbar(uint32_t M, uint32_t N, uint32_t W_BIT,
     ia_p_(m_ * split_.size(), std::vector<float>(n_, 0)),
     ia_m_(m_ * split_.size(), std::vector<float>(n_, 0)), hrs_(HRS), lrs_(LRS),
     i_step_size_(split_.size(), 0.0), shift_(SPLIT.size(), 0),
-    adc_(ADCFactory::createADC(adc_type, min_adc_curr, max_adc_curr, alpha,
-                               resolution)),
-    m_mode_(m_mode), delta_i_uint_w_offs_(0.0) {
+    adc_(ADCFactory::createADC(adc_type)), m_mode_(m_mode),
+    delta_i_uint_w_offs_(0.0) {
 
     num_segments_ = split_.size();
     i_mm_ = lrs_ - hrs_;

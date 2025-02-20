@@ -84,16 +84,19 @@ bool Config::load_cfg(const char *cfg_file = "") {
         m_mode = INT8MappingMode::I_UINT_W_DIFF;
     } else if (m_mode_name == "I_UINT_W_OFFS") {
         m_mode = INT8MappingMode::I_UINT_W_OFFS;
+    } else {
+        throw std::runtime_error("Unkown INT8MappingMode.");
     }
 
-    if ((m_mode == INT8MappingMode::I_UINT_W_OFFS) &&
-        !((adc_type == ADCType::INF_ADC) ||
-          (adc_type == ADCType::POS_RANGE_ONLY_ADC))) {
-        throw std::runtime_error(
-            "I_UINT_W_OFFS needs INF_ADC or POS_RANGE_ONLY_ADC.");
+    if (m_mode == INT8MappingMode::I_UINT_W_OFFS) {
+        if (!((adc_type == ADCType::INF_ADC) ||
+              (adc_type == ADCType::POS_RANGE_ONLY_ADC))) {
+            throw std::runtime_error(
+                "I_UINT_W_OFFS needs INF_ADC or POS_RANGE_ONLY_ADC.");
+        }
     } else if ((m_mode == INT8MappingMode::I_DIFF_W_DIFF_1XB) ||
                (m_mode == INT8MappingMode::I_DIFF_W_DIFF_2XB) ||
-               (m_mode == INT8MappingMode::I_TC_W_DIFF) ||
+               (m_mode == INT8MappingMode::I_OFFS_W_DIFF) ||
                (m_mode == INT8MappingMode::I_TC_W_DIFF) ||
                (m_mode == INT8MappingMode::I_UINT_W_DIFF)) {
         if (!((adc_type == ADCType::INF_ADC) ||
@@ -102,6 +105,8 @@ bool Config::load_cfg(const char *cfg_file = "") {
                 "I_DIFF_W_DIFF_1XB, I_DIFF_W_DIFF_2XB, I_TC_W_DIFF, "
                 "I_TC_W_DIFF, I_UINT_W_DIFF need INF_ADC or SYM_RANGE_ADC.");
         }
+    } else {
+        throw std::runtime_error("Unknown INT8MappingMode.");
     }
 
     return true;

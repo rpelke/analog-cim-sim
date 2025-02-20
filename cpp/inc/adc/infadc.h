@@ -12,6 +12,7 @@
 #include <cstdint>
 
 #include "adc/adc.h"
+#include "helper/config.h"
 
 namespace nq {
 

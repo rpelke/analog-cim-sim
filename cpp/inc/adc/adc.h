@@ -8,34 +8,21 @@
 #ifndef ADC_H
 #define ADC_H
 
-#include <algorithm>
-#include <cmath>
-#include <cstdint>
-#include <limits>
-
 namespace nq {
 
 class ADC {
   public:
-    explicit ADC(const float min_adc_curr, const float max_adc_curr,
-                 const float alpha, const uint32_t resolution) :
-        min_adc_curr_(min_adc_curr),
-        max_adc_curr_(max_adc_curr), alpha_(alpha), resolution_(resolution){};
+    explicit ADC(const float min_curr, const float max_curr);
     ADC() = delete;
     ADC(const ADC &) = delete;
     virtual ~ADC() = default;
 
     virtual float analog_digital_conversion(const float current) const = 0;
-    float clip(const float current) const {
-        return std::min(std::max(current, alpha_ * min_adc_curr_),
-                        alpha_ * max_adc_curr_);
-    }
+    float clip(const float current) const;
 
   protected:
-    const float min_adc_curr_;  // minimum current that can be converted (in uA)
-    const float max_adc_curr_;  // maximum current that can be converted (in uA)
-    const float alpha_;         // alpha value for clipping
-    const uint32_t resolution_; // resolution of the ADC in bit
+    const float min_adc_curr_; // minimum current that can be converted (in uA)
+    const float max_adc_curr_; // maximum current that can be converted (in uA)
 };
 
 } // namespace nq

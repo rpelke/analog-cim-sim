@@ -52,7 +52,10 @@ if(BUILD_LIB_ACS_INT)
         src/mapping/crossbar_mapping.cpp
         src/xbar/digital_crossbar.cpp
         src/xbar/analog_crossbar.cpp
+        src/adc/adc.cpp
+        src/adc/adcfactory.cpp
         src/adc/symadc.cpp
+        src/adc/posadc.cpp
         src/adc/infadc.cpp
     )
 
