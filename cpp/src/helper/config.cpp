@@ -65,8 +65,6 @@ bool Config::load_cfg(const char *cfg_file = "") {
         throw std::runtime_error("Unkown ADC type.");
     }
 
-    min_adc_curr = cfg_data_["min_adc_curr"];
-    max_adc_curr = cfg_data_["max_adc_curr"];
     alpha = cfg_data_["alpha"];
     resolution = cfg_data_["resolution"];
     verbose = cfg_data_["verbose"];

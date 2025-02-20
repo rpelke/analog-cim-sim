@@ -7,8 +7,8 @@
  ******************************************************************************/
 #include "adc/adcfactory.h"
 #include "adc/infadc.h"
-#include "adc/symadc.h"
 #include "adc/posadc.h"
+#include "adc/symadc.h"
 
 namespace nq {
 
@@ -19,7 +19,7 @@ std::unique_ptr<ADC> ADCFactory::createADC(ADCType type) {
     case ADCType::SYM_RANGE_ADC:
         return std::make_unique<SymADC>();
     case ADCType::POS_RANGE_ONLY_ADC:
-    return std::make_unique<PosADC>();
+        return std::make_unique<PosADC>();
         return nullptr;
     default:
         return nullptr;

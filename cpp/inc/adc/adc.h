@@ -10,6 +10,8 @@
 
 namespace nq {
 
+template <typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }
+
 class ADC {
   public:
     explicit ADC(const float min_curr, const float max_curr);

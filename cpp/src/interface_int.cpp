@@ -18,13 +18,7 @@
 #endif
 
 bool cfg_loaded = nq::Config::get_cfg().load_cfg("");
-nq::CrossbarMapping *xbar =
-    (cfg_loaded)
-        ? new nq::CrossbarMapping(
-              CFG.M, CFG.N, CFG.W_BIT, CFG.I_BIT, CFG.SPLIT, CFG.digital_only,
-              CFG.m_mode, CFG.HRS, CFG.LRS, CFG.adc_type, CFG.min_adc_curr,
-              CFG.max_adc_curr, CFG.alpha, CFG.resolution, CFG.verbose)
-        : nullptr;
+nq::CrossbarMapping *xbar = (cfg_loaded) ? new nq::CrossbarMapping() : nullptr;
 
 extern "C" EXPORT_API void set_config(const char *cfg_file) {
     if (xbar != nullptr) {
@@ -32,10 +26,7 @@ extern "C" EXPORT_API void set_config(const char *cfg_file) {
         xbar = nullptr;
     }
     nq::Config::get_cfg().load_cfg(cfg_file);
-    xbar = new nq::CrossbarMapping(
-        CFG.M, CFG.N, CFG.W_BIT, CFG.I_BIT, CFG.SPLIT, CFG.digital_only,
-        CFG.m_mode, CFG.HRS, CFG.LRS, CFG.adc_type, CFG.min_adc_curr,
-        CFG.max_adc_curr, CFG.alpha, CFG.resolution, CFG.verbose);
+    xbar = new nq::CrossbarMapping();
 }
 
 extern "C" EXPORT_API int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,

@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "adc/adcfactory.h"
+#include "helper/definitions.h"
 #include "mapping/crossbar_mapping.h"
 #include "nlohmann/json.hpp"
 
@@ -40,8 +41,6 @@ class Config {
     float HRS;
     float LRS;
     ADCType adc_type;
-    float min_adc_curr;
-    float max_adc_curr;
     float alpha;
     uint32_t resolution;
     INT8MappingMode m_mode;
