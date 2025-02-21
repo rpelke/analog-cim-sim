@@ -24,8 +24,20 @@ AnalogCrossbar::AnalogCrossbar() :
     num_segments_ = CFG.SPLIT.size();
     i_mm_ = CFG.LRS - CFG.HRS;
 
-    for (size_t s = 0; s < num_segments_; ++s) {
-        i_step_size_[s] = i_mm_ / ((1 << CFG.SPLIT[s]) - 1);
+    if ((CFG.m_mode == INT8MappingMode::I_DIFF_W_DIFF_1XB) ||
+        (CFG.m_mode == INT8MappingMode::I_DIFF_W_DIFF_2XB) ||
+        (CFG.m_mode == INT8MappingMode::I_OFFS_W_DIFF) ||
+        (CFG.m_mode == INT8MappingMode::I_TC_W_DIFF) ||
+        (CFG.m_mode == INT8MappingMode::I_UINT_W_DIFF)) {
+        for (size_t s = 0; s < num_segments_; ++s) {
+            i_step_size_[s] = i_mm_ / ((1 << (CFG.SPLIT[s] - 1)));
+        }
+    } else if (CFG.m_mode == INT8MappingMode::I_UINT_W_OFFS) {
+        for (size_t s = 0; s < num_segments_; ++s) {
+            i_step_size_[s] = i_mm_ / ((1 << CFG.SPLIT[s]) - 1);
+        }
+    } else {
+        throw std::runtime_error("Unknown INT8MappingMode.");
     }
 
     int curr_w_bit = CFG.W_BIT;
@@ -137,13 +149,11 @@ void AnalogCrossbar::mvm_i_diff_w_diff(int32_t *res, const int32_t *vec,
         // Addition of the partial results caused by splitted weights
         for (size_t m = 0; m < m_matrix; ++m) {
             for (size_t s = 0; s < CFG.SPLIT.size(); ++s) {
-                res[m] +=
-                    static_cast<int32_t>(
-                        round( // Rounding required for shift operation
-                            adc_->analog_digital_conversion( // ADC conversion
-                                tmp_out[m * CFG.SPLIT.size() + s] /
-                                i_step_size_[s])))
-                    << shift_[s] << i_bit;
+                res[m] += static_cast<int32_t>(
+                    round(adc_->analog_digital_conversion(
+                              tmp_out[m * CFG.SPLIT.size() + s]) /
+                          i_step_size_[s] * std::pow(2, shift_[s]) *
+                          std::pow(2, i_bit)));
             }
         }
 
@@ -165,13 +175,11 @@ void AnalogCrossbar::mvm_i_diff_w_diff(int32_t *res, const int32_t *vec,
         // Addition of the partial results caused by splitted weights
         for (size_t m = 0; m < m_matrix; ++m) {
             for (size_t s = 0; s < CFG.SPLIT.size(); ++s) {
-                res[m] +=
-                    static_cast<int32_t>(
-                        round( // Rounding required for shift operation
-                            adc_->analog_digital_conversion( // ADC conversion
-                                tmp_out[m * CFG.SPLIT.size() + s] /
-                                i_step_size_[s])))
-                    << shift_[s] << i_bit;
+                res[m] += static_cast<int32_t>(
+                    round(adc_->analog_digital_conversion(
+                              tmp_out[m * CFG.SPLIT.size() + s]) /
+                          i_step_size_[s] * std::pow(2, shift_[s]) *
+                          std::pow(2, i_bit)));
             }
         }
 
@@ -211,13 +219,11 @@ void AnalogCrossbar::mvm_i_offs_w_diff(int32_t *res, const int32_t *vec,
         // Addition of the partial results caused by splitted weights
         for (size_t m = 0; m < m_matrix; ++m) {
             for (size_t s = 0; s < CFG.SPLIT.size(); ++s) {
-                res[m] +=
-                    static_cast<int32_t>(
-                        round( // Rounding required for shift operation
-                            adc_->analog_digital_conversion( // ADC conversion
-                                tmp_out[m * CFG.SPLIT.size() + s] /
-                                i_step_size_[s])))
-                    << shift_[s] << i_bit;
+                res[m] += static_cast<int32_t>(
+                    round(adc_->analog_digital_conversion(
+                              tmp_out[m * CFG.SPLIT.size() + s]) /
+                          i_step_size_[s] * std::pow(2, shift_[s]) *
+                          std::pow(2, i_bit)));
             }
         }
 
@@ -255,13 +261,11 @@ void AnalogCrossbar::mvm_i_tc_w_diff(int32_t *res, const int32_t *vec,
         // Addition of the partial results caused by splitted weights
         for (size_t m = 0; m < m_matrix; ++m) {
             for (size_t s = 0; s < CFG.SPLIT.size(); ++s) {
-                res[m] +=
-                    static_cast<int32_t>(
-                        round( // Rounding required for shift operation
-                            adc_->analog_digital_conversion( // ADC conversion
-                                tmp_out[m * CFG.SPLIT.size() + s] /
-                                i_step_size_[s])))
-                    << shift_[s] << i_bit;
+                res[m] += static_cast<int32_t>(
+                    round(adc_->analog_digital_conversion(
+                              tmp_out[m * CFG.SPLIT.size() + s]) /
+                          i_step_size_[s] * std::pow(2, shift_[s]) *
+                          std::pow(2, i_bit)));
             }
         }
 
@@ -279,12 +283,11 @@ void AnalogCrossbar::mvm_i_tc_w_diff(int32_t *res, const int32_t *vec,
     // Addition of the partial results caused by splitted weights
     for (size_t m = 0; m < m_matrix; ++m) {
         for (size_t s = 0; s < CFG.SPLIT.size(); ++s) {
-            res[m] -= static_cast<int32_t>( // Subtract
-                          round( // Rounding required for shift operation
-                              adc_->analog_digital_conversion( // ADC conversion
-                                  tmp_out[m * CFG.SPLIT.size() + s] /
-                                  i_step_size_[s])))
-                      << shift_[s] << (CFG.I_BIT - 1);
+            res[m] -= static_cast<int32_t>(
+                round(adc_->analog_digital_conversion(
+                          tmp_out[m * CFG.SPLIT.size() + s]) /
+                      i_step_size_[s] * std::pow(2, shift_[s]) *
+                      std::pow(2, CFG.I_BIT - 1)));
         }
     }
 }
@@ -313,13 +316,11 @@ void AnalogCrossbar::mvm_i_uint_w_diff(int32_t *res, const int32_t *vec,
         // Addition of the partial results caused by splitted weights
         for (size_t m = 0; m < m_matrix; ++m) {
             for (size_t s = 0; s < CFG.SPLIT.size(); ++s) {
-                res[m] +=
-                    static_cast<int32_t>(
-                        round( // Rounding required for shift operation
-                            adc_->analog_digital_conversion( // ADC conversion
-                                tmp_out[m * CFG.SPLIT.size() + s] /
-                                i_step_size_[s])))
-                    << shift_[s] << i_bit;
+                res[m] += static_cast<int32_t>(
+                    round(adc_->analog_digital_conversion(
+                              tmp_out[m * CFG.SPLIT.size() + s]) /
+                          i_step_size_[s] * std::pow(2, shift_[s]) *
+                          std::pow(2, i_bit)));
             }
         }
 
@@ -351,10 +352,11 @@ void AnalogCrossbar::mvm_i_uint_w_offs(int32_t *res, const int32_t *vec,
             for (size_t s = 0; s < CFG.SPLIT.size(); ++s) {
                 // No rounding is done here, so multiply instead of shift
                 // tmp_out / i_step_size_[s] is a floating-point value
-                res_fp[m] +=
-                    adc_->analog_digital_conversion(
-                        (tmp_out[m * CFG.SPLIT.size() + s] / i_step_size_[s])) *
-                    (1 << shift_[s]) * (1 << i_bit);
+                res_fp[m] += static_cast<int32_t>(
+                    round(adc_->analog_digital_conversion(
+                              tmp_out[m * CFG.SPLIT.size() + s]) /
+                          i_step_size_[s] * std::pow(2, shift_[s]) *
+                          std::pow(2, i_bit)));
             }
         }
 

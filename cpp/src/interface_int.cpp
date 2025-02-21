@@ -37,6 +37,11 @@ extern "C" EXPORT_API int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
                   << std::endl;
         return -1;
     }
+    if (m_matrix > CFG.M || n_matrix > CFG.N) {
+        std::cerr << "Error: Matrix dimensions exceed the crossbar size."
+                  << std::endl;
+        return -1;
+    }
     xbar->mvm(res, vec, mat, m_matrix, n_matrix);
     return 0;
 }
@@ -62,6 +67,11 @@ extern "C" EXPORT_API int32_t cpy_mtrx(int32_t *mat, int32_t m_matrix,
     if (xbar == nullptr) {
         std::cerr << "Error: Crossbar is not initialized. Please call "
                      "set_config() first."
+                  << std::endl;
+        return -1;
+    }
+    if (m_matrix > CFG.M || n_matrix > CFG.N) {
+        std::cerr << "Error: Matrix dimensions exceed the crossbar size."
                   << std::endl;
         return -1;
     }

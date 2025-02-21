@@ -13,7 +13,8 @@ namespace nq {
 
 PosADC::PosADC() :
     ADC(get_min_curr(), get_max_curr()),
-    step_size_(max_adc_curr_ * CFG.alpha / std::pow(2, CFG.resolution)) {}
+    step_size_((max_adc_curr_ * CFG.alpha) /
+               ((std::pow(2, CFG.resolution)) - 1)) {}
 
 float PosADC::get_max_curr() const {
     if (CFG.m_mode == INT8MappingMode::I_UINT_W_OFFS) {

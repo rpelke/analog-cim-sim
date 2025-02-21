@@ -1,15 +1,17 @@
 {
-    "M": 32,
-    "N": 32,
-    "SPLIT": [1, 3, 4],
+    "M": 3,
+    "N": 5,
+    "SPLIT": [
+        8
+    ],
     "W_BIT": 8,
-    "I_BIT": 8,
+    "I_BIT": 1,
     "digital_only": false,
     "HRS": 5.0,
     "LRS": 30.0,
     "adc_type": "POS_RANGE_ONLY_ADC",
     "alpha": 1.0,
-    "resolution": 20,
+    "resolution": 8,
     "m_mode": "I_UINT_W_OFFS",
     "verbose": false
 }
