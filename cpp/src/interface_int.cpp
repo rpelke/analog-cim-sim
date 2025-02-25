@@ -6,6 +6,7 @@
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
 #include <iostream>
+#include <memory>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <stdio.h>
@@ -18,15 +19,15 @@
 #endif
 
 bool cfg_loaded = nq::Config::get_cfg().load_cfg("");
-nq::CrossbarMapping *xbar = (cfg_loaded) ? new nq::CrossbarMapping() : nullptr;
+std::unique_ptr<nq::Crossbar> xbar =
+    (cfg_loaded) ? std::make_unique<nq::Crossbar>() : nullptr;
 
 extern "C" EXPORT_API void set_config(const char *cfg_file) {
     if (xbar != nullptr) {
-        delete xbar;
         xbar = nullptr;
     }
     nq::Config::get_cfg().load_cfg(cfg_file);
-    xbar = new nq::CrossbarMapping();
+    xbar = std::make_unique<nq::Crossbar>();
 }
 
 extern "C" EXPORT_API int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,

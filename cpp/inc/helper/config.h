@@ -12,12 +12,14 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 #include "adc/adcfactory.h"
 #include "helper/definitions.h"
-#include "mapping/crossbar_mapping.h"
+#include "mapping/mapper.h"
 #include "nlohmann/json.hpp"
+#include "xbar/crossbar.h"
 
 #define CFG ::nq::Config::get_cfg()
 
@@ -31,6 +33,7 @@ class Config {
 
     static Config &get_cfg();
     bool load_cfg(const char *cfg_file);
+    std::unique_ptr<Mapper> get_mapper();
 
     uint32_t M;
     uint32_t N;

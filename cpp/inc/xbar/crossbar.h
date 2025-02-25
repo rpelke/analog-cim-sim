@@ -5,29 +5,28 @@
  * This is work is licensed under the terms described in the LICENSE file     *
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
-#ifndef CROSSBARMAPPING_H
-#define CROSSBARMAPPING_H
+#ifndef CROSSBAR_H
+#define CROSSBAR_H
 
 #include <cstdint>
+#include <memory>
 
-#include "xbar/analog_crossbar.h"
-#include "xbar/digital_crossbar.h"
+#include "mapping/mapper.h"
 
 namespace nq {
 
-class CrossbarMapping {
+class Crossbar {
   public:
-    explicit CrossbarMapping();
-    CrossbarMapping(const CrossbarMapping &) = delete;
-    virtual ~CrossbarMapping();
+    Crossbar();
+    Crossbar(const Crossbar &) = delete;
+    virtual ~Crossbar();
 
     void write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix);
     void mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
              int32_t m_matrix, int32_t n_matrix);
 
   private:
-    DigitalCrossbar d_xbar_;
-    AnalogCrossbar a_xbar_;
+    std::unique_ptr<Mapper> mapper_;
     uint64_t write_xbar_counter_; // Number of write function calls
     uint64_t mvm_counter_;        // Number of MVM function calls
 };
