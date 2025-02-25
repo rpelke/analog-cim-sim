@@ -43,12 +43,8 @@ void MapperE::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     const uint32_t tmp_size = m_matrix * split.size();
     std::vector<int32_t> tmp_out(tmp_size, 0);
 
-    int64_t inp_sum = 0;
-    for (size_t n = 0; n < n_matrix; ++n) {
-        inp_sum += vec[n];
-    }
-
     // Calculate sum over all inputs
+    int64_t inp_sum = 0;
     for (size_t n = 0; n < n_matrix; ++n) {
         inp_sum += vec[n];
     }
@@ -79,6 +75,7 @@ void MapperE::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     std::vector<float> tmp_out(tmp_size, 0);
     std::vector<float> res_fp(m_matrix, 0);
 
+    // Calculate sum over all inputs
     int64_t inp_sum = 0;
     for (size_t n = 0; n < n_matrix; ++n) {
         inp_sum += vec[n];

@@ -23,7 +23,7 @@ class TestADC(unittest.TestCase):
 
         correct_result = mat.reshape(m_matrix, n_matrix).dot(vec)
 
-        cfg_file = "int-bindings/test/configs/SYM_ADC_1.json"
+        cfg_file = "int-bindings/test/configs/analog/SYM_ADC_1.json"
 
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
@@ -67,7 +67,7 @@ class TestADC(unittest.TestCase):
 
         correct_result = mat.reshape(m_matrix, n_matrix).dot(vec)
 
-        cfg_file = "int-bindings/test/configs/SYM_ADC_2.json"
+        cfg_file = "int-bindings/test/configs/analog/SYM_ADC_2.json"
 
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
@@ -111,7 +111,7 @@ class TestADC(unittest.TestCase):
 
         correct_result = mat.reshape(m_matrix, n_matrix).dot(vec)
 
-        cfg_file = "int-bindings/test/configs/SYM_ADC_3.json"
+        cfg_file = "int-bindings/test/configs/analog/SYM_ADC_3.json"
 
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
@@ -155,7 +155,7 @@ class TestADC(unittest.TestCase):
 
         correct_result = mat.reshape(m_matrix, n_matrix).dot(vec)
 
-        cfg_file = "int-bindings/test/configs/SYM_ADC_4.json"
+        cfg_file = "int-bindings/test/configs/analog/SYM_ADC_4.json"
 
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
@@ -199,7 +199,7 @@ class TestADC(unittest.TestCase):
 
         correct_result = mat.reshape(m_matrix, n_matrix).dot(vec)
 
-        cfg_file = "int-bindings/test/configs/POS_ADC_1.json"
+        cfg_file = "int-bindings/test/configs/analog/POS_ADC_1.json"
 
         with open(cfg_file, "r") as file:
             cfg = json.load(file)

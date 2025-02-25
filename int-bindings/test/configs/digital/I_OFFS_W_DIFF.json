@@ -1,0 +1,15 @@
+{
+    "M": 32,
+    "N": 32,
+    "SPLIT": [1, 3, 4],
+    "W_BIT": 8,
+    "I_BIT": 8,
+    "digital_only": true,
+    "HRS": 5.0,
+    "LRS": 30.0,
+    "adc_type": "SYM_RANGE_ADC",
+    "alpha": 1.0,
+    "resolution": 20,
+    "m_mode": "I_OFFS_W_DIFF",
+    "verbose": false
+}
