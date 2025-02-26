@@ -14,3 +14,7 @@ dist/*
 
 # Cache
 __pycache__/
+
+# Coverage
+*.info
+*_html

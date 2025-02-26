@@ -6,9 +6,21 @@
 # found in the root directory of this source tree.                           #
 ##############################################################################
 cmake_minimum_required(VERSION 3.15)
-project(analog-cim-sim)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Code coverage
+option(COVERAGE "Enable code coverage." OFF)
+message(STATUS "Coverage: ${COVERAGE}")
+
+# Use gcc for coverage
+if (COVERAGE)
+    set(CMAKE_C_COMPILER gcc)
+    set(CMAKE_CXX_COMPILER g++)
+endif()
+
+project(analog-cim-sim)
 
 # Include json
 set(JSON_BuildTests OFF CACHE INTERNAL "")
@@ -21,6 +33,12 @@ option(LIB_TESTS "Build lib tests." OFF)
 option(BUILD_LIB_ACS_BNNTNN "Build bnn tnn lib." OFF)
 option(BUILD_LIB_ACS_INT "Build int lib." OFF)
 
+if (COVERAGE)
+    if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message(FATAL_ERROR "Error: The build type must be 'Debug'!")
+    endif()
+endif()
+
 ### Build BNN/TNN library ###
 if(BUILD_LIB_ACS_BNNTNN)
     message(STATUS "Build LIB_ACS_BNNTNN.")
@@ -29,6 +47,10 @@ if(BUILD_LIB_ACS_BNNTNN)
         src/interface_bnn_tnn.cpp
     )
     add_library(acs_bnntnn SHARED ${SOURCES_BNN_TNN})
+    if (COVERAGE)
+        target_compile_options(acs_bnntnn PRIVATE -fprofile-arcs -ftest-coverage)
+        target_link_libraries(acs_bnntnn PRIVATE gcov)
+    endif()
     set_target_properties(acs_bnntnn PROPERTIES POSITION_INDEPENDENT_CODE ON)
     install(TARGETS acs_bnntnn DESTINATION lib)
 endif()
@@ -67,6 +89,10 @@ if(BUILD_LIB_ACS_INT)
     pybind11_add_module(acs_int SHARED ${SOURCES_INT})
     include_directories(inc extern/json/include)
     target_link_libraries(acs_int PRIVATE nlohmann_json::nlohmann_json pybind11::module)
+    if (COVERAGE)
+        target_compile_options(acs_int PRIVATE -fprofile-arcs -ftest-coverage)
+        target_link_libraries(acs_int PRIVATE gcov)
+    endif()
     set_target_properties(acs_int PROPERTIES POSITION_INDEPENDENT_CODE ON)
     install(TARGETS acs_int DESTINATION ${CMAKE_CURRENT_LIST_DIR}/../.venv/lib/python${PYTHON_VERSION}/site-packages)
     install(TARGETS acs_int DESTINATION lib)
