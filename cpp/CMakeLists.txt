@@ -14,6 +14,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(COVERAGE "Enable code coverage." OFF)
 message(STATUS "Coverage: ${COVERAGE}")
 
+# Install path for python package
+if(NOT DEFINED PY_INSTALL_PATH)
+    message(FATAL_ERROR "PY_INSTALL_PATH is not set! Please define it with -DPY_INSTALL_PATH=<...>")
+endif()
+
 # Use gcc for coverage
 if (COVERAGE)
     set(CMAKE_C_COMPILER gcc)
@@ -94,8 +99,7 @@ if(BUILD_LIB_ACS_INT)
         target_link_libraries(acs_int PRIVATE gcov)
     endif()
     set_target_properties(acs_int PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    install(TARGETS acs_int DESTINATION ${CMAKE_CURRENT_LIST_DIR}/../.venv/lib/python${PYTHON_VERSION}/site-packages)
-    install(TARGETS acs_int DESTINATION lib)
+    install(TARGETS acs_int DESTINATION ${PY_INSTALL_PATH})
 endif()
 
 
