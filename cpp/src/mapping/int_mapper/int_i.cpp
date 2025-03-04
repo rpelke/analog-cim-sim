@@ -5,25 +5,26 @@
  * This is work is licensed under the terms described in the LICENSE file     *
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
-#include "mapping/mapperA.h"
+#include "mapping/int_mapper/int_i.h"
 #include "helper/config.h"
 
 namespace nq {
 
-MapperA::MapperA() : Mapper(true) {}
+MapperIntI::MapperIntI() : Mapper(true) {}
 
-MapperA::~MapperA() {}
+MapperIntI::~MapperIntI() {}
 
-void MapperA::d_write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix) {
+void MapperIntI::d_write(const int32_t *mat, int32_t m_matrix,
+                         int32_t n_matrix) {
     d_write_diff(mat, m_matrix, n_matrix);
 }
 
-void MapperA::a_write(int32_t m_matrix, int32_t n_matrix) {
+void MapperIntI::a_write(int32_t m_matrix, int32_t n_matrix) {
     a_write_p_m(m_matrix, n_matrix);
 }
 
-void MapperA::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                    int32_t m_matrix, int32_t n_matrix) {
+void MapperIntI::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
+                       int32_t m_matrix, int32_t n_matrix) {
     // The splitted matrix is of size CFG.SPLITsize*M x N (CFG.SPLITsize values
     // per original matrix value) Two matrices exist: gd+ (gd_p_) and gd-
     // (gd_m_) The input is also split into positive and negative values
@@ -70,8 +71,8 @@ void MapperA::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     }
 }
 
-void MapperA::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                    int32_t m_matrix, int32_t n_matrix) {
+void MapperIntI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
+                       int32_t m_matrix, int32_t n_matrix) {
     // The splitted matrix is of size CFG.SPLITsize*M x N (CFG.SPLITsize values
     // per original matrix value) Two matrices exist: ia+ (ia_p_) and ia-
     // (ia_m_).

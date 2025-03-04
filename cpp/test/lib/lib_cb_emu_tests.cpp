@@ -10,7 +10,7 @@
 #include <gtest/gtest.h>
 
 TEST(BNNTNNLibTests, MVMTest) {
-    void *handle = dlopen("libacs_bnntnn.so", RTLD_LAZY);
+    void *handle = dlopen("libacs_cb_emu.so", RTLD_LAZY);
     ASSERT_NE(handle, nullptr);
 
     auto exe_mvm_ptr = (int32_t(*)(int32_t *, int32_t *, int32_t *, int32_t,

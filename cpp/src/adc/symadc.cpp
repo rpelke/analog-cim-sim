@@ -16,30 +16,10 @@ SymADC::SymADC() :
     step_size_((2 * max_adc_curr_ * CFG.alpha) /
                ((std::pow(2, CFG.resolution)) - 1)) {}
 
-float SymADC::get_max_curr() const {
-    if ((CFG.m_mode == INT8MappingMode::I_DIFF_W_DIFF_1XB) ||
-        (CFG.m_mode == INT8MappingMode::I_DIFF_W_DIFF_2XB) ||
-        (CFG.m_mode == INT8MappingMode::I_TC_W_DIFF) ||
-        (CFG.m_mode == INT8MappingMode::I_OFFS_W_DIFF) ||
-        (CFG.m_mode == INT8MappingMode::I_UINT_W_DIFF)) {
-        return CFG.N * (CFG.LRS - CFG.HRS);
-    } else {
-        throw std::runtime_error(
-            "SymADC should be used with differential mapping.");
-    }
-}
+float SymADC::get_max_curr() const { return CFG.N * (CFG.LRS - CFG.HRS); }
 
 float SymADC::get_min_curr() const {
-    if ((CFG.m_mode == INT8MappingMode::I_DIFF_W_DIFF_1XB) ||
-        (CFG.m_mode == INT8MappingMode::I_DIFF_W_DIFF_2XB) ||
-        (CFG.m_mode == INT8MappingMode::I_TC_W_DIFF) ||
-        (CFG.m_mode == INT8MappingMode::I_OFFS_W_DIFF) ||
-        (CFG.m_mode == INT8MappingMode::I_UINT_W_DIFF)) {
-        return -static_cast<float>(CFG.N) * (CFG.LRS - CFG.HRS);
-    } else {
-        throw std::runtime_error(
-            "SymADC should be used with differential mapping.");
-    }
+    return -static_cast<float>(CFG.N) * (CFG.LRS - CFG.HRS);
 }
 
 // Mid-tread quantization

@@ -5,15 +5,15 @@
  * This is work is licensed under the terms described in the LICENSE file     *
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
-#include "mapping/mapperE.h"
+#include "mapping/int_mapper/int_v.h"
 #include "helper/config.h"
 
 namespace nq {
 
-MapperE::MapperE() : Mapper(false) {
-    // Calculate of the delta factor
+MapperIntV::MapperIntV() : Mapper(false) {
+    // Calculation of the delta factor
     delta_ = 0.0;
-    if (CFG.m_mode == INT8MappingMode::I_UINT_W_OFFS) {
+    if (CFG.m_mode == MappingMode::I_UINT_W_OFFS) {
         int curr_w_bit = CFG.W_BIT;
         for (size_t i = 0; i < CFG.SPLIT.size(); ++i) {
             shift_[i] = curr_w_bit - CFG.SPLIT[i];
@@ -24,18 +24,19 @@ MapperE::MapperE() : Mapper(false) {
     }
 }
 
-MapperE::~MapperE() {}
+MapperIntV::~MapperIntV() {}
 
-void MapperE::d_write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix) {
+void MapperIntV::d_write(const int32_t *mat, int32_t m_matrix,
+                         int32_t n_matrix) {
     d_write_offs(mat, m_matrix, n_matrix);
 }
 
-void MapperE::a_write(int32_t m_matrix, int32_t n_matrix) {
+void MapperIntV::a_write(int32_t m_matrix, int32_t n_matrix) {
     a_write_p(m_matrix, n_matrix);
 }
 
-void MapperE::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                    int32_t m_matrix, int32_t n_matrix) {
+void MapperIntV::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
+                       int32_t m_matrix, int32_t n_matrix) {
     // The splitted matrix is of size CFG.SPLITsize*M x N (CFG.SPLITsize values
     // per original matrix value) Only one matrix exist: gd+ (gd_p_) The input
     // values 'vec' are stored in int32_t and they are all positive
@@ -65,8 +66,8 @@ void MapperE::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     }
 }
 
-void MapperE::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                    int32_t m_matrix, int32_t n_matrix) {
+void MapperIntV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
+                       int32_t m_matrix, int32_t n_matrix) {
     // The splitted matrix is of size CFG.SPLITsize*M x N (CFG.SPLITsize values
     // per original matrix value) Only one matrix exist: ia+ (ia_p_) The input
     // is already positive only

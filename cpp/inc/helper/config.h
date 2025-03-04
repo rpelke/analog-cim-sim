@@ -46,7 +46,7 @@ class Config {
     ADCType adc_type;
     float alpha;
     uint32_t resolution;
-    INT8MappingMode m_mode;
+    MappingMode m_mode;
     bool verbose;
 
   private:

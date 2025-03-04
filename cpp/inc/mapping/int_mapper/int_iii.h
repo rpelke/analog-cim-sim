@@ -5,8 +5,8 @@
  * This is work is licensed under the terms described in the LICENSE file     *
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
-#ifndef MAPPERA_H
-#define MAPPERA_H
+#ifndef MAPPERINTIII_H
+#define MAPPERINTIII_H
 
 #include <cstdint>
 
@@ -14,12 +14,12 @@
 
 namespace nq {
 
-// Mapping: I_DIFF_W_DIFF_1XB and I_DIFF_W_DIFF_2XB
-class MapperA : public Mapper {
+// Mapping: I_TC_W_DIFF
+class MapperIntIII : public Mapper {
   public:
-    MapperA();
-    MapperA(const MapperA &) = delete;
-    virtual ~MapperA();
+    MapperIntIII();
+    MapperIntIII(const MapperIntIII &) = delete;
+    virtual ~MapperIntIII();
 
     void d_write(const int32_t *mat, int32_t m_matrix,
                  int32_t n_matrix) override;

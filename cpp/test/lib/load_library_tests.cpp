@@ -11,7 +11,7 @@
 #include <gtest/gtest.h>
 
 TEST(LibraryTests, LoadTest) {
-    void *handle_lbnntnn = dlopen("libacs_bnntnn.so", RTLD_LAZY);
+    void *handle_lbnntnn = dlopen("libacs_cb_emu.so", RTLD_LAZY);
     ASSERT_NE(handle_lbnntnn, nullptr);
     dlclose(handle_lbnntnn);
 

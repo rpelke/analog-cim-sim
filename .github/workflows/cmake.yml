@@ -46,7 +46,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
             -DPY_INSTALL_PATH=${{github.workspace}}/.venv/lib/python3.8/site-packages \
             -DLIB_TESTS=ON \
-            -DBUILD_LIB_ACS_BNNTNN=ON \
+            -DBUILD_LIB_CB_EMU=ON \
             -DBUILD_LIB_ACS_INT=ON \
             ../cpp
       

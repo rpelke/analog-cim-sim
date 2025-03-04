@@ -35,7 +35,7 @@ add_subdirectory(extern/json EXCLUDE_FROM_ALL)
 option(LIB_TESTS "Build lib tests." OFF)
 
 # Build lib options
-option(BUILD_LIB_ACS_BNNTNN "Build bnn tnn lib." OFF)
+option(BUILD_LIB_CB_EMU "Build emulater/callback interface." OFF)
 option(BUILD_LIB_ACS_INT "Build int lib." OFF)
 
 if (COVERAGE)
@@ -44,20 +44,20 @@ if (COVERAGE)
     endif()
 endif()
 
-### Build BNN/TNN library ###
-if(BUILD_LIB_ACS_BNNTNN)
-    message(STATUS "Build LIB_ACS_BNNTNN.")
+### Build emulater/callback interface ###
+if(BUILD_LIB_CB_EMU)
+    message(STATUS "Build emulater/callback interface.")
 
-    set(SOURCES_BNN_TNN
-        src/interface_bnn_tnn.cpp
+    set(SOURCES_CB
+        src/interface_cb.cpp
     )
-    add_library(acs_bnntnn SHARED ${SOURCES_BNN_TNN})
+    add_library(acs_cb_emu SHARED ${SOURCES_CB})
     if (COVERAGE)
-        target_compile_options(acs_bnntnn PRIVATE -fprofile-arcs -ftest-coverage)
-        target_link_libraries(acs_bnntnn PRIVATE gcov)
+        target_compile_options(acs_cb_emu PRIVATE -fprofile-arcs -ftest-coverage)
+        target_link_libraries(acs_cb_emu PRIVATE gcov)
     endif()
-    set_target_properties(acs_bnntnn PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    install(TARGETS acs_bnntnn DESTINATION lib)
+    set_target_properties(acs_cb_emu PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    install(TARGETS acs_cb_emu DESTINATION lib)
 endif()
 
 
@@ -74,14 +74,15 @@ if(BUILD_LIB_ACS_INT)
     find_package(pybind11 CONFIG REQUIRED PATHS ${CMAKE_CURRENT_LIST_DIR}/../.venv/lib/python${PYTHON_VERSION}/site-packages/pybind11/share/cmake/pybind11)
 
     set(SOURCES_INT
-        src/interface_int.cpp
+        src/interface_xbar.cpp
         src/helper/config.cpp
         src/mapping/mapper.cpp
-        src/mapping/mapperA.cpp
-        src/mapping/mapperB.cpp
-        src/mapping/mapperC.cpp
-        src/mapping/mapperD.cpp
-        src/mapping/mapperE.cpp
+        src/mapping/int_mapper/int_i.cpp
+        src/mapping/int_mapper/int_ii.cpp
+        src/mapping/int_mapper/int_iii.cpp
+        src/mapping/int_mapper/int_iv.cpp
+        src/mapping/int_mapper/int_v.cpp
+        src/mapping/bnn_mapper/bnn_i.cpp
         src/xbar/crossbar.cpp
         src/adc/adc.cpp
         src/adc/adcfactory.cpp

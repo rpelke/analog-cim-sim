@@ -17,7 +17,7 @@ PosADC::PosADC() :
                ((std::pow(2, CFG.resolution)) - 1)) {}
 
 float PosADC::get_max_curr() const {
-    if (CFG.m_mode == INT8MappingMode::I_UINT_W_OFFS) {
+    if (CFG.m_mode == MappingMode::I_UINT_W_OFFS) {
         return CFG.N * CFG.LRS;
     } else {
         throw std::runtime_error(

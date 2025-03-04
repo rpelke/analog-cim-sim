@@ -34,7 +34,7 @@ void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 
 Crossbar::~Crossbar() {
     if (CFG.verbose) {
-        std::cout << "INT8MappingMode: " << m_mode_to_string(CFG.m_mode)
+        std::cout << "MappingMode: " << m_mode_to_string(CFG.m_mode)
                   << std::endl;
         std::cout << "write_xbar_counter_: " << write_xbar_counter_
                   << std::endl;
@@ -46,37 +46,37 @@ Crossbar::~Crossbar() {
         uint32_t cells_per_value = CFG.SPLIT.size();
 
         switch (CFG.m_mode) {
-        case INT8MappingMode::I_DIFF_W_DIFF_1XB:
+        case MappingMode::I_DIFF_W_DIFF_1XB:
             num_write = write_xbar_counter_;
             num_mvm_total = mvm_counter_ * CFG.I_BIT;
             num_mvm_sequential = mvm_counter_ * 2 * CFG.I_BIT;
             cells_per_value *= 2;
             break;
-        case INT8MappingMode::I_DIFF_W_DIFF_2XB:
+        case MappingMode::I_DIFF_W_DIFF_2XB:
             num_write = write_xbar_counter_ * 2;
             num_mvm_total = mvm_counter_ * 2 * CFG.I_BIT;
             num_mvm_sequential = mvm_counter_ * CFG.I_BIT;
             cells_per_value *= 4;
             break;
-        case INT8MappingMode::I_OFFS_W_DIFF:
+        case MappingMode::I_OFFS_W_DIFF:
             num_write = write_xbar_counter_;
             num_mvm_total = mvm_counter_ * CFG.I_BIT;
             num_mvm_sequential = mvm_counter_ * CFG.I_BIT;
             cells_per_value *= 2;
             break;
-        case INT8MappingMode::I_TC_W_DIFF:
+        case MappingMode::I_TC_W_DIFF:
             num_write = write_xbar_counter_;
             num_mvm_total = mvm_counter_ * CFG.I_BIT;
             num_mvm_sequential = mvm_counter_ * CFG.I_BIT;
             cells_per_value *= 2;
             break;
-        case INT8MappingMode::I_UINT_W_DIFF:
+        case MappingMode::I_UINT_W_DIFF:
             num_write = write_xbar_counter_;
             num_mvm_total = mvm_counter_ * CFG.I_BIT;
             num_mvm_sequential = mvm_counter_ * CFG.I_BIT;
             cells_per_value *= 2;
             break;
-        case INT8MappingMode::I_UINT_W_OFFS:
+        case MappingMode::I_UINT_W_OFFS:
             num_write = write_xbar_counter_;
             num_mvm_total = mvm_counter_ * CFG.I_BIT;
             num_mvm_sequential = mvm_counter_ * CFG.I_BIT;
