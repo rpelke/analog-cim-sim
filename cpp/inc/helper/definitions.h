@@ -21,7 +21,8 @@ enum class MappingMode { // Mapping modes for inputs/weights as signed
     I_UINT_W_DIFF, // Inputs are already positive-only. Weights in differential
                    // mode
     I_UINT_W_OFFS, // Inputs are already positive-only. Weights use an offset
-    BNN_I
+    BNN_I,
+    BNN_II
 };
 
 static std::string m_mode_to_string(MappingMode mode) {
@@ -40,6 +41,8 @@ static std::string m_mode_to_string(MappingMode mode) {
         return "I_UINT_W_OFFS";
     case MappingMode::BNN_I:
         return "BNN_I";
+    case MappingMode::BNN_II:
+        return "BNN_II";
     default:
         return "Unknown mode";
     }

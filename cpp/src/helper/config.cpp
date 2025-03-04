@@ -86,6 +86,8 @@ bool Config::load_cfg(const char *cfg_file = "") {
         m_mode = MappingMode::I_UINT_W_OFFS;
     } else if (m_mode_name == "BNN_I") {
         m_mode = MappingMode::BNN_I;
+    } else if (m_mode_name == "BNN_II") {
+        m_mode = MappingMode::BNN_II;
     } else {
         std::cerr << "Unkown MappingMode." << std::endl;
         abort();
@@ -102,7 +104,8 @@ bool Config::load_cfg(const char *cfg_file = "") {
                (m_mode == MappingMode::I_OFFS_W_DIFF) ||
                (m_mode == MappingMode::I_TC_W_DIFF) ||
                (m_mode == MappingMode::I_UINT_W_DIFF) ||
-               (m_mode == MappingMode::BNN_I)) {
+               (m_mode == MappingMode::BNN_I) ||
+               (m_mode == MappingMode::BNN_II)) {
         if (!((adc_type == ADCType::INF_ADC) ||
               (adc_type == ADCType::SYM_RANGE_ADC))) {
             std::cerr << "I_DIFF_W_DIFF_1XB, I_DIFF_W_DIFF_2XB, I_TC_W_DIFF, "
