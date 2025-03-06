@@ -92,17 +92,21 @@ bool Config::load_cfg(const char *cfg_file = "") {
         m_mode = MappingMode::BNN_III;
     } else if (m_mode_name == "BNN_IV") {
         m_mode = MappingMode::BNN_IV;
+    } else if (m_mode_name == "BNN_V") {
+        m_mode = MappingMode::BNN_V;
     } else {
         std::cerr << "Unkown MappingMode." << std::endl;
         abort();
     }
 
     if ((m_mode == MappingMode::I_UINT_W_OFFS) ||
-        (m_mode == MappingMode::BNN_III) || (m_mode == MappingMode::BNN_IV)) {
+        (m_mode == MappingMode::BNN_III) || (m_mode == MappingMode::BNN_IV) ||
+        (m_mode == MappingMode::BNN_V)) {
         if (!((adc_type == ADCType::INF_ADC) ||
               (adc_type == ADCType::POS_RANGE_ONLY_ADC))) {
-            throw std::runtime_error("I_UINT_W_OFFS, BNN_III, BNN_IV needs "
-                                     "INF_ADC or POS_RANGE_ONLY_ADC.");
+            throw std::runtime_error(
+                "I_UINT_W_OFFS, BNN_III, BNN_IV, BNN_V needs "
+                "INF_ADC or POS_RANGE_ONLY_ADC.");
         }
     } else if ((m_mode == MappingMode::I_DIFF_W_DIFF_1XB) ||
                (m_mode == MappingMode::I_DIFF_W_DIFF_2XB) ||

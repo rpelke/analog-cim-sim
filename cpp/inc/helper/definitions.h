@@ -24,7 +24,8 @@ enum class MappingMode { // Mapping modes for inputs/weights as signed
     BNN_I,
     BNN_II,
     BNN_III,
-    BNN_IV
+    BNN_IV,
+    BNN_V
 };
 
 static std::string m_mode_to_string(MappingMode mode) {
@@ -49,6 +50,8 @@ static std::string m_mode_to_string(MappingMode mode) {
         return "BNN_III";
     case MappingMode::BNN_IV:
         return "BNN_IV";
+    case MappingMode::BNN_V:
+        return "BNN_V";
     default:
         return "Unknown mode";
     }

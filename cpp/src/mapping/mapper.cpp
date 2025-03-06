@@ -11,6 +11,7 @@
 #include "mapping/bnn_mapper/bnn_ii.h"
 #include "mapping/bnn_mapper/bnn_iii.h"
 #include "mapping/bnn_mapper/bnn_iv.h"
+#include "mapping/bnn_mapper/bnn_v.h"
 #include "mapping/int_mapper/int_i.h"
 #include "mapping/int_mapper/int_ii.h"
 #include "mapping/int_mapper/int_iii.h"
@@ -73,6 +74,8 @@ std::unique_ptr<Mapper> Mapper::create_from_config() {
         return std::make_unique<MapperBnnIII>();
     case MappingMode::BNN_IV:
         return std::make_unique<MapperBnnIV>();
+    case MappingMode::BNN_V:
+        return std::make_unique<MapperBnnV>();
     default:
         throw std::runtime_error("Mapper not implemented.");
     }
