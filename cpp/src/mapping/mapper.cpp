@@ -9,6 +9,8 @@
 #include "helper/config.h"
 #include "mapping/bnn_mapper/bnn_i.h"
 #include "mapping/bnn_mapper/bnn_ii.h"
+#include "mapping/bnn_mapper/bnn_iii.h"
+#include "mapping/bnn_mapper/bnn_iv.h"
 #include "mapping/int_mapper/int_i.h"
 #include "mapping/int_mapper/int_ii.h"
 #include "mapping/int_mapper/int_iii.h"
@@ -67,6 +69,10 @@ std::unique_ptr<Mapper> Mapper::create_from_config() {
         return std::make_unique<MapperBnnI>();
     case MappingMode::BNN_II:
         return std::make_unique<MapperBnnII>();
+    case MappingMode::BNN_III:
+        return std::make_unique<MapperBnnIII>();
+    case MappingMode::BNN_IV:
+        return std::make_unique<MapperBnnIV>();
     default:
         throw std::runtime_error("Mapper not implemented.");
     }
@@ -111,7 +117,7 @@ void Mapper::d_write_diff_bnn(const int32_t *mat, int32_t m_matrix,
                 gd_p_[m][n] = 0;
                 gd_m_[m][n] = -mat_val;
             } else {
-                throw std::runtime_error("BNN_I value is not +1 or -1.");
+                throw std::runtime_error("BNN weigth is neither +1 nor -1.");
             }
         }
         sum_w_[m] = sum_n;
@@ -159,6 +165,16 @@ void Mapper::a_write_p(int32_t m_matrix, int32_t n_matrix) {
     float hrs = CFG.HRS;
     for (size_t m = 0; m < m_matrix * num_segments_; ++m) {
         float step = i_step_size_[m % num_segments_];
+        for (size_t n = 0; n < n_matrix; ++n) {
+            ia_p_[m][n] = gd_p_[m][n] * step + hrs;
+        }
+    }
+}
+
+void Mapper::a_write_p_bnn(int32_t m_matrix, int32_t n_matrix) {
+    float hrs = CFG.HRS;
+    float step = CFG.LRS - hrs;
+    for (size_t m = 0; m < m_matrix; ++m) {
         for (size_t n = 0; n < n_matrix; ++n) {
             ia_p_[m][n] = gd_p_[m][n] * step + hrs;
         }

@@ -22,7 +22,9 @@ enum class MappingMode { // Mapping modes for inputs/weights as signed
                    // mode
     I_UINT_W_OFFS, // Inputs are already positive-only. Weights use an offset
     BNN_I,
-    BNN_II
+    BNN_II,
+    BNN_III,
+    BNN_IV
 };
 
 static std::string m_mode_to_string(MappingMode mode) {
@@ -43,6 +45,10 @@ static std::string m_mode_to_string(MappingMode mode) {
         return "BNN_I";
     case MappingMode::BNN_II:
         return "BNN_II";
+    case MappingMode::BNN_III:
+        return "BNN_III";
+    case MappingMode::BNN_IV:
+        return "BNN_IV";
     default:
         return "Unknown mode";
     }

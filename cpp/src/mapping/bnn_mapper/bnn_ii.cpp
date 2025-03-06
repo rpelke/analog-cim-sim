@@ -12,7 +12,7 @@ namespace nq {
 
 MapperBnnII::MapperBnnII() : Mapper(true) {
     if (CFG.SPLIT.size() != 1) {
-        throw std::runtime_error("BNN_I needs a split size of 1.");
+        throw std::runtime_error("BNN_II needs a split size of 1.");
     }
 }
 

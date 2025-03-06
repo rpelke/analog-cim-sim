@@ -16,14 +16,7 @@ PosADC::PosADC() :
     step_size_((max_adc_curr_ * CFG.alpha) /
                ((std::pow(2, CFG.resolution)) - 1)) {}
 
-float PosADC::get_max_curr() const {
-    if (CFG.m_mode == MappingMode::I_UINT_W_OFFS) {
-        return CFG.N * CFG.LRS;
-    } else {
-        throw std::runtime_error(
-            "PosADC should be used with I_UINT_W_OFFS mapping.");
-    }
-}
+float PosADC::get_max_curr() const { return CFG.N * CFG.LRS; }
 
 float PosADC::get_min_curr() const { return 0.0; }
 

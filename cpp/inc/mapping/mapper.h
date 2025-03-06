@@ -39,6 +39,7 @@ class Mapper {
     void a_write_p_m(int32_t m_matrix, int32_t n_matrix);
     void a_write_p_m_bnn(int32_t m_matrix, int32_t n_matrix);
     void a_write_p(int32_t m_matrix, int32_t n_matrix);
+    void a_write_p_bnn(int32_t m_matrix, int32_t n_matrix);
 
     bool is_diff_weight_mapping_;
 
