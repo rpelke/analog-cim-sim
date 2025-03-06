@@ -34,11 +34,9 @@ void MapperBnnV::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 
     for (size_t n = 0; n < n_matrix; ++n) {
         if (vec[n] == +1) {
-            vd_p[n] = vec[n];
-            vd_m[n] = 0;
+            vd_p[n] = 1;
         } else if (vec[n] == -1) {
-            vd_p[n] = 0;
-            vd_m[n] = -vec[n];
+            vd_m[n] = 1;
         } else {
             throw std::runtime_error("BNN input is neither +1 nor -1.");
         }
@@ -63,11 +61,9 @@ void MapperBnnV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 
     for (size_t n = 0; n < n_matrix; ++n) {
         if (vec[n] == +1) {
-            vd_p[n] = vec[n];
-            vd_m[n] = 0;
+            vd_p[n] = 1;
         } else if (vec[n] == -1) {
-            vd_p[n] = 0;
-            vd_m[n] = -vec[n];
+            vd_m[n] = 1;
         } else {
             throw std::runtime_error("BNN input is neither +1 nor -1.");
         }

@@ -48,8 +48,6 @@ void MapperBnnII::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 
 void MapperBnnII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                         int32_t m_matrix, int32_t n_matrix) {
-    const std::vector<uint32_t> &split = CFG.SPLIT;
-
     std::vector<float> tmp_out(m_matrix, 0);
     std::vector<int32_t> vd(n_matrix, 0);
 

@@ -94,6 +94,8 @@ bool Config::load_cfg(const char *cfg_file = "") {
         m_mode = MappingMode::BNN_IV;
     } else if (m_mode_name == "BNN_V") {
         m_mode = MappingMode::BNN_V;
+    } else if (m_mode_name == "BNN_VI") {
+        m_mode = MappingMode::BNN_VI;
     } else {
         std::cerr << "Unkown MappingMode." << std::endl;
         abort();
@@ -114,11 +116,13 @@ bool Config::load_cfg(const char *cfg_file = "") {
                (m_mode == MappingMode::I_TC_W_DIFF) ||
                (m_mode == MappingMode::I_UINT_W_DIFF) ||
                (m_mode == MappingMode::BNN_I) ||
-               (m_mode == MappingMode::BNN_II)) {
+               (m_mode == MappingMode::BNN_II) ||
+               (m_mode == MappingMode::BNN_VI)) {
         if (!((adc_type == ADCType::INF_ADC) ||
               (adc_type == ADCType::SYM_RANGE_ADC))) {
             std::cerr << "I_DIFF_W_DIFF_1XB, I_DIFF_W_DIFF_2XB, I_TC_W_DIFF, "
-                         "I_TC_W_DIFF, I_UINT_W_DIFF, BNN_I need INF_ADC or "
+                         "I_TC_W_DIFF, I_UINT_W_DIFF, BNN_I, BNN_II, BNN_VI "
+                         "need INF_ADC or "
                          "SYM_RANGE_ADC."
                       << std::endl;
             abort();

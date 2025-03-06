@@ -147,6 +147,18 @@ class TestDigitalMapping(unittest.TestCase):
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
         np.testing.assert_array_equal(res, np.array([2, -2, 0], dtype=np.int32))
 
+    def test_bnn_vi(self):
+        m_matrix = 3
+        n_matrix = 2
+        mat = np.array([1, 1, -1, -1, 1, -1], dtype=np.int32)
+        vec = np.array([1, 1], dtype=np.int32)
+        res = np.array([0, 0, 0], dtype=np.int32)
+
+        acs_int.set_config(os.path.abspath("int-bindings/test/configs/digital/BNN_VI.json"))
+        acs_int.cpy(mat, m_matrix, n_matrix)
+        acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+        np.testing.assert_array_equal(res, np.array([2, -2, 0], dtype=np.int32))
+
 
 if __name__ == "__main__":
     unittest.main()
