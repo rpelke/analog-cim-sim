@@ -10,14 +10,21 @@ add_subdirectory(googletest EXCLUDE_FROM_ALL)
 get_target_property(cb_emu_lib_path acs_cb_emu BINARY_DIR)
 set(ld_library_path "${cb_emu_lib_path}")
 
+option(USE_STDCXXFS "Use stdc++fs for older GCC versions" OFF)
+
 function(add_library_test TEST_NAME SOURCE_FILE CFG_DIR)
     include_directories(inc)
     add_executable(${TEST_NAME} ${SOURCE_FILE})
-    target_link_libraries(${TEST_NAME}
+    target_link_libraries(${TEST_NAME} PRIVATE
         gtest
         gtest_main
         dl
     )
+
+    if (USE_STDCXXFS)
+        target_link_libraries(${TEST_NAME} PRIVATE stdc++fs)
+    endif()
+
     enable_testing()
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
     set_tests_properties(${TEST_NAME}
