@@ -64,7 +64,8 @@ extern "C" int32_t exe_mvm_pb(pybind11::array_t<int32_t> res,
 }
 
 extern "C" EXPORT_API int32_t cpy_mtrx(int32_t *mat, int32_t m_matrix,
-                                       int32_t n_matrix) {
+                                       int32_t n_matrix,
+                                       const char *l_name = "Unkown") {
     if (xbar == nullptr) {
         std::cerr << "Error: Crossbar is not initialized. Please call "
                      "set_config() first."
