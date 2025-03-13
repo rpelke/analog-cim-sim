@@ -28,6 +28,13 @@ class MapperIntI : public Mapper {
                int32_t m_matrix, int32_t n_matrix) override;
     void a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                int32_t m_matrix, int32_t n_matrix) override;
+
+  private:
+    // Temporary data for MVM
+    std::vector<int32_t> vd_p_;
+    std::vector<int32_t> vd_m_;
+    std::vector<int32_t> tmp_out_int_;
+    std::vector<float> tmp_out_fp_;
 };
 
 } // namespace nq

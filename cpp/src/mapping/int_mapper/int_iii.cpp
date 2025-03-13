@@ -10,7 +10,9 @@
 
 namespace nq {
 
-MapperIntIII::MapperIntIII() : Mapper(true) {}
+MapperIntIII::MapperIntIII() :
+    vd_p_(CFG.N, 0), tmp_out_int_(CFG.M * CFG.SPLIT.size(), 0),
+    tmp_out_fp_(CFG.M * CFG.SPLIT.size(), 0.0), Mapper(true) {}
 
 MapperIntIII::~MapperIntIII() {}
 
@@ -31,35 +33,34 @@ void MapperIntIII::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     // as two's complement
     const std::vector<uint32_t> &split = CFG.SPLIT;
     const uint32_t tmp_size = m_matrix * split.size();
-    std::vector<int32_t> tmp_out(tmp_size, 0);
-    std::vector<int32_t> vd_p(n_matrix, 0);
+    std::fill(tmp_out_int_.begin(), tmp_out_int_.end(), 0);
 
     // Use positive part only
     uint32_t mask = (1 << (CFG.I_BIT - 1)) - 1; // mask(8) = 0b01111111
     for (size_t n = 0; n < n_matrix; ++n) {
-        vd_p[n] = mask & vec[n];
+        vd_p_[n] = mask & vec[n];
     }
     for (size_t t_m = 0; t_m < tmp_size; ++t_m) {
         for (size_t n = 0; n < n_matrix; ++n) {
-            tmp_out[t_m] += (gd_p_[t_m][n] - gd_m_[t_m][n]) * vd_p[n];
+            tmp_out_int_[t_m] += (gd_p_[t_m][n] - gd_m_[t_m][n]) * vd_p_[n];
         }
     }
 
     // Use negative part (MSB of input)
     mask = 1 << (CFG.I_BIT - 1); // mask(8) = 0b10000000
     for (size_t n = 0; n < n_matrix; ++n) {
-        vd_p[n] = mask & vec[n];
+        vd_p_[n] = mask & vec[n];
     }
     for (size_t t_m = 0; t_m < tmp_size; ++t_m) {
         for (size_t n = 0; n < n_matrix; ++n) {
-            tmp_out[t_m] -= (gd_p_[t_m][n] - gd_m_[t_m][n]) * vd_p[n];
+            tmp_out_int_[t_m] -= (gd_p_[t_m][n] - gd_m_[t_m][n]) * vd_p_[n];
         }
     }
 
     // Add sums caused by splitted weights
     for (size_t m = 0; m < m_matrix; ++m) {
         for (size_t s = 0; s < split.size(); ++s) {
-            res[m] += tmp_out[m * split.size() + s] << shift_[s];
+            res[m] += tmp_out_int_[m * split.size() + s] << shift_[s];
         }
     }
 }
@@ -71,7 +72,7 @@ void MapperIntIII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     // (ia_m_).
     const std::vector<uint32_t> &split = CFG.SPLIT;
     const uint32_t tmp_size = m_matrix * split.size();
-    std::vector<float> tmp_out(tmp_size, 0);
+    std::fill(tmp_out_fp_.begin(), tmp_out_fp_.end(), 0.0);
 
     // For each bit in vec execute one MVM operation with ia_p_ and one with
     // ia_m_ Execute all multiplications with all positive interpreted inputs
@@ -80,7 +81,7 @@ void MapperIntIII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         // Calculcate multiplications with negative and positive weights
         for (size_t t_m = 0; t_m < tmp_size; ++t_m) {
             for (size_t n = 0; n < n_matrix; ++n) {
-                tmp_out[t_m] +=
+                tmp_out_fp_[t_m] +=
                     (ia_p_[t_m][n] - ia_m_[t_m][n]) * ((vec[n] >> i_bit) & 1);
             }
         }
@@ -90,30 +91,31 @@ void MapperIntIII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
             for (size_t s = 0; s < split.size(); ++s) {
                 res[m] += static_cast<int32_t>(
                     round(adc_->analog_digital_conversion(
-                              tmp_out[m * split.size() + s]) /
+                              tmp_out_fp_[m * split.size() + s]) /
                           i_step_size_[s] * std::pow(2, shift_[s]) *
                           std::pow(2, i_bit)));
             }
         }
 
         // Reset tmp_out vector
-        std::fill(tmp_out.begin(), tmp_out.end(), 0);
+        std::fill(tmp_out_fp_.begin(), tmp_out_fp_.end(), 0);
     }
 
     // Execute "negative MVM" for the sign bit of vec at pos CFG.I_BIT - 1
     for (size_t t_m = 0; t_m < tmp_size; ++t_m) {
         for (size_t n = 0; n < n_matrix; ++n) {
-            tmp_out[t_m] += (ia_p_[t_m][n] - ia_m_[t_m][n]) *
-                            ((vec[n] >> (CFG.I_BIT - 1)) & 1);
+            tmp_out_fp_[t_m] += (ia_p_[t_m][n] - ia_m_[t_m][n]) *
+                                ((vec[n] >> (CFG.I_BIT - 1)) & 1);
         }
     }
     // Addition of the partial results caused by splitted weights
     for (size_t m = 0; m < m_matrix; ++m) {
         for (size_t s = 0; s < split.size(); ++s) {
-            res[m] -= static_cast<int32_t>(round(
-                adc_->analog_digital_conversion(tmp_out[m * split.size() + s]) /
-                i_step_size_[s] * std::pow(2, shift_[s]) *
-                std::pow(2, CFG.I_BIT - 1)));
+            res[m] -= static_cast<int32_t>(
+                round(adc_->analog_digital_conversion(
+                          tmp_out_fp_[m * split.size() + s]) /
+                      i_step_size_[s] * std::pow(2, shift_[s]) *
+                      std::pow(2, CFG.I_BIT - 1)));
         }
     }
 }

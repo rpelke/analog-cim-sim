@@ -31,6 +31,10 @@ class MapperIntV : public Mapper {
 
   private:
     float delta_;
+    // Temporary data for MVM
+    std::vector<int32_t> tmp_out_int_;
+    std::vector<float> tmp_out_fp_;
+    std::vector<float> res_fp_;
 };
 
 } // namespace nq
