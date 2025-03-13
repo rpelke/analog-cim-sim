@@ -10,7 +10,7 @@
 
 namespace nq {
 
-MapperBnnI::MapperBnnI() : Mapper(true) {
+MapperBnnI::MapperBnnI() : vd_(CFG.N, 0), tmp_out_(CFG.M, 0.0), Mapper(true) {
     if (CFG.SPLIT.size() != 1) {
         throw std::runtime_error("BNN_I needs a split size of 1.");
     }
@@ -29,15 +29,13 @@ void MapperBnnI::a_write(int32_t m_matrix, int32_t n_matrix) {
 
 void MapperBnnI::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                        int32_t m_matrix, int32_t n_matrix) {
-    std::vector<int32_t> vd(n_matrix, 0);
-
     for (size_t n = 0; n < n_matrix; ++n) {
-        vd[n] = (vec[n] + 1) >> 1;
+        vd_[n] = (vec[n] + 1) >> 1;
     }
 
     for (size_t m = 0; m < m_matrix; ++m) {
         for (size_t n = 0; n < n_matrix; ++n) {
-            res[m] += ((gd_p_[m][n] - gd_m_[m][n]) * vd[n]) * 2;
+            res[m] += ((gd_p_[m][n] - gd_m_[m][n]) * vd_[n]) * 2;
         }
     }
 
@@ -48,22 +46,21 @@ void MapperBnnI::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 
 void MapperBnnI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                        int32_t m_matrix, int32_t n_matrix) {
-    std::vector<float> tmp_out(m_matrix, 0);
-    std::vector<int32_t> vd(n_matrix, 0);
+    std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
 
     for (size_t n = 0; n < n_matrix; ++n) {
-        vd[n] = (vec[n] + 1) >> 1;
+        vd_[n] = (vec[n] + 1) >> 1;
     }
 
     for (size_t m = 0; m < m_matrix; ++m) {
         for (size_t n = 0; n < n_matrix; ++n) {
-            tmp_out[m] += (ia_p_[m][n] - ia_m_[m][n]) * vd[n];
+            tmp_out_[m] += (ia_p_[m][n] - ia_m_[m][n]) * vd_[n];
         }
     }
 
     for (size_t m = 0; m < m_matrix; ++m) {
         res[m] +=
-            round(adc_->analog_digital_conversion(tmp_out[m]) * 2 / i_mm_) -
+            round(adc_->analog_digital_conversion(tmp_out_[m]) * 2 / i_mm_) -
             sum_w_[m];
     }
 }
