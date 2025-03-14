@@ -80,7 +80,8 @@ std::unique_ptr<Mapper> Mapper::create_from_config() {
     case MappingMode::BNN_VI:
         return std::make_unique<MapperBnnVI>();
     default:
-        throw std::runtime_error("Mapper not implemented.");
+        std::cerr << "Mapper not implemented.";
+        abort();
     }
 }
 
@@ -123,7 +124,8 @@ void Mapper::d_write_diff_bnn(const int32_t *mat, int32_t m_matrix,
                 gd_p_[m][n] = 0;
                 gd_m_[m][n] = -mat_val;
             } else {
-                throw std::runtime_error("BNN weigth is neither +1 nor -1.");
+                std::cerr << "BNN weigth is neither +1 nor -1.";
+                abort();
             }
         }
         sum_w_[m] = sum_n;

@@ -13,7 +13,8 @@ namespace nq {
 MapperBnnV::MapperBnnV() :
     vd_p_(CFG.N, 0), vd_m_(CFG.N, 0), tmp_out_(CFG.M, 0.0), Mapper(false) {
     if (CFG.SPLIT.size() != 1) {
-        throw std::runtime_error("BNN_V needs a split size of 1.");
+        std::cerr << "BNN_V needs a split size of 1.";
+        abort();
     }
 }
 
@@ -38,7 +39,8 @@ void MapperBnnV::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
             vd_m_[n] = 1;
             vd_p_[n] = 0;
         } else {
-            throw std::runtime_error("BNN input is neither +1 nor -1.");
+            std::cerr << "BNN input is neither +1 nor -1.";
+            abort();
         }
     }
 
@@ -62,7 +64,8 @@ void MapperBnnV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
             vd_m_[n] = 1;
             vd_p_[n] = 0;
         } else {
-            throw std::runtime_error("BNN input is neither +1 nor -1.");
+            std::cerr << "BNN input is neither +1 nor -1.";
+            abort();
         }
     }
 

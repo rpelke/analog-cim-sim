@@ -24,17 +24,18 @@ bool Config::load_cfg(const char *cfg_file = "") {
         if (cfg_file == nullptr) {
             return false;
         }
-        std::cout << "Load config from " << cfg_file << std::endl;
         std::ifstream file_stream(cfg_file);
         if (!file_stream.is_open()) {
-            throw std::runtime_error("Could not open config file!");
+            std::cerr << "Could not open config file!";
+            abort();
         }
         file_stream >> cfg_data_;
         file_stream.close();
     } else {
         std::ifstream file_stream(cfg_file);
         if (!file_stream.is_open()) {
-            throw std::runtime_error("Could not open config file!");
+            std::cerr << "Could not open config file!";
+            abort();
         }
         file_stream >> cfg_data_;
         file_stream.close();
@@ -106,9 +107,10 @@ bool Config::load_cfg(const char *cfg_file = "") {
         (m_mode == MappingMode::BNN_V)) {
         if (!((adc_type == ADCType::INF_ADC) ||
               (adc_type == ADCType::POS_RANGE_ONLY_ADC))) {
-            throw std::runtime_error(
-                "I_UINT_W_OFFS, BNN_III, BNN_IV, BNN_V needs "
-                "INF_ADC or POS_RANGE_ONLY_ADC.");
+            std::cerr << "I_UINT_W_OFFS, BNN_III, BNN_IV, BNN_V needs "
+                         "INF_ADC or POS_RANGE_ONLY_ADC."
+                      << std::endl;
+            abort();
         }
     } else if ((m_mode == MappingMode::I_DIFF_W_DIFF_1XB) ||
                (m_mode == MappingMode::I_DIFF_W_DIFF_2XB) ||

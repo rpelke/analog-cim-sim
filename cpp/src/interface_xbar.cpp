@@ -23,9 +23,7 @@ std::unique_ptr<nq::Crossbar> xbar =
     (cfg_loaded) ? std::make_unique<nq::Crossbar>() : nullptr;
 
 extern "C" EXPORT_API void set_config(const char *cfg_file) {
-    if (xbar != nullptr) {
-        xbar = nullptr;
-    }
+    xbar = nullptr;
     nq::Config::get_cfg().load_cfg(cfg_file);
     xbar = std::make_unique<nq::Crossbar>();
 }
