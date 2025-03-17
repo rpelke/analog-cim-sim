@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake python3.8-dev
+          sudo apt-get install -y cmake python3.8-dev gdb
 
       - name: Setup python
         uses: actions/setup-python@v4
@@ -56,4 +56,4 @@ jobs:
       - name: Execute tests
         run: |
           source .venv/bin/activate
-          python -m unittest discover -s int-bindings/test -p '*_test.py'
+          gdb --batch --ex="run" --ex="bt" --ex="quit" --args python3 -m unittest discover -s int-bindings/test -p '*_test.py'

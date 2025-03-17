@@ -35,6 +35,11 @@ make install
 ```
 
 Execute the tests:
-```Python
+```bash
 python3 -m unittest discover -s int-bindings/test -p '*_test.py'
+```
+
+To detect segmentation faults in the C++ part, you can also run:
+```bash
+gdb --batch --ex="run" --ex="bt" --ex="quit" --args python3 -m unittest discover -s int-bindings/test -p '*_test.py'
 ```
