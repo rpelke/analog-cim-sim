@@ -18,6 +18,17 @@ Config &Config::get_cfg() {
     return instance;
 }
 
+template <typename T>
+T getConfigValue(const nlohmann::json &cfg, const std::string &key) {
+    try {
+        return cfg.at(key).get<T>();
+    } catch (const std::exception &e) {
+        std::cerr << "Missing/faulty parameter: '" << key << "' in config."
+                  << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+}
+
 bool Config::load_cfg(const char *cfg_file = "") {
     if (strcmp(cfg_file, "") == 0) {
         const char *cfg_file = std::getenv("CFG_FILE");
@@ -27,7 +38,7 @@ bool Config::load_cfg(const char *cfg_file = "") {
         std::ifstream file_stream(cfg_file);
         if (!file_stream.is_open()) {
             std::cerr << "Could not open config file!";
-            abort();
+            std::exit(EXIT_FAILURE);
         }
         file_stream >> cfg_data_;
         file_stream.close();
@@ -35,28 +46,29 @@ bool Config::load_cfg(const char *cfg_file = "") {
         std::ifstream file_stream(cfg_file);
         if (!file_stream.is_open()) {
             std::cerr << "Could not open config file!";
-            abort();
+            std::exit(EXIT_FAILURE);
         }
         file_stream >> cfg_data_;
         file_stream.close();
     }
 
-    M = cfg_data_["M"];
-    N = cfg_data_["N"];
-    SPLIT = cfg_data_["SPLIT"].get<std::vector<uint32_t>>();
-    W_BIT = cfg_data_["W_BIT"];
-    I_BIT = cfg_data_["I_BIT"];
-    digital_only = cfg_data_["digital_only"];
-    HRS = cfg_data_["HRS"];
-    LRS = cfg_data_["LRS"];
+    M = getConfigValue<uint32_t>(cfg_data_, "M");
+    N = getConfigValue<uint32_t>(cfg_data_, "N");
+    W_BIT = getConfigValue<uint32_t>(cfg_data_, "W_BIT");
+    I_BIT = getConfigValue<uint32_t>(cfg_data_, "I_BIT");
+    digital_only = getConfigValue<bool>(cfg_data_, "digital_only");
+    HRS = getConfigValue<float>(cfg_data_, "HRS");
+    LRS = getConfigValue<float>(cfg_data_, "LRS");
+    SPLIT = getConfigValue<std::vector<uint32_t>>(cfg_data_, "SPLIT");
 
     if ((M <= 0) || (N <= 0) || (W_BIT <= 0) || (I_BIT <= 0) || (HRS <= 0.0) ||
         (LRS <= 0.0)) {
         std::cerr << "Error in config parameters." << std::endl;
-        abort();
+        std::exit(EXIT_FAILURE);
     }
 
-    std::string adc_type_name = cfg_data_["adc_type"].get<std::string>();
+    std::string adc_type_name =
+        getConfigValue<std::string>(cfg_data_, "adc_type");
     if (adc_type_name == "INF_ADC") {
         adc_type = ADCType::INF_ADC;
     } else if (adc_type_name == "SYM_RANGE_ADC") {
@@ -65,14 +77,20 @@ bool Config::load_cfg(const char *cfg_file = "") {
         adc_type = ADCType::POS_RANGE_ONLY_ADC;
     } else {
         std::cerr << "Unkown ADC type." << std::endl;
-        abort();
+        std::exit(EXIT_FAILURE);
     }
 
-    alpha = cfg_data_["alpha"];
-    resolution = cfg_data_["resolution"];
-    verbose = cfg_data_["verbose"];
+    try {
+        alpha = cfg_data_["alpha"];
+    } catch (const std::exception &e) {
+        std::cerr << "Missing/faulty alpha parameter in config." << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
 
-    std::string m_mode_name = cfg_data_["m_mode"].get<std::string>();
+    resolution = getConfigValue<uint32_t>(cfg_data_, "resolution");
+    verbose = getConfigValue<bool>(cfg_data_, "verbose");
+
+    std::string m_mode_name = getConfigValue<std::string>(cfg_data_, "m_mode");
     if (m_mode_name == "I_DIFF_W_DIFF_1XB") {
         m_mode = MappingMode::I_DIFF_W_DIFF_1XB;
     } else if (m_mode_name == "I_DIFF_W_DIFF_2XB") {
@@ -99,7 +117,7 @@ bool Config::load_cfg(const char *cfg_file = "") {
         m_mode = MappingMode::BNN_VI;
     } else {
         std::cerr << "Unkown MappingMode." << std::endl;
-        abort();
+        std::exit(EXIT_FAILURE);
     }
 
     if ((m_mode == MappingMode::I_UINT_W_OFFS) ||
@@ -110,7 +128,7 @@ bool Config::load_cfg(const char *cfg_file = "") {
             std::cerr << "I_UINT_W_OFFS, BNN_III, BNN_IV, BNN_V needs "
                          "INF_ADC or POS_RANGE_ONLY_ADC."
                       << std::endl;
-            abort();
+            std::exit(EXIT_FAILURE);
         }
     } else if ((m_mode == MappingMode::I_DIFF_W_DIFF_1XB) ||
                (m_mode == MappingMode::I_DIFF_W_DIFF_2XB) ||
@@ -127,11 +145,17 @@ bool Config::load_cfg(const char *cfg_file = "") {
                          "need INF_ADC or "
                          "SYM_RANGE_ADC."
                       << std::endl;
-            abort();
+            std::exit(EXIT_FAILURE);
         }
     } else {
         std::cerr << "Unkown MappingMode." << std::endl;
-        abort();
+        std::exit(EXIT_FAILURE);
+    }
+
+    // Noise of a state is modeles as a Gaussian noise with mean 0
+    // The standard deviation is NOISE
+    if (!digital_only) {
+        NOISE = getConfigValue<float>(cfg_data_, "NOISE");
     }
 
     return true;

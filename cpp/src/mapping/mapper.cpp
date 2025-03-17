@@ -18,6 +18,8 @@
 #include "mapping/int_mapper/int_iii.h"
 #include "mapping/int_mapper/int_iv.h"
 #include "mapping/int_mapper/int_v.h"
+#include <algorithm>
+#include <random>
 
 namespace nq {
 
@@ -152,8 +154,8 @@ void Mapper::a_write_p_m(int32_t m_matrix, int32_t n_matrix) {
     for (size_t m = 0; m < m_matrix * num_segments_; ++m) {
         float step = i_step_size_[m % num_segments_];
         for (size_t n = 0; n < n_matrix; ++n) {
-            ia_p_[m][n] = gd_p_[m][n] * step + hrs;
-            ia_m_[m][n] = gd_m_[m][n] * step + hrs;
+            ia_p_[m][n] = add_gaussian_noise(gd_p_[m][n] * step + hrs);
+            ia_m_[m][n] = add_gaussian_noise(gd_m_[m][n] * step + hrs);
         }
     }
 }
@@ -163,8 +165,8 @@ void Mapper::a_write_p_m_bnn(int32_t m_matrix, int32_t n_matrix) {
     float step = CFG.LRS - hrs;
     for (size_t m = 0; m < m_matrix; ++m) {
         for (size_t n = 0; n < n_matrix; ++n) {
-            ia_p_[m][n] = gd_p_[m][n] * step + hrs;
-            ia_m_[m][n] = gd_m_[m][n] * step + hrs;
+            ia_p_[m][n] = add_gaussian_noise(gd_p_[m][n] * step + hrs);
+            ia_m_[m][n] = add_gaussian_noise(gd_m_[m][n] * step + hrs);
         }
     }
 }
@@ -174,7 +176,7 @@ void Mapper::a_write_p(int32_t m_matrix, int32_t n_matrix) {
     for (size_t m = 0; m < m_matrix * num_segments_; ++m) {
         float step = i_step_size_[m % num_segments_];
         for (size_t n = 0; n < n_matrix; ++n) {
-            ia_p_[m][n] = gd_p_[m][n] * step + hrs;
+            ia_p_[m][n] = add_gaussian_noise(gd_p_[m][n] * step + hrs);
         }
     }
 }
@@ -184,9 +186,19 @@ void Mapper::a_write_p_bnn(int32_t m_matrix, int32_t n_matrix) {
     float step = CFG.LRS - hrs;
     for (size_t m = 0; m < m_matrix; ++m) {
         for (size_t n = 0; n < n_matrix; ++n) {
-            ia_p_[m][n] = gd_p_[m][n] * step + hrs;
+            ia_p_[m][n] = add_gaussian_noise(gd_p_[m][n] * step + hrs);
         }
     }
+}
+
+// Add Gaussian noise to a given state (current in uA)
+// Gaussian noise has mean of 0 and standard deviation of stddev
+// Current cannot be negative
+float Mapper::add_gaussian_noise(float state) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::normal_distribution<float> dist(0, CFG.NOISE);
+    return std::max(state + dist(gen), 0.0f);
 }
 
 } // namespace nq

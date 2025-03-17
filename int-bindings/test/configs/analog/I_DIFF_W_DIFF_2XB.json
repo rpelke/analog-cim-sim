@@ -11,5 +11,6 @@
     "alpha": 1.0,
     "resolution": 20,
     "m_mode": "I_DIFF_W_DIFF_2XB",
+    "NOISE": 0.0,
     "verbose": false
 }

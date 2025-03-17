@@ -13,5 +13,6 @@
     "alpha": 1.0,
     "resolution": 8,
     "m_mode": "I_OFFS_W_DIFF",
+    "NOISE": 0.0,
     "verbose": false
 }

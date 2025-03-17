@@ -56,6 +56,9 @@ class Mapper {
     int num_segments_;
     float i_mm_;
     const std::unique_ptr<ADC> adc_;
+
+  private:
+    float add_gaussian_noise(float mean);
 };
 
 } // namespace nq

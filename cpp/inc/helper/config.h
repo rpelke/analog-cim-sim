@@ -48,6 +48,7 @@ class Config {
     uint32_t resolution;
     MappingMode m_mode;
     bool verbose;
+    float NOISE;
 
   private:
     Config();

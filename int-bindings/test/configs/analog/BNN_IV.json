@@ -11,5 +11,6 @@
     "alpha": 1.0,
     "resolution": 20,
     "m_mode": "BNN_IV",
+    "NOISE": 0.0,
     "verbose": false
 }
