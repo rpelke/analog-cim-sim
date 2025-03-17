@@ -16,8 +16,10 @@ function(add_library_test TEST_NAME SOURCE_FILE CFG_DIR)
     include_directories(inc)
     add_executable(${TEST_NAME} ${SOURCE_FILE})
     target_link_libraries(${TEST_NAME} PRIVATE
+        acs_int
         gtest
         gtest_main
+        gmock
         dl
     )
 

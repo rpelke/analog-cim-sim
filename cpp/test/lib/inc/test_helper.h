@@ -15,11 +15,16 @@
 #include <iostream>
 #include <string>
 
-void set_cfg_file_env(const char *file_name) {
+std::string get_cfg_file(const char *file_name, bool digital) {
     const char *cfg_dir = std::getenv("CFG_DIR_TESTS");
     EXPECT_NE(cfg_dir, nullptr) << "CFG_DIR_TESTS is not set.";
-    std::string cfg_file = std::string(cfg_dir) + "/analog/" + file_name;
-    setenv("CFG_FILE", cfg_file.c_str(), 1);
+    if (digital) {
+        std::string cfg_file = std::string(cfg_dir) + "/digital/" + file_name;
+        return cfg_file;
+    } else {
+        std::string cfg_file = std::string(cfg_dir) + "/analog/" + file_name;
+        return cfg_file;
+    }
 }
 
 std::string findLibraryWithPrefix(const std::string &prefix,
