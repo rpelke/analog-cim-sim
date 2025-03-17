@@ -37,8 +37,8 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
         curr_w_bit -= CFG.SPLIT[i];
     }
 
+    num_segments_ = CFG.SPLIT.size();
     if (!CFG.digital_only) {
-        num_segments_ = CFG.SPLIT.size();
         i_mm_ = CFG.LRS - CFG.HRS;
     }
 
