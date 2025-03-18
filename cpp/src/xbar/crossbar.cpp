@@ -84,7 +84,7 @@ Crossbar::~Crossbar() {
             break;
         default:
             std::cerr << "Unknown mode encountered!" << std::endl;
-            std::abort();
+            std::exit(EXIT_FAILURE);
         }
 
         std::cout << "num_write: " << num_write << std::endl;
@@ -92,6 +92,22 @@ Crossbar::~Crossbar() {
         std::cout << "num_mvm_sequential: " << num_mvm_sequential << std::endl;
         std::cout << "cells_per_value: " << cells_per_value << std::endl;
     }
+}
+
+const std::vector<std::vector<int32_t>> &Crossbar::get_gd_p() const {
+    return mapper_->get_gd_p();
+}
+
+const std::vector<std::vector<int32_t>> &Crossbar::get_gd_m() const {
+    return mapper_->get_gd_m();
+}
+
+const std::vector<std::vector<float>> &Crossbar::get_ia_p() const {
+    return mapper_->get_ia_p();
+}
+
+const std::vector<std::vector<float>> &Crossbar::get_ia_m() const {
+    return mapper_->get_ia_m();
 }
 
 } // namespace nq

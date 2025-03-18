@@ -5,7 +5,6 @@
  * This is work is licensed under the terms described in the LICENSE file     *
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
-#include "inc/test_helper.h"
 #include <cstdlib>
 #include <dlfcn.h>
 #include <filesystem>
@@ -13,15 +12,13 @@
 #include <gtest/gtest.h>
 #include <string>
 
-extern "C" {
-int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat, int32_t m_matrix,
-                int32_t n_matrix);
-int32_t cpy_mtrx(int32_t *mat, int32_t m_matrix, int32_t n_matrix,
-                 const char *l_name = "Unkown");
-void set_config(const char *cfg_file);
-}
+#include "inc/test_helper.h"
 
 const bool digital[2] = {false, true};
+
+std::string digital_to_foldername(const bool digital) {
+    return digital ? "digital/" : "analog/";
+}
 
 TEST(INTLibTests, I_DIFF_W_DIFF_1XB) {
     const int32_t m_matrix = 3;
@@ -30,7 +27,8 @@ TEST(INTLibTests, I_DIFF_W_DIFF_1XB) {
     int32_t mat[m_matrix * m_matrix] = {100, -32, 1, 0, 12, 1};
 
     for (bool d : digital) {
-        std::string cfg = get_cfg_file("I_DIFF_W_DIFF_1XB.json", d);
+        std::string cfg =
+            get_cfg_file(digital_to_foldername(d) + "I_DIFF_W_DIFF_1XB.json");
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
@@ -48,7 +46,8 @@ TEST(INTLibTests, I_DIFF_W_DIFF_2XB) {
     int32_t mat[m_matrix * m_matrix] = {100, -32, 1, 0, 12, 1};
 
     for (bool d : digital) {
-        std::string cfg = get_cfg_file("I_DIFF_W_DIFF_2XB.json", d);
+        std::string cfg =
+            get_cfg_file(digital_to_foldername(d) + "I_DIFF_W_DIFF_2XB.json");
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
@@ -66,7 +65,8 @@ TEST(INTLibTests, I_OFFS_W_DIFF) {
     int32_t mat[m_matrix * m_matrix] = {100, -32, 1, 0, 12, 1};
 
     for (bool d : digital) {
-        std::string cfg = get_cfg_file("I_OFFS_W_DIFF.json", d);
+        std::string cfg =
+            get_cfg_file(digital_to_foldername(d) + "I_OFFS_W_DIFF.json");
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
@@ -84,7 +84,8 @@ TEST(INTLibTests, I_TC_W_DIFF) {
     int32_t mat[m_matrix * m_matrix] = {100, -32, 1, 0, 12, 1};
 
     for (bool d : digital) {
-        std::string cfg = get_cfg_file("I_TC_W_DIFF.json", d);
+        std::string cfg =
+            get_cfg_file(digital_to_foldername(d) + "I_TC_W_DIFF.json");
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
@@ -102,7 +103,8 @@ TEST(INTLibTests, I_UINT_W_DIFF) {
     int32_t mat[m_matrix * m_matrix] = {100, -32, 1, 0, -12, 1};
 
     for (bool d : digital) {
-        std::string cfg = get_cfg_file("I_UINT_W_DIFF.json", d);
+        std::string cfg =
+            get_cfg_file(digital_to_foldername(d) + "I_UINT_W_DIFF.json");
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
@@ -120,7 +122,8 @@ TEST(INTLibTests, I_UINT_W_OFFS) {
     int32_t mat[m_matrix * m_matrix] = {100, -32, 1, 0, -12, 1};
 
     for (bool d : digital) {
-        std::string cfg = get_cfg_file("I_UINT_W_OFFS.json", d);
+        std::string cfg =
+            get_cfg_file(digital_to_foldername(d) + "I_UINT_W_OFFS.json");
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
@@ -138,7 +141,7 @@ TEST(INTLibTests, BNN_I) {
     int32_t mat[m_matrix * m_matrix] = {1, 1, -1, -1, 1, -1};
 
     for (bool d : digital) {
-        std::string cfg = get_cfg_file("BNN_I.json", d);
+        std::string cfg = get_cfg_file(digital_to_foldername(d) + "BNN_I.json");
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
@@ -156,7 +159,8 @@ TEST(INTLibTests, BNN_II) {
     int32_t mat[m_matrix * m_matrix] = {1, 1, -1, -1, 1, -1};
 
     for (bool d : digital) {
-        std::string cfg = get_cfg_file("BNN_II.json", d);
+        std::string cfg =
+            get_cfg_file(digital_to_foldername(d) + "BNN_II.json");
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";

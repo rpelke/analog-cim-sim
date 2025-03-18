@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "adc/adc.h"
@@ -30,6 +31,10 @@ class Mapper {
     virtual void a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                        int32_t m_matrix, int32_t n_matrix) = 0;
     static std::unique_ptr<Mapper> create_from_config();
+    const std::vector<std::vector<int32_t>> &get_gd_p() const;
+    const std::vector<std::vector<int32_t>> &get_gd_m() const;
+    const std::vector<std::vector<float>> &get_ia_p() const;
+    const std::vector<std::vector<float>> &get_ia_m() const;
 
   protected:
     void d_write_diff(const int32_t *mat, int32_t m_matrix, int32_t n_matrix);
@@ -58,7 +63,10 @@ class Mapper {
     const std::unique_ptr<ADC> adc_;
 
   private:
+    // State variability
     float add_gaussian_noise(float mean);
+    std::normal_distribution<float> hrs_var_;
+    std::normal_distribution<float> lrs_var_;
 };
 
 } // namespace nq

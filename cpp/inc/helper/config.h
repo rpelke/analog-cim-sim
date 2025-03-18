@@ -33,7 +33,6 @@ class Config {
 
     static Config &get_cfg();
     bool load_cfg(const char *cfg_file);
-    std::unique_ptr<Mapper> get_mapper();
 
     uint32_t M;
     uint32_t N;
@@ -48,7 +47,8 @@ class Config {
     uint32_t resolution;
     MappingMode m_mode;
     bool verbose;
-    float NOISE;
+    float HRS_NOISE;
+    float LRS_NOISE;
 
   private:
     Config();

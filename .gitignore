@@ -6,7 +6,7 @@ build/
 # Config files
 *.json
 !cpp/test/lib/configs/*.json
-!int-bindings/test/configs/*/*.json
+!cpp/test/lib/configs/*/*.json
 
 # Python packages
 dist/*

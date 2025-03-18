@@ -12,7 +12,8 @@
     "adc_type": "SYM_RANGE_ADC",
     "alpha": 1.0,
     "resolution": 8,
-    "m_mode": "I_UINT_W_DIFF",
-    "NOISE": 0.0,
+    "m_mode": "I_TC_W_DIFF",
+    "HRS_NOISE": 0.0,
+    "LRS_NOISE": 0.0,
     "verbose": false
 }

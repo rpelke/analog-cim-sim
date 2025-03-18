@@ -18,8 +18,8 @@
 #include "mapping/int_mapper/int_iii.h"
 #include "mapping/int_mapper/int_iv.h"
 #include "mapping/int_mapper/int_v.h"
+
 #include <algorithm>
-#include <random>
 
 namespace nq {
 
@@ -42,6 +42,12 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
     num_segments_ = CFG.SPLIT.size();
     if (!CFG.digital_only) {
         i_mm_ = CFG.LRS - CFG.HRS;
+        std::random_device hrs_rd;
+        std::random_device lrs_rd;
+        std::mt19937 hrs_gen(hrs_rd());
+        std::mt19937 lrs_gen(lrs_rd());
+        hrs_var_ = std::normal_distribution<float>(0.0f, CFG.HRS_NOISE);
+        lrs_var_ = std::normal_distribution<float>(0.0f, CFG.LRS_NOISE);
     }
 
     if (is_diff_weight_mapping_) {
@@ -154,8 +160,8 @@ void Mapper::a_write_p_m(int32_t m_matrix, int32_t n_matrix) {
     for (size_t m = 0; m < m_matrix * num_segments_; ++m) {
         float step = i_step_size_[m % num_segments_];
         for (size_t n = 0; n < n_matrix; ++n) {
-            ia_p_[m][n] = add_gaussian_noise(gd_p_[m][n] * step + hrs);
-            ia_m_[m][n] = add_gaussian_noise(gd_m_[m][n] * step + hrs);
+            ia_p_[m][n] = gd_p_[m][n] * step + hrs;
+            ia_m_[m][n] = gd_m_[m][n] * step + hrs;
         }
     }
 }
@@ -176,7 +182,7 @@ void Mapper::a_write_p(int32_t m_matrix, int32_t n_matrix) {
     for (size_t m = 0; m < m_matrix * num_segments_; ++m) {
         float step = i_step_size_[m % num_segments_];
         for (size_t n = 0; n < n_matrix; ++n) {
-            ia_p_[m][n] = add_gaussian_noise(gd_p_[m][n] * step + hrs);
+            ia_p_[m][n] = gd_p_[m][n] * step + hrs;
         }
     }
 }
@@ -191,14 +197,37 @@ void Mapper::a_write_p_bnn(int32_t m_matrix, int32_t n_matrix) {
     }
 }
 
-// Add Gaussian noise to a given state (current in uA)
+// Add Gaussian noise to a given state (current in uA).
 // Gaussian noise has mean of 0 and standard deviation of stddev
-// Current cannot be negative
+// Current cannot be negative.
+// For BNN and TNN only
 float Mapper::add_gaussian_noise(float state) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    std::normal_distribution<float> dist(0, CFG.NOISE);
-    return std::max(state + dist(gen), 0.0f);
+    if (state == CFG.HRS) {
+        return std::max(state + hrs_var_(gen), 0.0f);
+    } else if (state == CFG.LRS) {
+        return std::max(state + lrs_var_(gen), 0.0f);
+    } else {
+        std::cerr << "Unexpected crossbar state: " << state << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+}
+
+const std::vector<std::vector<int32_t>> &Mapper::get_gd_p() const {
+    return gd_p_;
+}
+
+const std::vector<std::vector<int32_t>> &Mapper::get_gd_m() const {
+    return gd_m_;
+}
+
+const std::vector<std::vector<float>> &Mapper::get_ia_p() const {
+    return ia_p_;
+}
+
+const std::vector<std::vector<float>> &Mapper::get_ia_m() const {
+    return ia_m_;
 }
 
 } // namespace nq

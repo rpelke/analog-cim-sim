@@ -5,12 +5,13 @@
     "W_BIT": 1,
     "I_BIT": 1,
     "digital_only": false,
-    "HRS": 5.0,
+    "HRS": 10.0,
     "LRS": 30.0,
     "adc_type": "SYM_RANGE_ADC",
     "alpha": 1.0,
     "resolution": 20,
-    "m_mode": "BNN_VI",
-    "NOISE": 0.0,
+    "m_mode": "BNN_I",
+    "HRS_NOISE": 1.0,
+    "LRS_NOISE": 2.0,
     "verbose": false
 }

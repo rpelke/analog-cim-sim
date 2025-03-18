@@ -153,9 +153,10 @@ bool Config::load_cfg(const char *cfg_file = "") {
     }
 
     // Noise of a state is modeles as a Gaussian noise with mean 0
-    // The standard deviation is NOISE
+    // The standard deviation is HRS_NOISE for HRS and LRS_NOISE for LRS
     if (!digital_only) {
-        NOISE = getConfigValue<float>(cfg_data_, "NOISE");
+        HRS_NOISE = getConfigValue<float>(cfg_data_, "HRS_NOISE");
+        LRS_NOISE = getConfigValue<float>(cfg_data_, "LRS_NOISE");
     }
 
     return true;
