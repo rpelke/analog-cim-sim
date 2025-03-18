@@ -41,3 +41,4 @@ add_library_test(load_lib_tests lib/load_library_tests.cpp ${CMAKE_CURRENT_SOURC
 add_library_test(bnn_tnn_tests lib/lib_cb_emu_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)
 add_library_test(mvm_tests lib/mvm_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)
 add_library_test(var_tests lib/var_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)
+add_library_test(adc_tests lib/adc_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)

@@ -7,7 +7,7 @@
 TEST(VarTests, VarTest) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
-    int32_t mat[m_matrix * m_matrix] = {1, 1, -1, -1, 1, -1};
+    int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
 
     std::string cfg = get_cfg_file("variability/variability.json");
     set_config(cfg.c_str());

@@ -24,7 +24,7 @@ TEST(INTLibTests, I_DIFF_W_DIFF_1XB) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
     int32_t vec[n_matrix] = {-120, 55};
-    int32_t mat[m_matrix * m_matrix] = {100, -32, 1, 0, 12, 1};
+    int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, 12, 1};
 
     for (bool d : digital) {
         std::string cfg =
@@ -43,7 +43,7 @@ TEST(INTLibTests, I_DIFF_W_DIFF_2XB) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
     int32_t vec[n_matrix] = {-120, 55};
-    int32_t mat[m_matrix * m_matrix] = {100, -32, 1, 0, 12, 1};
+    int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, 12, 1};
 
     for (bool d : digital) {
         std::string cfg =
@@ -62,7 +62,7 @@ TEST(INTLibTests, I_OFFS_W_DIFF) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
     int32_t vec[n_matrix] = {-120, 55};
-    int32_t mat[m_matrix * m_matrix] = {100, -32, 1, 0, 12, 1};
+    int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, 12, 1};
 
     for (bool d : digital) {
         std::string cfg =
@@ -81,7 +81,7 @@ TEST(INTLibTests, I_TC_W_DIFF) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
     int32_t vec[n_matrix] = {-120, 55};
-    int32_t mat[m_matrix * m_matrix] = {100, -32, 1, 0, 12, 1};
+    int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, 12, 1};
 
     for (bool d : digital) {
         std::string cfg =
@@ -100,7 +100,7 @@ TEST(INTLibTests, I_UINT_W_DIFF) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
     int32_t vec[n_matrix] = {120, 55};
-    int32_t mat[m_matrix * m_matrix] = {100, -32, 1, 0, -12, 1};
+    int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, -12, 1};
 
     for (bool d : digital) {
         std::string cfg =
@@ -119,7 +119,7 @@ TEST(INTLibTests, I_UINT_W_OFFS) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
     int32_t vec[n_matrix] = {120, 55};
-    int32_t mat[m_matrix * m_matrix] = {100, -32, 1, 0, -12, 1};
+    int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, -12, 1};
 
     for (bool d : digital) {
         std::string cfg =
@@ -138,7 +138,7 @@ TEST(INTLibTests, BNN_I) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
     int32_t vec[n_matrix] = {1, 1};
-    int32_t mat[m_matrix * m_matrix] = {1, 1, -1, -1, 1, -1};
+    int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
 
     for (bool d : digital) {
         std::string cfg = get_cfg_file(digital_to_foldername(d) + "BNN_I.json");
@@ -156,11 +156,86 @@ TEST(INTLibTests, BNN_II) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
     int32_t vec[n_matrix] = {1, 1};
-    int32_t mat[m_matrix * m_matrix] = {1, 1, -1, -1, 1, -1};
+    int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
 
     for (bool d : digital) {
         std::string cfg =
             get_cfg_file(digital_to_foldername(d) + "BNN_II.json");
+        set_config(cfg.c_str());
+        int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+        int32_t res[m_matrix] = {1, -1, 1};
+        status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res, ::testing::ElementsAre(3, -3, 1));
+    }
+}
+
+TEST(INTLibTests, BNN_III) {
+    const int32_t m_matrix = 3;
+    const int32_t n_matrix = 2;
+    int32_t vec[n_matrix] = {1, 1};
+    int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
+
+    for (bool d : digital) {
+        std::string cfg =
+            get_cfg_file(digital_to_foldername(d) + "BNN_III.json");
+        set_config(cfg.c_str());
+        int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+        int32_t res[m_matrix] = {1, -1, 1};
+        status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res, ::testing::ElementsAre(3, -3, 1));
+    }
+}
+
+TEST(INTLibTests, BNN_IV) {
+    const int32_t m_matrix = 3;
+    const int32_t n_matrix = 2;
+    int32_t vec[n_matrix] = {1, 1};
+    int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
+
+    for (bool d : digital) {
+        std::string cfg =
+            get_cfg_file(digital_to_foldername(d) + "BNN_IV.json");
+        set_config(cfg.c_str());
+        int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+        int32_t res[m_matrix] = {1, -1, 1};
+        status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res, ::testing::ElementsAre(3, -3, 1));
+    }
+}
+
+TEST(INTLibTests, BNN_V) {
+    const int32_t m_matrix = 3;
+    const int32_t n_matrix = 2;
+    int32_t vec[n_matrix] = {1, 1};
+    int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
+
+    for (bool d : digital) {
+        std::string cfg = get_cfg_file(digital_to_foldername(d) + "BNN_V.json");
+        set_config(cfg.c_str());
+        int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+        int32_t res[m_matrix] = {1, -1, 1};
+        status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res, ::testing::ElementsAre(3, -3, 1));
+    }
+}
+
+TEST(INTLibTests, BNN_VI) {
+    const int32_t m_matrix = 3;
+    const int32_t n_matrix = 2;
+    int32_t vec[n_matrix] = {1, 1};
+    int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
+
+    for (bool d : digital) {
+        std::string cfg =
+            get_cfg_file(digital_to_foldername(d) + "BNN_VI.json");
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
