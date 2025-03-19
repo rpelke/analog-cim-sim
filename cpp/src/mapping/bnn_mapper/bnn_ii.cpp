@@ -25,7 +25,7 @@ void MapperBnnII::d_write(const int32_t *mat, int32_t m_matrix,
 }
 
 void MapperBnnII::a_write(int32_t m_matrix, int32_t n_matrix) {
-    a_write_p_m_bnn(m_matrix, n_matrix);
+    a_write_p_m_bnn_tnn(m_matrix, n_matrix);
 }
 
 void MapperBnnII::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,

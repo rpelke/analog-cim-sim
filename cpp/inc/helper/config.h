@@ -44,7 +44,7 @@ class Config {
     float LRS;
     ADCType adc_type;
     float alpha;
-    uint32_t resolution;
+    int32_t resolution;
     MappingMode m_mode;
     bool verbose;
     float HRS_NOISE;

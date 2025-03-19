@@ -246,6 +246,24 @@ TEST(INTLibTests, BNN_VI) {
     }
 }
 
+TEST(INTLibTests, TNN_I) {
+    const int32_t m_matrix = 3;
+    const int32_t n_matrix = 3;
+    int32_t vec[n_matrix] = {1, -1, 0};
+    int32_t mat[m_matrix * n_matrix] = {1, 1, 1, -1, -1, -1, 0, -1, 1};
+
+    for (bool d : digital) {
+        std::string cfg = get_cfg_file(digital_to_foldername(d) + "TNN_I.json");
+        set_config(cfg.c_str());
+        int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+        int32_t res[m_matrix] = {1, -1, 1};
+        status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res, ::testing::ElementsAre(1, -1, 2));
+    }
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

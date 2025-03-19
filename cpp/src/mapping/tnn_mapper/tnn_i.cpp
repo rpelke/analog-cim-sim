@@ -5,12 +5,12 @@
  * This is work is licensed under the terms described in the LICENSE file     *
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
-#include "mapping/bnn_mapper/bnn_vi.h"
+#include "mapping/tnn_mapper/tnn_i.h"
 #include "helper/config.h"
 
 namespace nq {
 
-MapperBnnVI::MapperBnnVI() :
+MapperTnnI::MapperTnnI() :
     vd_p_(CFG.N, 0), vd_m_(CFG.N, 0), tmp_out_(CFG.M, 0.0), Mapper(true) {
     if (CFG.SPLIT.size() != 1) {
         std::cerr << "BNN_VI needs a split size of 1.";
@@ -18,19 +18,19 @@ MapperBnnVI::MapperBnnVI() :
     }
 }
 
-MapperBnnVI::~MapperBnnVI() {}
+MapperTnnI::~MapperTnnI() {}
 
-void MapperBnnVI::d_write(const int32_t *mat, int32_t m_matrix,
-                          int32_t n_matrix) {
-    d_write_diff_bnn(mat, m_matrix, n_matrix);
+void MapperTnnI::d_write(const int32_t *mat, int32_t m_matrix,
+                         int32_t n_matrix) {
+    d_write_diff_tnn(mat, m_matrix, n_matrix);
 }
 
-void MapperBnnVI::a_write(int32_t m_matrix, int32_t n_matrix) {
+void MapperTnnI::a_write(int32_t m_matrix, int32_t n_matrix) {
     a_write_p_m_bnn_tnn(m_matrix, n_matrix);
 }
 
-void MapperBnnVI::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                        int32_t m_matrix, int32_t n_matrix) {
+void MapperTnnI::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
+                       int32_t m_matrix, int32_t n_matrix) {
     for (size_t n = 0; n < n_matrix; ++n) {
         if (vec[n] == +1) {
             vd_p_[n] = 1;
@@ -38,8 +38,8 @@ void MapperBnnVI::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         } else if (vec[n] == -1) {
             vd_m_[n] = 1;
             vd_p_[n] = 0;
-        } else {
-            std::cerr << "BNN input is neither +1 nor -1.";
+        } else if (vec[n] != 0) {
+            std::cerr << "TNN input is neither 0 nor +1 nor -1.";
             abort();
         }
     }
@@ -52,8 +52,8 @@ void MapperBnnVI::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     }
 }
 
-void MapperBnnVI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                        int32_t m_matrix, int32_t n_matrix) {
+void MapperTnnI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
+                       int32_t m_matrix, int32_t n_matrix) {
     std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
 
     for (size_t n = 0; n < n_matrix; ++n) {
@@ -63,8 +63,8 @@ void MapperBnnVI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         } else if (vec[n] == -1) {
             vd_m_[n] = 1;
             vd_p_[n] = 0;
-        } else {
-            std::cerr << "BNN input is neither +1 nor -1.";
+        } else if (vec[n] != 0) {
+            std::cerr << "TNN input is neither 0 nor +1 nor -1.";
             abort();
         }
     }

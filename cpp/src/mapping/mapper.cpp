@@ -18,6 +18,7 @@
 #include "mapping/int_mapper/int_iii.h"
 #include "mapping/int_mapper/int_iv.h"
 #include "mapping/int_mapper/int_v.h"
+#include "mapping/tnn_mapper/tnn_i.h"
 
 #include <algorithm>
 
@@ -87,6 +88,8 @@ std::unique_ptr<Mapper> Mapper::create_from_config() {
         return std::make_unique<MapperBnnV>();
     case MappingMode::BNN_VI:
         return std::make_unique<MapperBnnVI>();
+    case MappingMode::TNN_I:
+        return std::make_unique<MapperTnnI>();
     default:
         std::cerr << "Mapper not implemented.";
         abort();
@@ -140,6 +143,28 @@ void Mapper::d_write_diff_bnn(const int32_t *mat, int32_t m_matrix,
     }
 }
 
+void Mapper::d_write_diff_tnn(const int32_t *mat, int32_t m_matrix,
+                              int32_t n_matrix) {
+    for (size_t m = 0; m < m_matrix; ++m) {
+        int32_t sum_n = 0;
+        for (size_t n = 0; n < n_matrix; ++n) {
+            int mat_val = mat[n_matrix * m + n];
+            sum_n += mat_val;
+            if (mat_val == +1) {
+                gd_p_[m][n] = mat_val;
+                gd_m_[m][n] = 0;
+            } else if (mat_val == -1) {
+                gd_p_[m][n] = 0;
+                gd_m_[m][n] = -mat_val;
+            } else if (mat_val != 0) {
+                std::cerr << "TNN weigth is neither 0 nor +1 nor -1";
+                abort();
+            }
+        }
+        sum_w_[m] = sum_n;
+    }
+}
+
 void Mapper::d_write_offs(const int32_t *mat, int32_t m_matrix,
                           int32_t n_matrix) {
     const std::vector<uint32_t> &split = CFG.SPLIT;
@@ -166,7 +191,7 @@ void Mapper::a_write_p_m(int32_t m_matrix, int32_t n_matrix) {
     }
 }
 
-void Mapper::a_write_p_m_bnn(int32_t m_matrix, int32_t n_matrix) {
+void Mapper::a_write_p_m_bnn_tnn(int32_t m_matrix, int32_t n_matrix) {
     float hrs = CFG.HRS;
     float step = CFG.LRS - hrs;
     for (size_t m = 0; m < m_matrix; ++m) {

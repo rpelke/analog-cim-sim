@@ -87,7 +87,12 @@ bool Config::load_cfg(const char *cfg_file = "") {
         std::exit(EXIT_FAILURE);
     }
 
-    resolution = getConfigValue<uint32_t>(cfg_data_, "resolution");
+    resolution = getConfigValue<int32_t>(cfg_data_, "resolution");
+    if ((resolution == -1) && (adc_type != ADCType::INF_ADC)) {
+        std::cerr << "ADC resolution is -1. INF_ADC expected" << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+
     verbose = getConfigValue<bool>(cfg_data_, "verbose");
 
     std::string m_mode_name = getConfigValue<std::string>(cfg_data_, "m_mode");
@@ -115,6 +120,8 @@ bool Config::load_cfg(const char *cfg_file = "") {
         m_mode = MappingMode::BNN_V;
     } else if (m_mode_name == "BNN_VI") {
         m_mode = MappingMode::BNN_VI;
+    } else if (m_mode_name == "TNN_I") {
+        m_mode = MappingMode::TNN_I;
     } else {
         std::cerr << "Unkown MappingMode." << std::endl;
         std::exit(EXIT_FAILURE);
@@ -137,14 +144,15 @@ bool Config::load_cfg(const char *cfg_file = "") {
                (m_mode == MappingMode::I_UINT_W_DIFF) ||
                (m_mode == MappingMode::BNN_I) ||
                (m_mode == MappingMode::BNN_II) ||
-               (m_mode == MappingMode::BNN_VI)) {
+               (m_mode == MappingMode::BNN_VI) ||
+               (m_mode == MappingMode::TNN_I)) {
         if (!((adc_type == ADCType::INF_ADC) ||
               (adc_type == ADCType::SYM_RANGE_ADC))) {
-            std::cerr << "I_DIFF_W_DIFF_1XB, I_DIFF_W_DIFF_2XB, I_TC_W_DIFF, "
-                         "I_TC_W_DIFF, I_UINT_W_DIFF, BNN_I, BNN_II, BNN_VI "
-                         "need INF_ADC or "
-                         "SYM_RANGE_ADC."
-                      << std::endl;
+            std::cerr
+                << "I_DIFF_W_DIFF_1XB, I_DIFF_W_DIFF_2XB, I_TC_W_DIFF, "
+                   "I_TC_W_DIFF, I_UINT_W_DIFF, BNN_I, BNN_II, BNN_VI, TNN_I "
+                   "need INF_ADC or SYM_RANGE_ADC."
+                << std::endl;
             std::exit(EXIT_FAILURE);
         }
     } else {
