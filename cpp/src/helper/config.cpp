@@ -88,6 +88,8 @@ bool Config::load_cfg(const char *cfg_file = "") {
         m_mode = MappingMode::TNN_I;
     } else if (m_mode_name == "TNN_II") {
         m_mode = MappingMode::TNN_II;
+    } else if (m_mode_name == "TNN_III") {
+        m_mode = MappingMode::TNN_III;
     } else {
         std::cerr << "Unkown MappingMode." << std::endl;
         std::exit(EXIT_FAILURE);
@@ -142,7 +144,8 @@ bool Config::load_cfg(const char *cfg_file = "") {
                    (m_mode == MappingMode::BNN_II) ||
                    (m_mode == MappingMode::BNN_VI) ||
                    (m_mode == MappingMode::TNN_I) ||
-                   (m_mode == MappingMode::TNN_II)) {
+                   (m_mode == MappingMode::TNN_II) ||
+                   (m_mode == MappingMode::TNN_III)) {
             if (!((adc_type == ADCType::INF_ADC) ||
                   (adc_type == ADCType::SYM_RANGE_ADC))) {
                 std::cerr

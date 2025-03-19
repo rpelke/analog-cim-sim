@@ -381,6 +381,32 @@ TEST(INTLibTests, TNN_II) {
     }
 }
 
+TEST(INTLibTests, TNN_III) {
+    const int32_t m_matrix = 3;
+    const int32_t n_matrix = 3;
+    int32_t vec1[n_matrix] = {1, -1, 0};
+    int32_t vec2[n_matrix] = {1, 0, 1};
+    int32_t mat[m_matrix * n_matrix] = {1, 1, 1, -1, -1, -1, 0, -1, 1};
+
+    for (bool d : digital) {
+        std::string cfg =
+            get_cfg_file(digital_to_foldername(d) + "TNN_III.json");
+        set_config(cfg.c_str());
+        int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
+        int32_t res1[m_matrix] = {1, -1, 1};
+        status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res1, ::testing::ElementsAre(1, -1, 2));
+
+        int32_t res2[m_matrix] = {0, 0, 0};
+        status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res2, ::testing::ElementsAre(2, -2, 1));
+    }
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

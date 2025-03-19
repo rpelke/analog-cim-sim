@@ -20,6 +20,7 @@
 #include "mapping/int_mapper/int_v.h"
 #include "mapping/tnn_mapper/tnn_i.h"
 #include "mapping/tnn_mapper/tnn_ii.h"
+#include "mapping/tnn_mapper/tnn_iii.h"
 
 #include <algorithm>
 
@@ -95,6 +96,8 @@ std::unique_ptr<Mapper> Mapper::create_from_config() {
         return std::make_unique<MapperTnnI>();
     case MappingMode::TNN_II:
         return std::make_unique<MapperTnnII>();
+    case MappingMode::TNN_III:
+        return std::make_unique<MapperTnnIII>();
     default:
         std::cerr << "Mapper not implemented.";
         abort();
