@@ -24,6 +24,7 @@ TEST(INTLibTests, I_DIFF_W_DIFF_1XB) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
     int32_t vec[n_matrix] = {-120, 55};
+    int32_t vec2[n_matrix] = {0, 10};
     int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, 12, 1};
 
     for (bool d : digital) {
@@ -32,10 +33,16 @@ TEST(INTLibTests, I_DIFF_W_DIFF_1XB) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
         int32_t res[m_matrix] = {1, 1, -1};
         status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
         ASSERT_THAT(res, ::testing::ElementsAre(-13759, -119, -1386));
+
+        int32_t res2[m_matrix] = {0, 0, 0};
+        status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res2, ::testing::ElementsAre(-320, 0, 10));
     }
 }
 
@@ -43,6 +50,7 @@ TEST(INTLibTests, I_DIFF_W_DIFF_2XB) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
     int32_t vec[n_matrix] = {-120, 55};
+    int32_t vec2[n_matrix] = {0, 10};
     int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, 12, 1};
 
     for (bool d : digital) {
@@ -51,10 +59,16 @@ TEST(INTLibTests, I_DIFF_W_DIFF_2XB) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
         int32_t res[m_matrix] = {1, 1, -1};
         status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
         ASSERT_THAT(res, ::testing::ElementsAre(-13759, -119, -1386));
+
+        int32_t res2[m_matrix] = {0, 0, 0};
+        status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res2, ::testing::ElementsAre(-320, 0, 10));
     }
 }
 
@@ -62,6 +76,7 @@ TEST(INTLibTests, I_OFFS_W_DIFF) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
     int32_t vec[n_matrix] = {-120, 55};
+    int32_t vec2[n_matrix] = {0, 10};
     int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, 12, 1};
 
     for (bool d : digital) {
@@ -70,10 +85,16 @@ TEST(INTLibTests, I_OFFS_W_DIFF) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
         int32_t res[m_matrix] = {1, 1, -1};
         status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
         ASSERT_THAT(res, ::testing::ElementsAre(-13759, -119, -1386));
+
+        int32_t res2[m_matrix] = {0, 0, 0};
+        status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res2, ::testing::ElementsAre(-320, 0, 10));
     }
 }
 
@@ -81,6 +102,7 @@ TEST(INTLibTests, I_TC_W_DIFF) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
     int32_t vec[n_matrix] = {-120, 55};
+    int32_t vec2[n_matrix] = {0, 10};
     int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, 12, 1};
 
     for (bool d : digital) {
@@ -89,17 +111,24 @@ TEST(INTLibTests, I_TC_W_DIFF) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
         int32_t res[m_matrix] = {1, 1, -1};
         status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
         ASSERT_THAT(res, ::testing::ElementsAre(-13759, -119, -1386));
+
+        int32_t res2[m_matrix] = {0, 0, 0};
+        status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res2, ::testing::ElementsAre(-320, 0, 10));
     }
 }
 
 TEST(INTLibTests, I_UINT_W_DIFF) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
-    int32_t vec[n_matrix] = {120, 55};
+    int32_t vec1[n_matrix] = {120, 55};
+    int32_t vec2[n_matrix] = {0, 10};
     int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, -12, 1};
 
     for (bool d : digital) {
@@ -108,17 +137,24 @@ TEST(INTLibTests, I_UINT_W_DIFF) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
-        int32_t res[m_matrix] = {1, 1, -1};
-        status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+
+        int32_t res1[m_matrix] = {1, 1, -1};
+        status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
-        ASSERT_THAT(res, ::testing::ElementsAre(10241, 121, -1386));
+        ASSERT_THAT(res1, ::testing::ElementsAre(10241, 121, -1386));
+
+        int32_t res2[m_matrix] = {0, 0, 0};
+        status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res2, ::testing::ElementsAre(-320, 0, 10));
     }
 }
 
 TEST(INTLibTests, I_UINT_W_OFFS) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
-    int32_t vec[n_matrix] = {120, 55};
+    int32_t vec1[n_matrix] = {120, 55};
+    int32_t vec2[n_matrix] = {0, 10};
     int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, -12, 1};
 
     for (bool d : digital) {
@@ -127,17 +163,24 @@ TEST(INTLibTests, I_UINT_W_OFFS) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
-        int32_t res[m_matrix] = {1, 1, -1};
-        status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+
+        int32_t res1[m_matrix] = {1, 1, -1};
+        status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
-        ASSERT_THAT(res, ::testing::ElementsAre(10241, 121, -1386));
+        ASSERT_THAT(res1, ::testing::ElementsAre(10241, 121, -1386));
+
+        int32_t res2[m_matrix] = {0, 0, 0};
+        status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res2, ::testing::ElementsAre(-320, 0, 10));
     }
 }
 
 TEST(INTLibTests, BNN_I) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
-    int32_t vec[n_matrix] = {1, 1};
+    int32_t vec1[n_matrix] = {1, 1};
+    int32_t vec2[n_matrix] = {-1, 1};
     int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
 
     for (bool d : digital) {
@@ -145,17 +188,24 @@ TEST(INTLibTests, BNN_I) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
-        int32_t res[m_matrix] = {1, -1, 1};
-        status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+
+        int32_t res1[m_matrix] = {1, -1, 1};
+        status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
-        ASSERT_THAT(res, ::testing::ElementsAre(3, -3, 1));
+        ASSERT_THAT(res1, ::testing::ElementsAre(3, -3, 1));
+
+        int32_t res2[m_matrix] = {0, 0, 0};
+        status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res2, ::testing::ElementsAre(0, 0, -2));
     }
 }
 
 TEST(INTLibTests, BNN_II) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
-    int32_t vec[n_matrix] = {1, 1};
+    int32_t vec1[n_matrix] = {1, 1};
+    int32_t vec2[n_matrix] = {-1, 1};
     int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
 
     for (bool d : digital) {
@@ -164,17 +214,24 @@ TEST(INTLibTests, BNN_II) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
-        int32_t res[m_matrix] = {1, -1, 1};
-        status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+
+        int32_t res1[m_matrix] = {1, -1, 1};
+        status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
-        ASSERT_THAT(res, ::testing::ElementsAre(3, -3, 1));
+        ASSERT_THAT(res1, ::testing::ElementsAre(3, -3, 1));
+
+        int32_t res2[m_matrix] = {0, 0, 0};
+        status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res2, ::testing::ElementsAre(0, 0, -2));
     }
 }
 
 TEST(INTLibTests, BNN_III) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
-    int32_t vec[n_matrix] = {1, 1};
+    int32_t vec1[n_matrix] = {1, 1};
+    int32_t vec2[n_matrix] = {-1, 1};
     int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
 
     for (bool d : digital) {
@@ -183,17 +240,24 @@ TEST(INTLibTests, BNN_III) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
-        int32_t res[m_matrix] = {1, -1, 1};
-        status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+
+        int32_t res1[m_matrix] = {1, -1, 1};
+        status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
-        ASSERT_THAT(res, ::testing::ElementsAre(3, -3, 1));
+        ASSERT_THAT(res1, ::testing::ElementsAre(3, -3, 1));
+
+        int32_t res2[m_matrix] = {0, 0, 0};
+        status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res2, ::testing::ElementsAre(0, 0, -2));
     }
 }
 
 TEST(INTLibTests, BNN_IV) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
-    int32_t vec[n_matrix] = {1, 1};
+    int32_t vec1[n_matrix] = {1, 1};
+    int32_t vec2[n_matrix] = {-1, 1};
     int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
 
     for (bool d : digital) {
@@ -202,17 +266,24 @@ TEST(INTLibTests, BNN_IV) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
-        int32_t res[m_matrix] = {1, -1, 1};
-        status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+
+        int32_t res1[m_matrix] = {1, -1, 1};
+        status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
-        ASSERT_THAT(res, ::testing::ElementsAre(3, -3, 1));
+        ASSERT_THAT(res1, ::testing::ElementsAre(3, -3, 1));
+
+        int32_t res2[m_matrix] = {0, 0, 0};
+        status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res2, ::testing::ElementsAre(0, 0, -2));
     }
 }
 
 TEST(INTLibTests, BNN_V) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
-    int32_t vec[n_matrix] = {1, 1};
+    int32_t vec1[n_matrix] = {1, 1};
+    int32_t vec2[n_matrix] = {-1, 1};
     int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
 
     for (bool d : digital) {
@@ -220,17 +291,24 @@ TEST(INTLibTests, BNN_V) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
-        int32_t res[m_matrix] = {1, -1, 1};
-        status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+
+        int32_t res1[m_matrix] = {1, -1, 1};
+        status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
-        ASSERT_THAT(res, ::testing::ElementsAre(3, -3, 1));
+        ASSERT_THAT(res1, ::testing::ElementsAre(3, -3, 1));
+
+        int32_t res2[m_matrix] = {0, 0, 0};
+        status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res2, ::testing::ElementsAre(0, 0, -2));
     }
 }
 
 TEST(INTLibTests, BNN_VI) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
-    int32_t vec[n_matrix] = {1, 1};
+    int32_t vec1[n_matrix] = {1, 1};
+    int32_t vec2[n_matrix] = {-1, 1};
     int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
 
     for (bool d : digital) {
@@ -239,10 +317,16 @@ TEST(INTLibTests, BNN_VI) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
-        int32_t res[m_matrix] = {1, -1, 1};
-        status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+
+        int32_t res1[m_matrix] = {1, -1, 1};
+        status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
-        ASSERT_THAT(res, ::testing::ElementsAre(3, -3, 1));
+        ASSERT_THAT(res1, ::testing::ElementsAre(3, -3, 1));
+
+        int32_t res2[m_matrix] = {0, 0, 0};
+        status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+        ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+        ASSERT_THAT(res2, ::testing::ElementsAre(0, 0, -2));
     }
 }
 
@@ -258,6 +342,7 @@ TEST(INTLibTests, TNN_I) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
         int32_t res1[m_matrix] = {1, -1, 1};
         status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
@@ -283,6 +368,7 @@ TEST(INTLibTests, TNN_II) {
         set_config(cfg.c_str());
         int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
         int32_t res1[m_matrix] = {1, -1, 1};
         status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
         ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";

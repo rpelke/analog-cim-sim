@@ -42,7 +42,7 @@ void MapperBnnV::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     for (size_t m = 0; m < m_matrix; ++m) {
         res[m] -= n_matrix;
         for (size_t n = 0; n < n_matrix; ++n) {
-            res[m] += (gd_p_[m][n] * vd_p_[n] - gd_m_[m][n] * vd_m_[n]) << 1;
+            res[m] += (gd_p_[m][n] * vd_p_[n] + gd_m_[m][n] * vd_m_[n]) << 1;
         }
     }
 }
