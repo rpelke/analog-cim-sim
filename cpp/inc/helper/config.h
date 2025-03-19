@@ -33,6 +33,7 @@ class Config {
 
     static Config &get_cfg();
     bool load_cfg(const char *cfg_file);
+    bool is_int_mapping();
 
     uint32_t M;
     uint32_t N;

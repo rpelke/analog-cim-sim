@@ -2,6 +2,6 @@
     "M": 32,
     "N": 32,
     "digital_only": true,
-    "m_mode": "BNN_I",
+    "m_mode": "TNN_II",
     "verbose": false
 }

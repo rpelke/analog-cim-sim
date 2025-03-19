@@ -89,6 +89,7 @@ if(BUILD_LIB_ACS_INT)
         src/mapping/bnn_mapper/bnn_v.cpp
         src/mapping/bnn_mapper/bnn_vi.cpp
         src/mapping/tnn_mapper/tnn_i.cpp
+        src/mapping/tnn_mapper/tnn_ii.cpp
         src/xbar/crossbar.cpp
         src/adc/adc.cpp
         src/adc/adcfactory.cpp

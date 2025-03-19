@@ -11,12 +11,7 @@
 namespace nq {
 
 MapperBnnV::MapperBnnV() :
-    vd_p_(CFG.N, 0), vd_m_(CFG.N, 0), tmp_out_(CFG.M, 0.0), Mapper(false) {
-    if (CFG.SPLIT.size() != 1) {
-        std::cerr << "BNN_V needs a split size of 1.";
-        abort();
-    }
-}
+    vd_p_(CFG.N, 0), vd_m_(CFG.N, 0), tmp_out_(CFG.M, 0.0), Mapper(false) {}
 
 MapperBnnV::~MapperBnnV() {}
 

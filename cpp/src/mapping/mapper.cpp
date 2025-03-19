@@ -19,6 +19,7 @@
 #include "mapping/int_mapper/int_iv.h"
 #include "mapping/int_mapper/int_v.h"
 #include "mapping/tnn_mapper/tnn_i.h"
+#include "mapping/tnn_mapper/tnn_ii.h"
 
 #include <algorithm>
 
@@ -34,13 +35,6 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
     i_step_size_(CFG.SPLIT.size(), 0.0),
     adc_(ADCFactory::createADC(CFG.adc_type)) {
 
-    int curr_w_bit = CFG.W_BIT;
-    for (size_t i = 0; i < CFG.SPLIT.size(); ++i) {
-        shift_[i] = curr_w_bit - CFG.SPLIT[i];
-        curr_w_bit -= CFG.SPLIT[i];
-    }
-
-    num_segments_ = CFG.SPLIT.size();
     if (!CFG.digital_only) {
         i_mm_ = CFG.LRS - CFG.HRS;
         std::random_device hrs_rd;
@@ -51,13 +45,22 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
         lrs_var_ = std::normal_distribution<float>(0.0f, CFG.LRS_NOISE);
     }
 
-    if (is_diff_weight_mapping_) {
-        for (size_t s = 0; s < num_segments_; ++s) {
-            i_step_size_[s] = i_mm_ / ((1 << (CFG.SPLIT[s] - 1)));
+    if (CFG.is_int_mapping()) {
+        int curr_w_bit = CFG.W_BIT;
+        for (size_t i = 0; i < CFG.SPLIT.size(); ++i) {
+            shift_[i] = curr_w_bit - CFG.SPLIT[i];
+            curr_w_bit -= CFG.SPLIT[i];
         }
-    } else {
-        for (size_t s = 0; s < num_segments_; ++s) {
-            i_step_size_[s] = i_mm_ / ((1 << CFG.SPLIT[s]) - 1);
+        num_segments_ = CFG.SPLIT.size();
+
+        if (is_diff_weight_mapping_) {
+            for (size_t s = 0; s < num_segments_; ++s) {
+                i_step_size_[s] = i_mm_ / ((1 << (CFG.SPLIT[s] - 1)));
+            }
+        } else {
+            for (size_t s = 0; s < num_segments_; ++s) {
+                i_step_size_[s] = i_mm_ / ((1 << CFG.SPLIT[s]) - 1);
+            }
         }
     }
 }
@@ -90,6 +93,8 @@ std::unique_ptr<Mapper> Mapper::create_from_config() {
         return std::make_unique<MapperBnnVI>();
     case MappingMode::TNN_I:
         return std::make_unique<MapperTnnI>();
+    case MappingMode::TNN_II:
+        return std::make_unique<MapperTnnII>();
     default:
         std::cerr << "Mapper not implemented.";
         abort();
@@ -156,7 +161,10 @@ void Mapper::d_write_diff_tnn(const int32_t *mat, int32_t m_matrix,
             } else if (mat_val == -1) {
                 gd_p_[m][n] = 0;
                 gd_m_[m][n] = -mat_val;
-            } else if (mat_val != 0) {
+            } else if (mat_val == 0) {
+                gd_p_[m][n] = 0;
+                gd_m_[m][n] = 0;
+            } else {
                 std::cerr << "TNN weigth is neither 0 nor +1 nor -1";
                 abort();
             }

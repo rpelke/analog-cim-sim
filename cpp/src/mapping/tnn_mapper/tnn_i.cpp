@@ -11,12 +11,7 @@
 namespace nq {
 
 MapperTnnI::MapperTnnI() :
-    vd_p_(CFG.N, 0), vd_m_(CFG.N, 0), tmp_out_(CFG.M, 0.0), Mapper(true) {
-    if (CFG.SPLIT.size() != 1) {
-        std::cerr << "BNN_VI needs a split size of 1.";
-        abort();
-    }
-}
+    vd_p_(CFG.N, 0), vd_m_(CFG.N, 0), tmp_out_(CFG.M, 0.0), Mapper(true) {}
 
 MapperTnnI::~MapperTnnI() {}
 
@@ -38,7 +33,10 @@ void MapperTnnI::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         } else if (vec[n] == -1) {
             vd_m_[n] = 1;
             vd_p_[n] = 0;
-        } else if (vec[n] != 0) {
+        } else if (vec[n] == 0) {
+            vd_m_[n] = 0;
+            vd_p_[n] = 0;
+        } else {
             std::cerr << "TNN input is neither 0 nor +1 nor -1.";
             abort();
         }
@@ -63,7 +61,10 @@ void MapperTnnI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         } else if (vec[n] == -1) {
             vd_m_[n] = 1;
             vd_p_[n] = 0;
-        } else if (vec[n] != 0) {
+        } else if (vec[n] == 0) {
+            vd_m_[n] = 0;
+            vd_p_[n] = 0;
+        } else {
             std::cerr << "TNN input is neither 0 nor +1 nor -1.";
             abort();
         }

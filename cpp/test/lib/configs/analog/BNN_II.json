@@ -1,9 +1,6 @@
 {
     "M": 32,
     "N": 32,
-    "SPLIT": [1],
-    "W_BIT": 1,
-    "I_BIT": 1,
     "digital_only": false,
     "HRS": 5.0,
     "LRS": 30.0,
