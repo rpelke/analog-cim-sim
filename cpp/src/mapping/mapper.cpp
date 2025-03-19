@@ -21,6 +21,7 @@
 #include "mapping/tnn_mapper/tnn_i.h"
 #include "mapping/tnn_mapper/tnn_ii.h"
 #include "mapping/tnn_mapper/tnn_iii.h"
+#include "mapping/tnn_mapper/tnn_iv.h"
 
 #include <algorithm>
 
@@ -46,7 +47,7 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
         lrs_var_ = std::normal_distribution<float>(0.0f, CFG.LRS_NOISE);
     }
 
-    if (CFG.is_int_mapping()) {
+    if (CFG.is_int_mapping() || (CFG.m_mode == MappingMode::TNN_IV)) {
         int curr_w_bit = CFG.W_BIT;
         for (size_t i = 0; i < CFG.SPLIT.size(); ++i) {
             shift_[i] = curr_w_bit - CFG.SPLIT[i];
@@ -98,6 +99,8 @@ std::unique_ptr<Mapper> Mapper::create_from_config() {
         return std::make_unique<MapperTnnII>();
     case MappingMode::TNN_III:
         return std::make_unique<MapperTnnIII>();
+    case MappingMode::TNN_IV:
+        return std::make_unique<MapperTnnIV>();
     default:
         std::cerr << "Mapper not implemented.";
         abort();
@@ -188,6 +191,31 @@ void Mapper::d_write_offs(const int32_t *mat, int32_t m_matrix,
                     (mat_val >> shift_[s]) & ((1 << split[s]) - 1);
             }
         }
+    }
+}
+
+void Mapper::d_write_tc_tnn(const int32_t *mat, int32_t m_matrix,
+                            int32_t n_matrix, bool offset) {
+    // gd_p_ is used for bit zero (two's complement)
+    // gd_m_ is used for bit one (two's complement)
+    uint32_t mask_0 = 0b01;
+    uint32_t mask_1 = 0b10;
+    if (CFG.SPLIT == std::vector<uint32_t>{1, 1}) {
+        if (offset) {
+            std::cerr << "Not implemented." << std::endl;
+            std::exit(EXIT_FAILURE);
+        } else {
+            for (size_t m = 0; m < m_matrix; ++m) {
+                for (size_t n = 0; n < n_matrix; ++n) {
+                    gd_p_[m][n] = mat[n_matrix * m + n] & mask_0;
+                    gd_m_[m][n] = (mat[n_matrix * m + n] & mask_1) >> 1;
+                }
+            }
+        }
+    } else {
+        std::cerr << "Not implemented: SPLIT must be {1, 1} for TNN_IV."
+                  << std::endl;
+        std::exit(EXIT_FAILURE);
     }
 }
 

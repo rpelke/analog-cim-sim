@@ -43,6 +43,8 @@ class Mapper {
     void d_write_diff_tnn(const int32_t *mat, int32_t m_matrix,
                           int32_t n_matrix);
     void d_write_offs(const int32_t *mat, int32_t m_matrix, int32_t n_matrix);
+    void d_write_tc_tnn(const int32_t *mat, int32_t m_matrix, int32_t n_matrix,
+                        bool offset);
     void a_write_p_m(int32_t m_matrix, int32_t n_matrix);
     void a_write_p_m_bnn_tnn(int32_t m_matrix, int32_t n_matrix);
     void a_write_p(int32_t m_matrix, int32_t n_matrix);

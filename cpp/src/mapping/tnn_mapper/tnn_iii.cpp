@@ -63,13 +63,12 @@ void MapperTnnIII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     for (size_t n = 0; n < n_matrix; ++n) {
         vd_p_[n] = (vec[n] + 1) & mask;
     }
+    std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
     for (size_t m = 0; m < m_matrix; ++m) {
         for (size_t n = 0; n < n_matrix; ++n) {
-            res[m] += static_cast<int32_t>(
-                round(adc_->analog_digital_conversion(
-                          (ia_p_[m][n] - ia_m_[m][n]) * vd_p_[n]) /
-                      i_mm_));
+            tmp_out_[m] += (ia_p_[m][n] - ia_m_[m][n]) * vd_p_[n];
         }
+        res[m] += static_cast<int32_t>(round(tmp_out_[m] / i_mm_));
     }
 
     // Input bit 1
@@ -77,13 +76,12 @@ void MapperTnnIII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     for (size_t n = 0; n < n_matrix; ++n) {
         vd_p_[n] = ((vec[n] + 1) & mask) >> 1;
     }
+    std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
     for (size_t m = 0; m < m_matrix; ++m) {
         for (size_t n = 0; n < n_matrix; ++n) {
-            res[m] += static_cast<int32_t>(
-                round(adc_->analog_digital_conversion(
-                          (ia_p_[m][n] - ia_m_[m][n]) * vd_p_[n]) *
-                      2 / i_mm_));
+            tmp_out_[m] += (ia_p_[m][n] - ia_m_[m][n]) * vd_p_[n];
         }
+        res[m] += static_cast<int32_t>(round(tmp_out_[m] * 2 / i_mm_));
     }
 
     // Subtract digital offset
