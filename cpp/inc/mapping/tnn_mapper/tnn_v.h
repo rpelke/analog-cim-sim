@@ -5,8 +5,8 @@
  * This is work is licensed under the terms described in the LICENSE file     *
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
-#ifndef MAPPERTNNIV_H
-#define MAPPERTNNIV_H
+#ifndef MAPPERTNNV_H
+#define MAPPERTNNV_H
 
 #include <cstdint>
 
@@ -14,12 +14,12 @@
 
 namespace nq {
 
-// Mapping TNN IV: i_NN = v_D^+ - v_D^-, w_NN = (g_D^1, g_D^0)
-class MapperTnnIV : public Mapper {
+// Mapping TNN V: i_NN = v_D^+ - v_D^-, w_NN + 1 = (g_D^1, g_D^0)
+class MapperTnnV : public Mapper {
   public:
-    MapperTnnIV();
-    MapperTnnIV(const MapperTnnIV &) = delete;
-    virtual ~MapperTnnIV();
+    MapperTnnV();
+    MapperTnnV(const MapperTnnV &) = delete;
+    virtual ~MapperTnnV();
 
     void d_write(const int32_t *mat, int32_t m_matrix,
                  int32_t n_matrix) override;

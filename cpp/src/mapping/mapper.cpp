@@ -22,6 +22,7 @@
 #include "mapping/tnn_mapper/tnn_ii.h"
 #include "mapping/tnn_mapper/tnn_iii.h"
 #include "mapping/tnn_mapper/tnn_iv.h"
+#include "mapping/tnn_mapper/tnn_v.h"
 
 #include <algorithm>
 
@@ -101,6 +102,8 @@ std::unique_ptr<Mapper> Mapper::create_from_config() {
         return std::make_unique<MapperTnnIII>();
     case MappingMode::TNN_IV:
         return std::make_unique<MapperTnnIV>();
+    case MappingMode::TNN_V:
+        return std::make_unique<MapperTnnV>();
     default:
         std::cerr << "Mapper not implemented.";
         abort();
@@ -202,8 +205,12 @@ void Mapper::d_write_tc_tnn(const int32_t *mat, int32_t m_matrix,
     uint32_t mask_1 = 0b10;
     if (CFG.SPLIT == std::vector<uint32_t>{1, 1}) {
         if (offset) {
-            std::cerr << "Not implemented." << std::endl;
-            std::exit(EXIT_FAILURE);
+            for (size_t m = 0; m < m_matrix; ++m) {
+                for (size_t n = 0; n < n_matrix; ++n) {
+                    gd_p_[m][n] = (mat[n_matrix * m + n] + 1) & mask_0;
+                    gd_m_[m][n] = ((mat[n_matrix * m + n] + 1) & mask_1) >> 1;
+                }
+            }
         } else {
             for (size_t m = 0; m < m_matrix; ++m) {
                 for (size_t n = 0; n < n_matrix; ++n) {

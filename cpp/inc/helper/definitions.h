@@ -10,8 +10,7 @@
 
 namespace nq {
 
-enum class MappingMode { // Mapping modes for inputs/weights as signed
-                         // integers
+enum class MappingMode {
     I_DIFF_W_DIFF_1XB, // Inputs and weights in differential mode, use 1 XBar /
                        // 2 Cycles
     I_DIFF_W_DIFF_2XB, // Inputs and weights in differential mode, use 2 XBars /
@@ -30,7 +29,8 @@ enum class MappingMode { // Mapping modes for inputs/weights as signed
     TNN_I,
     TNN_II,
     TNN_III,
-    TNN_IV
+    TNN_IV,
+    TNN_V
 };
 
 static std::string m_mode_to_string(MappingMode mode) {
@@ -67,6 +67,8 @@ static std::string m_mode_to_string(MappingMode mode) {
         return "TNN_III";
     case MappingMode::TNN_IV:
         return "TNN_IV";
+    case MappingMode::TNN_V:
+        return "TNN_V";
     default:
         return "Unknown mode";
     }

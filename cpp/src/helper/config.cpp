@@ -92,6 +92,8 @@ bool Config::load_cfg(const char *cfg_file = "") {
         m_mode = MappingMode::TNN_III;
     } else if (m_mode_name == "TNN_IV") {
         m_mode = MappingMode::TNN_IV;
+    } else if (m_mode_name == "TNN_V") {
+        m_mode = MappingMode::TNN_V;
     } else {
         std::cerr << "Unkown MappingMode." << std::endl;
         std::exit(EXIT_FAILURE);
@@ -130,7 +132,7 @@ bool Config::load_cfg(const char *cfg_file = "") {
         if ((m_mode == MappingMode::I_UINT_W_OFFS) ||
             (m_mode == MappingMode::BNN_III) ||
             (m_mode == MappingMode::BNN_IV) || (m_mode == MappingMode::BNN_V) ||
-            (m_mode == MappingMode::TNN_IV)) {
+            (m_mode == MappingMode::TNN_IV) || (m_mode == MappingMode::TNN_V)) {
             if (!((adc_type == ADCType::INF_ADC) ||
                   (adc_type == ADCType::POS_RANGE_ONLY_ADC))) {
                 std::cerr << "I_UINT_W_OFFS, BNN_III, BNN_IV, BNN_V needs "
@@ -178,7 +180,8 @@ bool Config::load_cfg(const char *cfg_file = "") {
             std::cerr << "Error in config parameters." << std::endl;
             std::exit(EXIT_FAILURE);
         }
-    } else if (m_mode == MappingMode::TNN_IV) {
+    } else if ((m_mode == MappingMode::TNN_IV) ||
+               (m_mode == MappingMode::TNN_V)) {
         W_BIT = getConfigValue<uint32_t>(cfg_data_, "W_BIT");
         SPLIT = getConfigValue<std::vector<uint32_t>>(cfg_data_, "SPLIT");
         if (W_BIT != 2) {
@@ -186,7 +189,8 @@ bool Config::load_cfg(const char *cfg_file = "") {
             std::exit(EXIT_FAILURE);
         }
         if (SPLIT != std::vector<uint32_t>{1, 1}) {
-            std::cerr << "SPLIT must be {1, 1} for TNN_IV." << std::endl;
+            std::cerr << "SPLIT must be {1, 1} for TNN_IV and TNN_V."
+                      << std::endl;
             std::exit(EXIT_FAILURE);
         }
     } else {

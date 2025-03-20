@@ -92,6 +92,7 @@ if(BUILD_LIB_ACS_INT)
         src/mapping/tnn_mapper/tnn_ii.cpp
         src/mapping/tnn_mapper/tnn_iii.cpp
         src/mapping/tnn_mapper/tnn_iv.cpp
+        src/mapping/tnn_mapper/tnn_v.cpp
         src/xbar/crossbar.cpp
         src/adc/adc.cpp
         src/adc/adcfactory.cpp
