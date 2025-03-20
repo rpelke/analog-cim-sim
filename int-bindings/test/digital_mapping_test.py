@@ -24,7 +24,8 @@ class TestDigitalMapping(unittest.TestCase):
         vec = np.array([-120, 55], dtype=np.int32)
         res = np.array([1, 1, -1], dtype=np.int32)
 
-        acs_int.set_config(os.path.abspath("cpp/test/lib/configs/digital/I_DIFF_W_DIFF_1XB.json"))
+        acs_int.set_config(
+            os.path.abspath(f"{repo_path}/cpp/test/lib/configs/digital/I_DIFF_W_DIFF_1XB.json"))
         acs_int.cpy(mat, m_matrix, n_matrix)
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
         np.testing.assert_array_equal(res, np.array([-13759, -119, -1386], dtype=np.int32))
@@ -36,7 +37,8 @@ class TestDigitalMapping(unittest.TestCase):
         vec = np.array([-120, 55], dtype=np.int32)
         res = np.array([1, 1, -1], dtype=np.int32)
 
-        acs_int.set_config(os.path.abspath("cpp/test/lib/configs/digital/I_DIFF_W_DIFF_2XB.json"))
+        acs_int.set_config(
+            os.path.abspath(f"{repo_path}/cpp/test/lib/configs/digital/I_DIFF_W_DIFF_2XB.json"))
         acs_int.cpy(mat, m_matrix, n_matrix)
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
         np.testing.assert_array_equal(res, np.array([-13759, -119, -1386], dtype=np.int32))
@@ -48,7 +50,8 @@ class TestDigitalMapping(unittest.TestCase):
         vec = np.array([-120, 55], dtype=np.int32)
         res = np.array([1, 1, -1], dtype=np.int32)
 
-        acs_int.set_config(os.path.abspath("cpp/test/lib/configs/digital/I_OFFS_W_DIFF.json"))
+        acs_int.set_config(
+            os.path.abspath(f"{repo_path}/cpp/test/lib/configs/digital/I_OFFS_W_DIFF.json"))
         acs_int.cpy(mat, m_matrix, n_matrix)
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
         np.testing.assert_array_equal(res, np.array([-13759, -119, -1386], dtype=np.int32))
@@ -60,7 +63,8 @@ class TestDigitalMapping(unittest.TestCase):
         vec = np.array([-120, 55], dtype=np.int32)
         res = np.array([1, 1, -1], dtype=np.int32)
 
-        acs_int.set_config(os.path.abspath("cpp/test/lib/configs/digital/I_TC_W_DIFF.json"))
+        acs_int.set_config(
+            os.path.abspath(f"{repo_path}/cpp/test/lib/configs/digital/I_TC_W_DIFF.json"))
         acs_int.cpy(mat, m_matrix, n_matrix)
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
         np.testing.assert_array_equal(res, np.array([-13759, -119, -1386], dtype=np.int32))
@@ -72,7 +76,8 @@ class TestDigitalMapping(unittest.TestCase):
         vec = np.array([120, 55], dtype=np.int32)
         res = np.array([1, 1, -1], dtype=np.int32)
 
-        acs_int.set_config(os.path.abspath("cpp/test/lib/configs/digital/I_UINT_W_DIFF.json"))
+        acs_int.set_config(
+            os.path.abspath(f"{repo_path}/cpp/test/lib/configs/digital/I_UINT_W_DIFF.json"))
         acs_int.cpy(mat, m_matrix, n_matrix)
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
         np.testing.assert_array_equal(res, np.array([10241, 121, -1386], dtype=np.int32))
@@ -84,7 +89,8 @@ class TestDigitalMapping(unittest.TestCase):
         vec = np.array([120, 55], dtype=np.int32)
         res = np.array([1, 1, -1], dtype=np.int32)
 
-        acs_int.set_config(os.path.abspath("cpp/test/lib/configs/digital/I_UINT_W_OFFS.json"))
+        acs_int.set_config(
+            os.path.abspath(f"{repo_path}/cpp/test/lib/configs/digital/I_UINT_W_OFFS.json"))
         acs_int.cpy(mat, m_matrix, n_matrix)
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
         np.testing.assert_array_equal(res, np.array([10241, 121, -1386], dtype=np.int32))
@@ -96,7 +102,7 @@ class TestDigitalMapping(unittest.TestCase):
         vec = np.array([1, 1], dtype=np.int32)
         res = np.array([0, 0, 0], dtype=np.int32)
 
-        acs_int.set_config(os.path.abspath("cpp/test/lib/configs/digital/BNN_I.json"))
+        acs_int.set_config(os.path.abspath(f"{repo_path}/cpp/test/lib/configs/digital/BNN_I.json"))
         acs_int.cpy(mat, m_matrix, n_matrix)
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
         np.testing.assert_array_equal(res, np.array([2, -2, 0], dtype=np.int32))
@@ -108,7 +114,7 @@ class TestDigitalMapping(unittest.TestCase):
         vec = np.array([1, 1], dtype=np.int32)
         res = np.array([0, 0, 0], dtype=np.int32)
 
-        acs_int.set_config(os.path.abspath("cpp/test/lib/configs/digital/BNN_II.json"))
+        acs_int.set_config(os.path.abspath(f"{repo_path}/cpp/test/lib/configs/digital/BNN_II.json"))
         acs_int.cpy(mat, m_matrix, n_matrix)
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
         np.testing.assert_array_equal(res, np.array([2, -2, 0], dtype=np.int32))
@@ -120,7 +126,8 @@ class TestDigitalMapping(unittest.TestCase):
         vec = np.array([1, 1], dtype=np.int32)
         res = np.array([0, 0, 0], dtype=np.int32)
 
-        acs_int.set_config(os.path.abspath("cpp/test/lib/configs/digital/BNN_III.json"))
+        acs_int.set_config(
+            os.path.abspath(f"{repo_path}/cpp/test/lib/configs/digital/BNN_III.json"))
         acs_int.cpy(mat, m_matrix, n_matrix)
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
         np.testing.assert_array_equal(res, np.array([2, -2, 0], dtype=np.int32))
@@ -132,7 +139,7 @@ class TestDigitalMapping(unittest.TestCase):
         vec = np.array([1, 1], dtype=np.int32)
         res = np.array([0, 0, 0], dtype=np.int32)
 
-        acs_int.set_config(os.path.abspath("cpp/test/lib/configs/digital/BNN_IV.json"))
+        acs_int.set_config(os.path.abspath(f"{repo_path}/cpp/test/lib/configs/digital/BNN_IV.json"))
         acs_int.cpy(mat, m_matrix, n_matrix)
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
         np.testing.assert_array_equal(res, np.array([2, -2, 0], dtype=np.int32))
@@ -144,7 +151,7 @@ class TestDigitalMapping(unittest.TestCase):
         vec = np.array([1, 1], dtype=np.int32)
         res = np.array([0, 0, 0], dtype=np.int32)
 
-        acs_int.set_config(os.path.abspath("cpp/test/lib/configs/digital/BNN_V.json"))
+        acs_int.set_config(os.path.abspath(f"{repo_path}/cpp/test/lib/configs/digital/BNN_V.json"))
         acs_int.cpy(mat, m_matrix, n_matrix)
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
         np.testing.assert_array_equal(res, np.array([2, -2, 0], dtype=np.int32))
@@ -156,7 +163,7 @@ class TestDigitalMapping(unittest.TestCase):
         vec = np.array([1, 1], dtype=np.int32)
         res = np.array([0, 0, 0], dtype=np.int32)
 
-        acs_int.set_config(os.path.abspath("cpp/test/lib/configs/digital/BNN_VI.json"))
+        acs_int.set_config(os.path.abspath(f"{repo_path}/cpp/test/lib/configs/digital/BNN_VI.json"))
         acs_int.cpy(mat, m_matrix, n_matrix)
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
         np.testing.assert_array_equal(res, np.array([2, -2, 0], dtype=np.int32))
@@ -166,7 +173,7 @@ class TestDigitalMapping(unittest.TestCase):
         n_matrix = 2
         mat = np.array([1, 1, -1, -1, 1, -1], dtype=np.int32)
 
-        acs_int.set_config(os.path.abspath("cpp/test/lib/configs/digital/BNN_I.json"))
+        acs_int.set_config(os.path.abspath(f"{repo_path}/cpp/test/lib/configs/digital/BNN_I.json"))
         acs_int.cpy(mat, m_matrix, n_matrix)
         pos_mat = acs_int.gd_p()
         neg_mat = acs_int.gd_m()
