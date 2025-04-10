@@ -34,6 +34,9 @@ add_subdirectory(extern/json EXCLUDE_FROM_ALL)
 # Test options
 option(LIB_TESTS "Build lib tests." OFF)
 
+# Debug mode for matrix operations
+option(DEBUG_MODE "Enable debug output for matrix operations" OFF)
+
 # Build lib options
 option(BUILD_LIB_CB_EMU "Build emulater/callback interface." OFF)
 option(BUILD_LIB_ACS_INT "Build int lib." OFF)
@@ -118,4 +121,9 @@ if(LIB_TESTS)
     message(STATUS "Enabling cpp tests.")
     enable_testing()
     add_subdirectory(test)
+endif()
+
+if(DEBUG_MODE)
+    add_definitions(-DDEBUG_MODE)
+    message(STATUS "Debug mode enabled - will print matrix operation details")
 endif()

@@ -28,6 +28,7 @@ cmake \
     -DLIB_TESTS=ON \
     -DBUILD_LIB_CB_EMU=ON \
     -DBUILD_LIB_ACS_INT=ON \
+    # -DDEBUG_MODE=ON \    # Add -DDEBUG_MODE=ON to enable debug output of matrix operations (cpy_mtrx and mvm)
     ../../../cpp
 
 make -j `nproc`
