@@ -19,7 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: "recursive"
 
       - name: Install dependencies
         run: |
@@ -29,14 +29,14 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
-      
+          python-version: "3.8"
+
       - name: Create virtual environment
         run: |
           python -m venv .venv
           source .venv/bin/activate
           pip install -r requirements.txt
-      
+
       - name: CMake configure
         run: |
           mkdir build && cd build
@@ -48,11 +48,11 @@ jobs:
             -DBUILD_LIB_ACS_INT=ON \
             -DCOVERAGE=ON \
             ../cpp
-      
+
       - name: Build lib
         run: |
           cmake --build ${{github.workspace}}/build -j $(nproc)
-      
+
       - name: Code coverage ctest
         working-directory: ${{github.workspace}}/build
         run: |
@@ -64,7 +64,7 @@ jobs:
           echo "Coverage functions: $COVERAGE_FUNC"
           echo "COVERAGE_LINES=$COVERAGE_LINES" >> $GITHUB_ENV
           echo "COVERAGE_FUNC=$COVERAGE_FUNC" >> $GITHUB_ENV
-      
+
       - name: Determine Badge Color
         run: |
           COVERAGE=${{env.COVERAGE_LINES}}
@@ -78,9 +78,11 @@ jobs:
           else
             BADGE_COLOR_LINES="red"
           fi
+          echo "Code coverage lines: $COVERAGE_INT %"
           echo "BADGE_COLOR_LINES=$BADGE_COLOR_LINES" >> $GITHUB_ENV
-      
+
       - name: Create Awesome Badge
+        if: github.repository == 'rpelke/analog-cim-sim' && github.event_name != 'pull_request'
         uses: schneegans/dynamic-badges-action@v1.7.0
         with:
           auth: ${{secrets.GIST_SECRET}}
@@ -89,8 +91,9 @@ jobs:
           label: Coverage (lines)
           message: ${{env.COVERAGE_LINES}}
           color: ${{env.BADGE_COLOR_LINES}}
-      
+
       - name: Upload coverage report
+        if: github.repository == 'rpelke/analog-cim-sim' && github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
