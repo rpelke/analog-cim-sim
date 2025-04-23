@@ -28,6 +28,8 @@ cpy_c_to_py_funcptr cpy_c_to_py = nullptr;
 // Set funtion pointer
 extern "C" void set_cpy_python_cb(cpy_c_to_py_funcptr cb) { cpy_c_to_py = cb; }
 
+extern "C" void update_config(const char *json_config) { return; }
+
 extern "C" int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
                            int32_t m_matrix, int32_t n_matrix,
                            const char *l_name = "Unknown") {
