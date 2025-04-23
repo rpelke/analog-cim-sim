@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke                                           *
+ * Copyright (C) 2025 Rebecca Pelke & Joel Klein                              *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This is work is licensed under the terms described in the LICENSE file     *
@@ -34,6 +34,14 @@ class Config {
     static Config &get_cfg();
     bool load_cfg(const char *cfg_file);
     bool is_int_mapping();
+    bool update_from_json(const char *json_string,
+                          bool *recreate_xbar = nullptr,
+                          const std::vector<std::string> &recreation_keys = {
+                              "M", "N", "SPLIT", "digital_only", "HRS", "LRS",
+                              "adc_type", "alpha", "resolution", "m_mode",
+                              "HRS_NOISE", "LRS_NOISE"});
+    template <typename T>
+    bool update_cfg(const std::string &key, const T &value);
 
     uint32_t M;
     uint32_t N;
@@ -53,6 +61,7 @@ class Config {
 
   private:
     Config();
+    bool apply_config();
     static Config cfg_;
     nlohmann::json cfg_data_;
 };
