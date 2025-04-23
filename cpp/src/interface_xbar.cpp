@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke                                           *
+ * Copyright (C) 2025 Rebecca Pelke & Joel Klein                              *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This is work is licensed under the terms described in the LICENSE file     *
@@ -52,6 +52,28 @@ extern "C" EXPORT_API void set_config(const char *cfg_file) {
     xbar = nullptr;
     nq::Config::get_cfg().load_cfg(cfg_file);
     xbar = std::make_unique<nq::Crossbar>();
+}
+
+extern "C" EXPORT_API void update_config(const char *json_config) {
+    if (json_config == nullptr) {
+        std::cerr << "Warning: Config JSON is null. No changes applied."
+                  << std::endl;
+        return;
+    }
+
+    check_xbar();
+
+    // Track whether parameters requiring crossbar recreation were updated
+    bool recreate_xbar = false;
+
+    // Let Config class handle the JSON parsing and updates
+    bool config_updated =
+        nq::Config::get_cfg().update_from_json(json_config, &recreate_xbar);
+
+    // Only recreate crossbar if necessary keys were updated
+    if (config_updated && recreate_xbar) {
+        xbar = std::make_unique<nq::Crossbar>();
+    }
 }
 
 extern "C" EXPORT_API int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
@@ -289,6 +311,18 @@ pybind11::array_t<float> get_ia_m_pb() {
     return result;
 }
 
+void update_config_pb(const std::string &json_config) {
+    // Check if JSON string is empty
+    if (json_config.empty()) {
+        std::cerr << "Warning: Config JSON is empty. No changes applied."
+                  << std::endl;
+        return;
+    }
+
+    // Call the C interface function
+    update_config(json_config.c_str());
+}
+
 /*********************** C++ interface ***********************/
 EXPORT_API const std::vector<std::vector<int32_t>> &get_gd_p() {
     return xbar->get_gd_p();
@@ -311,6 +345,8 @@ PYBIND11_MODULE(acs_int, m) {
     m.def("cpy", &cpy_mtrx_pb, "Copy matrix to crossbar.");
     m.def("mvm", &exe_mvm_pb, "Execute matrix-vector multiplication.");
     m.def("set_config", &set_config, "Set a config for the crossbar.");
+    m.def("update_config", &update_config_pb,
+          "Update configuration from JSON string.");
     m.def("gd_p", &get_gd_p_pb,
           "Get the positive (digital) conductance matrix.");
     m.def("gd_m", &get_gd_m_pb,
