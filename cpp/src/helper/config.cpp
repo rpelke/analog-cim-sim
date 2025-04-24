@@ -6,6 +6,7 @@
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
 #include "helper/config.h"
+#include <optional>
 
 namespace nq {
 
@@ -18,14 +19,22 @@ Config &Config::get_cfg() {
     return instance;
 }
 
+// Read parameter from JSON config file
+// If the parameter is not found, return the default value if provided.
+// Otherwise: exit with an error message.
 template <typename T>
-T getConfigValue(const nlohmann::json &cfg, const std::string &key) {
+T getConfigValue(const nlohmann::json &cfg, const std::string &key,
+                 std::optional<T> default_value = std::nullopt) {
     try {
         return cfg.at(key).get<T>();
     } catch (const std::exception &e) {
-        std::cerr << "Missing/faulty parameter: '" << key << "' in config."
-                  << std::endl;
-        std::exit(EXIT_FAILURE);
+        if (!default_value.has_value()) {
+            std::cerr << "Parameter '" << key
+                      << "' not found in config. Add it to the config or "
+                         "specify a default value.\n";
+            std::exit(EXIT_FAILURE);
+        }
+        return default_value.value();
     }
 }
 
@@ -178,9 +187,18 @@ bool Config::apply_config() {
             // The standard deviation is HRS_NOISE for HRS and LRS_NOISE for LRS
             HRS_NOISE = getConfigValue<float>(cfg_data_, "HRS_NOISE");
             LRS_NOISE = getConfigValue<float>(cfg_data_, "LRS_NOISE");
+
+            // Read disturb
+            read_disturb =
+                getConfigValue<bool>(cfg_data_, "read_disturb", false);
+            if (read_disturb && is_int_mapping(m_mode)) {
+                std::cerr << "read_disturb is not supported for int mapping."
+                          << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
         }
 
-        if (is_int_mapping()) {
+        if (is_int_mapping(m_mode)) {
             W_BIT = getConfigValue<uint32_t>(cfg_data_, "W_BIT");
             I_BIT = getConfigValue<uint32_t>(cfg_data_, "I_BIT");
             SPLIT = getConfigValue<std::vector<uint32_t>>(cfg_data_, "SPLIT");
@@ -215,17 +233,16 @@ bool Config::apply_config() {
     }
 }
 
-bool Config::is_int_mapping() {
-    if ((m_mode == MappingMode::I_DIFF_W_DIFF_1XB) ||
-        (m_mode == MappingMode::I_DIFF_W_DIFF_2XB) ||
-        (m_mode == MappingMode::I_OFFS_W_DIFF) ||
-        (m_mode == MappingMode::I_TC_W_DIFF) ||
-        (m_mode == MappingMode::I_UINT_W_DIFF) ||
-        (m_mode == MappingMode::I_UINT_W_OFFS)) {
-        return true;
-    } else {
-        return false;
-    }
+bool Config::is_int_mapping(const MappingMode &mode) {
+    return mode_to_type.at(mode) == MappingType::INT;
+}
+
+bool Config::is_bnn_mapping(const MappingMode &mode) {
+    return mode_to_type.at(mode) == MappingType::BNN;
+}
+
+bool Config::is_tnn_mapping(const MappingMode &mode) {
+    return mode_to_type.at(mode) == MappingType::TNN;
 }
 
 bool Config::update_from_json(const char *json_string, bool *recreate_xbar,

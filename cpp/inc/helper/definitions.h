@@ -8,7 +8,11 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
+#include <map>
+
 namespace nq {
+
+enum class MappingType { BNN, TNN, INT };
 
 enum class MappingMode {
     I_DIFF_W_DIFF_1XB, // Inputs and weights in differential mode, use 1 XBar /
@@ -32,6 +36,25 @@ enum class MappingMode {
     TNN_IV,
     TNN_V
 };
+
+const std::map<MappingMode, MappingType> mode_to_type = {
+    {MappingMode::I_DIFF_W_DIFF_1XB, MappingType::INT},
+    {MappingMode::I_DIFF_W_DIFF_2XB, MappingType::INT},
+    {MappingMode::I_OFFS_W_DIFF, MappingType::INT},
+    {MappingMode::I_TC_W_DIFF, MappingType::INT},
+    {MappingMode::I_UINT_W_DIFF, MappingType::INT},
+    {MappingMode::I_UINT_W_OFFS, MappingType::INT},
+    {MappingMode::BNN_I, MappingType::BNN},
+    {MappingMode::BNN_II, MappingType::BNN},
+    {MappingMode::BNN_III, MappingType::BNN},
+    {MappingMode::BNN_IV, MappingType::BNN},
+    {MappingMode::BNN_V, MappingType::BNN},
+    {MappingMode::BNN_VI, MappingType::BNN},
+    {MappingMode::TNN_I, MappingType::TNN},
+    {MappingMode::TNN_II, MappingType::TNN},
+    {MappingMode::TNN_III, MappingType::TNN},
+    {MappingMode::TNN_IV, MappingType::TNN},
+    {MappingMode::TNN_V, MappingType::TNN}};
 
 static std::string m_mode_to_string(MappingMode mode) {
     switch (mode) {

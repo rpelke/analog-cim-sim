@@ -33,13 +33,15 @@ class Config {
 
     static Config &get_cfg();
     bool load_cfg(const char *cfg_file);
-    bool is_int_mapping();
+    bool is_int_mapping(const MappingMode &mode);
+    bool is_bnn_mapping(const MappingMode &mode);
+    bool is_tnn_mapping(const MappingMode &mode);
     bool update_from_json(const char *json_string,
                           bool *recreate_xbar = nullptr,
                           const std::vector<std::string> &recreation_keys = {
                               "M", "N", "SPLIT", "digital_only", "HRS", "LRS",
                               "adc_type", "alpha", "resolution", "m_mode",
-                              "HRS_NOISE", "LRS_NOISE"});
+                              "HRS_NOISE", "LRS_NOISE", "read_disturb"});
     template <typename T>
     bool update_cfg(const std::string &key, const T &value);
 
@@ -58,6 +60,7 @@ class Config {
     bool verbose;
     float HRS_NOISE;
     float LRS_NOISE;
+    bool read_disturb;
 
   private:
     Config();

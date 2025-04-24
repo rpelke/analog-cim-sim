@@ -48,7 +48,7 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
         lrs_var_ = std::normal_distribution<float>(0.0f, CFG.LRS_NOISE);
     }
 
-    if (CFG.is_int_mapping() || (CFG.m_mode == MappingMode::TNN_IV)) {
+    if (CFG.is_int_mapping(CFG.m_mode) || (CFG.m_mode == MappingMode::TNN_IV)) {
         int curr_w_bit = CFG.W_BIT;
         for (size_t i = 0; i < CFG.SPLIT.size(); ++i) {
             shift_[i] = curr_w_bit - CFG.SPLIT[i];
