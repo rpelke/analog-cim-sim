@@ -12,11 +12,50 @@ namespace nq {
 
 Crossbar::Crossbar() :
     mapper_(Mapper::create_from_config()), write_xbar_counter_(0),
-    mvm_counter_(0) {}
+    mvm_counter_(0), rd_model_(nullptr), read_num_(0) {
+    if (CFG.read_disturb) {
+        rd_model_ = std::make_unique<ReadDisturb>(CFG.V_read);
+    }
+}
 
 void Crossbar::write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix) {
     write_xbar_counter_++;
-    mapper_->d_write(mat, m_matrix, n_matrix);
+    read_num_ = 0;
+    if (CFG.read_disturb) {
+        std::vector<std::vector<bool>> update_p(
+            CFG.M * CFG.SPLIT.size(), std::vector<bool>(CFG.N, false));
+        std::vector<std::vector<bool>> update_m(
+            CFG.M * CFG.SPLIT.size(), std::vector<bool>(CFG.N, false));
+
+        // Copy gd_p and gd_m before changing them
+        const std::vector<std::vector<int32_t>> prev_gd_p = mapper_->get_gd_p();
+        const std::vector<std::vector<int32_t>> prev_gd_m = mapper_->get_gd_m();
+
+        mapper_->d_write(mat, m_matrix, n_matrix);
+
+        // Get the current gd_p and gd_m after writing
+        const std::vector<std::vector<int32_t>> &curr_gd_p =
+            mapper_->get_gd_p();
+        const std::vector<std::vector<int32_t>> &curr_gd_m =
+            mapper_->get_gd_m();
+
+        // Compare the previous and current gd_p and gd_m to find updates
+        for (size_t i = 0; i < update_p.size(); i++) {
+            for (size_t j = 0; j < update_p[i].size(); j++) {
+                if (prev_gd_p[i][j] == 1 && curr_gd_p[i][j] == 0) {
+                    update_p[i][j] = true;
+                }
+                if (prev_gd_m[i][j] == 1 && curr_gd_m[i][j] == 0) {
+                    update_m[i][j] = true;
+                }
+            }
+        }
+
+        // Update the set-reset cycles for each cell
+        rd_model_->update_cycles(update_p, update_m);
+    } else {
+        mapper_->d_write(mat, m_matrix, n_matrix);
+    }
     if (!CFG.digital_only) {
         mapper_->a_write(m_matrix, n_matrix);
     }
@@ -25,10 +64,15 @@ void Crossbar::write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix) {
 void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                    int32_t m_matrix, int32_t n_matrix) {
     mvm_counter_++;
+    read_num_++;
     if (CFG.digital_only) {
         mapper_->d_mvm(res, vec, mat, m_matrix, n_matrix);
     } else {
         mapper_->a_mvm(res, vec, mat, m_matrix, n_matrix);
+        if (CFG.read_disturb) {
+            // Update analog conductance values
+            mapper_->update_conductance(*rd_model_, read_num_);
+        }
     }
 }
 
@@ -109,5 +153,21 @@ const std::vector<std::vector<float>> &Crossbar::get_ia_p() const {
 const std::vector<std::vector<float>> &Crossbar::get_ia_m() const {
     return mapper_->get_ia_m();
 }
+
+const std::vector<std::vector<uint64_t>> &Crossbar::get_cycles_p() const {
+    return rd_model_->get_cycles_p();
+}
+
+const std::vector<std::vector<uint64_t>> &Crossbar::get_cycles_m() const {
+    return rd_model_->get_cycles_m();
+}
+
+const uint64_t Crossbar::get_write_xbar_counter() const {
+    return write_xbar_counter_;
+}
+
+const uint64_t Crossbar::get_mvm_counter() const { return mvm_counter_; }
+
+const uint64_t Crossbar::get_read_num() const { return read_num_; }
 
 } // namespace nq

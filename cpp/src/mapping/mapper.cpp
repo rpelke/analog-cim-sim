@@ -33,8 +33,8 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
     gd_p_(CFG.M * CFG.SPLIT.size(), std::vector<int32_t>(CFG.N, 0)),
     gd_m_(CFG.M * CFG.SPLIT.size(), std::vector<int32_t>(CFG.N, 0)),
     shift_(CFG.SPLIT.size(), 0), sum_w_(CFG.M, 0),
-    ia_p_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, 0)),
-    ia_m_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, 0)),
+    ia_p_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
+    ia_m_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
     i_step_size_(CFG.SPLIT.size(), 0.0),
     adc_(ADCFactory::createADC(CFG.adc_type)) {
 
@@ -299,6 +299,43 @@ const std::vector<std::vector<float>> &Mapper::get_ia_p() const {
 
 const std::vector<std::vector<float>> &Mapper::get_ia_m() const {
     return ia_m_;
+}
+
+void Mapper::update_conductance(const ReadDisturb &rd_model,
+                                const uint64_t read_num) {
+    // Update ia_p_
+    const std::vector<std::vector<uint64_t>> &cycles_p =
+        rd_model.get_cycles_p();
+
+    for (size_t i = 0; i < cycles_p.size(); i++) {
+        for (size_t j = 0; j < cycles_p[i].size(); j++) {
+            if (gd_p_[i][j] == 1) {
+                // Update the conductance value of LRS only
+                float LRS_scaling_factor =
+                    rd_model.calc_G0_scaling_factor(read_num, cycles_p[i][j]);
+                ia_p_[i][j] = CFG.LRS * LRS_scaling_factor;
+            }
+        }
+    }
+
+    if (!is_diff_weight_mapping_) {
+        // No need to update ia_m_ for non-diff weight mapping
+        return;
+    }
+
+    // Update ia_m_ as well
+    const std::vector<std::vector<uint64_t>> &cycles_m =
+        rd_model.get_cycles_m();
+    for (size_t i = 0; i < cycles_m.size(); i++) {
+        for (size_t j = 0; j < cycles_m[i].size(); j++) {
+            if (gd_m_[i][j] == 1) {
+                // Update the conductance value of LRS only
+                float LRS_scaling_factor =
+                    rd_model.calc_G0_scaling_factor(read_num, cycles_m[i][j]);
+                ia_m_[i][j] = CFG.LRS * LRS_scaling_factor;
+            }
+        }
+    }
 }
 
 } // namespace nq

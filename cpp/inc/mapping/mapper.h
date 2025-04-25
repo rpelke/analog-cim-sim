@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "adc/adc.h"
+#include "xbar/read_disturb.h"
 
 namespace nq {
 
@@ -35,6 +36,8 @@ class Mapper {
     const std::vector<std::vector<int32_t>> &get_gd_m() const;
     const std::vector<std::vector<float>> &get_ia_p() const;
     const std::vector<std::vector<float>> &get_ia_m() const;
+    void update_conductance(const ReadDisturb &rd_model,
+                            const uint64_t read_num);
 
   protected:
     void d_write_diff(const int32_t *mat, int32_t m_matrix, int32_t n_matrix);

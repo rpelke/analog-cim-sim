@@ -177,12 +177,12 @@ class TestAnalogMapping(unittest.TestCase):
         pos_mat = acs_int.ia_p()
         neg_mat = acs_int.ia_m()
 
-        np.testing.assert_equal(np.size(pos_mat) - np.count_nonzero(pos_mat), 32 * 32 - 3 * 2)
+        np.testing.assert_equal((pos_mat == 5.0).sum(), np.size(pos_mat) - 3)
         np.testing.assert_array_equal(pos_mat[0][:2], [30, 30])
         np.testing.assert_array_equal(pos_mat[1][:2], [5, 5])
         np.testing.assert_array_equal(pos_mat[2][:2], [30, 5])
 
-        np.testing.assert_equal(np.size(neg_mat) - np.count_nonzero(neg_mat), 32 * 32 - 3 * 2)
+        np.testing.assert_equal((pos_mat == 30.0).sum(), 3)
         np.testing.assert_array_equal(neg_mat[0][:2], [5, 5])
         np.testing.assert_array_equal(neg_mat[1][:2], [30, 30])
         np.testing.assert_array_equal(neg_mat[2][:2], [5, 30])

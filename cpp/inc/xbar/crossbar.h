@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "mapping/mapper.h"
+#include "xbar/read_disturb.h"
 
 namespace nq {
 
@@ -28,11 +29,18 @@ class Crossbar {
     const std::vector<std::vector<int32_t>> &get_gd_m() const;
     const std::vector<std::vector<float>> &get_ia_p() const;
     const std::vector<std::vector<float>> &get_ia_m() const;
+    const std::vector<std::vector<uint64_t>> &get_cycles_p() const;
+    const std::vector<std::vector<uint64_t>> &get_cycles_m() const;
+    const uint64_t get_write_xbar_counter() const;
+    const uint64_t get_mvm_counter() const;
+    const uint64_t get_read_num() const;
 
   private:
     std::unique_ptr<Mapper> mapper_;
     uint64_t write_xbar_counter_; // Number of write function calls
     uint64_t mvm_counter_;        // Number of MVM function calls
+    std::unique_ptr<ReadDisturb> rd_model_;
+    uint64_t read_num_; // Number of consecutive read operations
 };
 
 } // namespace nq

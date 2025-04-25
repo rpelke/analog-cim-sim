@@ -41,7 +41,8 @@ class Config {
                           const std::vector<std::string> &recreation_keys = {
                               "M", "N", "SPLIT", "digital_only", "HRS", "LRS",
                               "adc_type", "alpha", "resolution", "m_mode",
-                              "HRS_NOISE", "LRS_NOISE", "read_disturb"});
+                              "HRS_NOISE", "LRS_NOISE", "read_disturb",
+                              "V_read", "t_read"});
     template <typename T>
     bool update_cfg(const std::string &key, const T &value);
 
@@ -61,6 +62,8 @@ class Config {
     float HRS_NOISE;
     float LRS_NOISE;
     bool read_disturb;
+    float V_read;
+    float t_read;
 
   private:
     Config();

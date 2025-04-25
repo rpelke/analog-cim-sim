@@ -137,12 +137,14 @@ bool Config::apply_config() {
                 std::exit(EXIT_FAILURE);
             }
 
-            alpha = getConfigValue<float>(cfg_data_, "alpha");
-            resolution = getConfigValue<int32_t>(cfg_data_, "resolution");
-            if ((resolution == -1) && (adc_type != ADCType::INF_ADC)) {
-                std::cerr << "ADC resolution is -1. INF_ADC expected"
-                          << std::endl;
-                std::exit(EXIT_FAILURE);
+            if (adc_type != ADCType::INF_ADC) {
+                alpha = getConfigValue<float>(cfg_data_, "alpha");
+                resolution = getConfigValue<int32_t>(cfg_data_, "resolution");
+                if ((resolution == -1) && (adc_type != ADCType::INF_ADC)) {
+                    std::cerr << "ADC resolution is -1. INF_ADC expected"
+                              << std::endl;
+                    std::exit(EXIT_FAILURE);
+                }
             }
 
             if ((m_mode == MappingMode::I_UINT_W_OFFS) ||
@@ -191,10 +193,21 @@ bool Config::apply_config() {
             // Read disturb
             read_disturb =
                 getConfigValue<bool>(cfg_data_, "read_disturb", false);
-            if (read_disturb && is_int_mapping(m_mode)) {
-                std::cerr << "read_disturb is not supported for int mapping."
-                          << std::endl;
-                std::exit(EXIT_FAILURE);
+            if (read_disturb) {
+                if (is_int_mapping(m_mode)) {
+                    std::cerr
+                        << "read_disturb is not supported for int mapping."
+                        << std::endl;
+                    std::exit(EXIT_FAILURE);
+                }
+                V_read = getConfigValue<float>(cfg_data_, "V_read");
+                if (V_read >= 0.0) {
+                    std::cerr << "The implemented read disturb model requires "
+                                 "a negative V_read voltage."
+                              << std::endl;
+                    std::exit(EXIT_FAILURE);
+                }
+                t_read = getConfigValue<float>(cfg_data_, "t_read");
             }
         }
 

@@ -38,7 +38,7 @@ make -j `nproc`
 make install
 ```
 
-### More useful cmake options
+### Some useful cmake options
 Build project with additional debug output:
 ```bash
 cmake -DDEBUG_MODE=ON ...

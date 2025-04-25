@@ -219,6 +219,21 @@ extern "C" EXPORT_API const void *get_ia_m(size_t *size) {
     return ptr;
 }
 
+extern "C" EXPORT_API const uint64_t get_write_xbar_counter() {
+    check_xbar();
+    return xbar->get_write_xbar_counter();
+}
+
+extern "C" EXPORT_API const uint64_t get_mvm_counter() {
+    check_xbar();
+    return xbar->get_mvm_counter();
+}
+
+extern "C" EXPORT_API const uint64_t get_read_num() {
+    check_xbar();
+    return xbar->get_read_num();
+}
+
 /********************* Pybind interface *********************/
 int32_t exe_mvm_pb(pybind11::array_t<int32_t> res,
                    pybind11::array_t<int32_t> vec,
@@ -311,6 +326,40 @@ pybind11::array_t<float> get_ia_m_pb() {
     return result;
 }
 
+pybind11::array_t<uint64_t> get_cycles_p_pb() {
+    check_xbar();
+
+    const auto &cycles_p = xbar->get_cycles_p();
+    size_t rows = cycles_p.size();
+    size_t cols = (rows > 0) ? cycles_p[0].size() : 0;
+
+    pybind11::array_t<uint64_t> result({rows, cols});
+    auto r = result.mutable_unchecked<2>();
+    for (size_t i = 0; i < rows; ++i) {
+        for (size_t j = 0; j < cols; ++j) {
+            r(i, j) = cycles_p[i][j];
+        }
+    }
+    return result;
+}
+
+pybind11::array_t<uint64_t> get_cycles_m_pb() {
+    check_xbar();
+
+    const auto &cycles_m = xbar->get_cycles_m();
+    size_t rows = cycles_m.size();
+    size_t cols = (rows > 0) ? cycles_m[0].size() : 0;
+
+    pybind11::array_t<uint64_t> result({rows, cols});
+    auto r = result.mutable_unchecked<2>();
+    for (size_t i = 0; i < rows; ++i) {
+        for (size_t j = 0; j < cols; ++j) {
+            r(i, j) = cycles_m[i][j];
+        }
+    }
+    return result;
+}
+
 void update_config_pb(const std::string &json_config) {
     // Check if JSON string is empty
     if (json_config.empty()) {
@@ -340,6 +389,14 @@ EXPORT_API const std::vector<std::vector<float>> &get_ia_m() {
     return xbar->get_ia_m();
 }
 
+EXPORT_API const std::vector<std::vector<uint64_t>> &get_cycles_p() {
+    return xbar->get_cycles_p();
+}
+
+EXPORT_API const std::vector<std::vector<uint64_t>> &get_cycles_m() {
+    return xbar->get_cycles_m();
+}
+
 /********************* Pybind definitions *********************/
 PYBIND11_MODULE(acs_int, m) {
     m.def("cpy", &cpy_mtrx_pb, "Copy matrix to crossbar.");
@@ -355,4 +412,14 @@ PYBIND11_MODULE(acs_int, m) {
           "Get the positive (analog) conductance matrix.");
     m.def("ia_m", &get_ia_m_pb,
           "Get the negative (analog) conductance matrix.");
+    m.def("cycles_p", &get_cycles_p_pb,
+          "Get the number of reset-set cycles of the positive matrix.");
+    m.def("cycles_m", &get_cycles_m_pb,
+          "Get the number of reset-set cycles of the negative matrix.");
+    m.def("write_ops", &get_write_xbar_counter,
+          "Get the number of write operations.");
+    m.def("mvm_ops", &get_mvm_counter,
+          "Get the number of matrix-vector multiplication operations.");
+    m.def("read_ops", &get_read_num,
+          "Get the current number of consecutive read operations.");
 }

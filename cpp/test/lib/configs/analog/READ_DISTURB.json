@@ -1,0 +1,15 @@
+{
+    "M": 1,
+    "N": 1,
+    "digital_only": false,
+    "HRS": 5.0,
+    "LRS": 30.0,
+    "adc_type": "INF_ADC",
+    "m_mode": "BNN_I",
+    "HRS_NOISE": 0.0,
+    "LRS_NOISE": 0.0,
+    "verbose": false,
+    "read_disturb": true,
+    "V_read": -0.4,
+    "t_read": 100e-9
+}
