@@ -42,28 +42,53 @@ class Config {
                               "M", "N", "SPLIT", "digital_only", "HRS", "LRS",
                               "adc_type", "alpha", "resolution", "m_mode",
                               "HRS_NOISE", "LRS_NOISE", "read_disturb",
-                              "V_read", "t_read"});
+                              "V_read", "t_read", "read_disturb_update_freq"});
     template <typename T>
     bool update_cfg(const std::string &key, const T &value);
 
+    // Matrix dimensions MxN
     uint32_t M;
     uint32_t N;
+
+    // How a single W_BIT weight is distributed to multiple cells
     std::vector<uint32_t> SPLIT;
+
+    // Bit width of weights and inputs
     uint32_t W_BIT;
     uint32_t I_BIT;
+
+    // No conversion to analog values
     bool digital_only;
+
+    // LRS and HRS current (in uA)
     float HRS;
     float LRS;
+
+    // ADC parameters
+    // alpha: clipping factor
     ADCType adc_type;
     float alpha;
     int32_t resolution;
+
+    // Mapping strategy
     MappingMode m_mode;
+
+    // Verbose output
     bool verbose;
+
+    // State variability: standard deviation of a gaussian distribution (in uA)
     float HRS_NOISE;
     float LRS_NOISE;
+
+    // Read disturb parameters
+    // V_read: read voltage (in V, negative)
+    // t_read: time of a read pulse (in s)
+    // read_disturb_update_freq: how often (in number of MVMs) the conductance
+    // is updated
     bool read_disturb;
     float V_read;
     float t_read;
+    uint32_t read_disturb_update_freq;
 
   private:
     Config();

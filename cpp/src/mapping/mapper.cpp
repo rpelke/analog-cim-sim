@@ -301,18 +301,18 @@ const std::vector<std::vector<float>> &Mapper::get_ia_m() const {
     return ia_m_;
 }
 
-void Mapper::update_conductance(const ReadDisturb &rd_model,
+void Mapper::update_conductance(std::shared_ptr<const ReadDisturb> rd_model,
                                 const uint64_t read_num) {
     // Update ia_p_
     const std::vector<std::vector<uint64_t>> &cycles_p =
-        rd_model.get_cycles_p();
+        rd_model->get_cycles_p();
 
     for (size_t i = 0; i < cycles_p.size(); i++) {
         for (size_t j = 0; j < cycles_p[i].size(); j++) {
             if (gd_p_[i][j] == 1) {
                 // Update the conductance value of LRS only
                 float LRS_scaling_factor =
-                    rd_model.calc_G0_scaling_factor(read_num, cycles_p[i][j]);
+                    rd_model->calc_G0_scaling_factor(read_num, cycles_p[i][j]);
                 ia_p_[i][j] = CFG.LRS * LRS_scaling_factor;
             }
         }
@@ -325,13 +325,13 @@ void Mapper::update_conductance(const ReadDisturb &rd_model,
 
     // Update ia_m_ as well
     const std::vector<std::vector<uint64_t>> &cycles_m =
-        rd_model.get_cycles_m();
+        rd_model->get_cycles_m();
     for (size_t i = 0; i < cycles_m.size(); i++) {
         for (size_t j = 0; j < cycles_m[i].size(); j++) {
             if (gd_m_[i][j] == 1) {
                 // Update the conductance value of LRS only
                 float LRS_scaling_factor =
-                    rd_model.calc_G0_scaling_factor(read_num, cycles_m[i][j]);
+                    rd_model->calc_G0_scaling_factor(read_num, cycles_m[i][j]);
                 ia_m_[i][j] = CFG.LRS * LRS_scaling_factor;
             }
         }

@@ -208,6 +208,8 @@ bool Config::apply_config() {
                     std::exit(EXIT_FAILURE);
                 }
                 t_read = getConfigValue<float>(cfg_data_, "t_read");
+                read_disturb_update_freq = getConfigValue<uint32_t>(
+                    cfg_data_, "read_disturb_update_freq", 1);
             }
         }
 

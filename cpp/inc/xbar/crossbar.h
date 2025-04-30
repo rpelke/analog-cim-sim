@@ -39,7 +39,7 @@ class Crossbar {
     std::unique_ptr<Mapper> mapper_;
     uint64_t write_xbar_counter_; // Number of write function calls
     uint64_t mvm_counter_;        // Number of MVM function calls
-    std::unique_ptr<ReadDisturb> rd_model_;
+    std::shared_ptr<ReadDisturb> rd_model_;
     uint64_t read_num_; // Number of consecutive read operations
 };
 

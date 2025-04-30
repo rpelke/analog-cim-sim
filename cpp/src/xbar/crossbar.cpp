@@ -14,7 +14,7 @@ Crossbar::Crossbar() :
     mapper_(Mapper::create_from_config()), write_xbar_counter_(0),
     mvm_counter_(0), rd_model_(nullptr), read_num_(0) {
     if (CFG.read_disturb) {
-        rd_model_ = std::make_unique<ReadDisturb>(CFG.V_read);
+        rd_model_ = std::make_shared<ReadDisturb>(CFG.V_read);
     }
 }
 
@@ -69,9 +69,9 @@ void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         mapper_->d_mvm(res, vec, mat, m_matrix, n_matrix);
     } else {
         mapper_->a_mvm(res, vec, mat, m_matrix, n_matrix);
-        if (CFG.read_disturb) {
+        if (CFG.read_disturb && read_num_ % CFG.read_disturb_update_freq == 0) {
             // Update analog conductance values
-            mapper_->update_conductance(*rd_model_, read_num_);
+            mapper_->update_conductance(rd_model_, read_num_);
         }
     }
 }
