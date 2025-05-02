@@ -68,7 +68,7 @@ extern "C" EXPORT_API void update_config(const char *json_config) {
 
     // Let Config class handle the JSON parsing and updates
     bool config_updated =
-        nq::Config::get_cfg().update_from_json(json_config, &recreate_xbar);
+        nq::Config::get_cfg().update_cfg(json_config, &recreate_xbar);
 
     // Only recreate crossbar if necessary keys were updated
     if (config_updated && recreate_xbar) {
