@@ -260,150 +260,76 @@ bool Config::is_tnn_mapping(const MappingMode &mode) {
     return mode_to_type.at(mode) == MappingType::TNN;
 }
 
-bool Config::update_from_json(const char *json_string, bool *recreate_xbar,
-                              const std::vector<std::string> &recreation_keys) {
+bool Config::update_cfg(const char *json_string, bool *recreate_xbar,
+                        const std::vector<std::string> &recreation_keys) {
     if (!json_string) {
         std::cerr << "Error: JSON string is null." << std::endl;
         return false;
     }
 
     try {
-        nlohmann::json config_updates = nlohmann::json::parse(json_string);
-        bool config_updated = false;
+        // Parse the JSON string
+        nlohmann::json updates = nlohmann::json::parse(json_string);
 
-        // Set recreate_xbar to false if provided
+        // Track if configuration was actually modified
+        bool config_modified = false;
+
+        // Initialize recreate_xbar flag if provided
         if (recreate_xbar) {
             *recreate_xbar = false;
         }
 
-        // Iterate through all items in the JSON
-        for (auto &item : config_updates.items()) {
-            const auto &key = item.key();
-            auto &value = item.value();
+        // Apply updates to the configuration
+        for (const auto &[key, new_value] : updates.items()) {
+            // Skip if this key isn't in our config and isn't valid to add
+            if (!cfg_data_.contains(key) && new_value.is_null()) {
+                continue;
+            }
 
-            // First check if the value is actually different
+            // Check if the value is actually different from current value
             bool value_changed = false;
 
-            // Check if the key exists and has a different value
+            // Compare with existing value if the key already exists
             if (cfg_data_.contains(key)) {
-                try {
-                    if (value.is_number_unsigned()) {
-                        uint32_t old_val =
-                            getConfigValue<uint32_t>(cfg_data_, key);
-                        uint32_t new_val = value.get<uint32_t>();
-                        value_changed = (old_val != new_val);
-                    } else if (value.is_number_integer()) {
-                        int32_t old_val =
-                            getConfigValue<int32_t>(cfg_data_, key);
-                        int32_t new_val = value.get<int32_t>();
-                        value_changed = (old_val != new_val);
-                    } else if (value.is_number_float()) {
-                        float old_val = getConfigValue<float>(cfg_data_, key);
-                        float new_val = value.get<float>();
-                        value_changed = (old_val != new_val);
-                    } else if (value.is_boolean()) {
-                        bool old_val = getConfigValue<bool>(cfg_data_, key);
-                        bool new_val = value.get<bool>();
-                        value_changed = (old_val != new_val);
-                    } else if (value.is_string()) {
-                        std::string old_val =
-                            getConfigValue<std::string>(cfg_data_, key);
-                        std::string new_val = value.get<std::string>();
-                        value_changed = (old_val != new_val);
-                    } else if (value.is_array()) {
-                        try {
-                            std::vector<uint32_t> old_array =
-                                getConfigValue<std::vector<uint32_t>>(cfg_data_,
-                                                                      key);
-                            std::vector<uint32_t> new_array =
-                                value.get<std::vector<uint32_t>>();
-                            value_changed = (old_array != new_array);
-                        } catch (const std::exception &e) {
-                            // If comparison fails, assume changed
-                            value_changed = true;
-                        }
-                    }
-                } catch (const std::exception &e) {
-                    // If comparison fails, assume the value has changed
-                    value_changed = true;
-                    if (verbose) {
-                        std::cerr << "Warning: Error comparing values for key "
-                                  << key << ": " << e.what() << std::endl;
-                    }
-                }
+                const auto &current_value = cfg_data_[key];
+                value_changed = (current_value != new_value);
             } else {
-                // Key doesn't exist, so this is a new value
+                // New key being added
                 value_changed = true;
             }
 
-            // If value hasn't changed, skip to next item
-            if (!value_changed) {
-                continue;
-            }
+            // Only update if value actually changed
+            if (value_changed) {
+                // Update the config data
+                cfg_data_[key] = new_value;
+                config_modified = true;
 
-            // Handle each data type for the update
-            bool success = false;
-            try {
-                if (value.is_number_unsigned()) {
-                    success = update_cfg<uint32_t>(key, value.get<uint32_t>());
-                } else if (value.is_number_integer()) {
-                    success = update_cfg<int32_t>(key, value.get<int32_t>());
-                } else if (value.is_number_float()) {
-                    success = update_cfg<float>(key, value.get<float>());
-                } else if (value.is_boolean()) {
-                    success = update_cfg<bool>(key, value.get<bool>());
-                } else if (value.is_string()) {
-                    success =
-                        update_cfg<std::string>(key, value.get<std::string>());
-                } else if (value.is_array()) {
-                    // Handle array types like SPLIT
-                    std::vector<uint32_t> arr_value =
-                        value.get<std::vector<uint32_t>>();
-                    success = update_cfg<std::vector<uint32_t>>(key, arr_value);
-                } else {
-                    std::cerr << "Unsupported value type for key: " << key
-                              << std::endl;
-                    continue;
-                }
-            } catch (const std::exception &e) {
-                std::cerr << "Error updating config value for key " << key
-                          << ": " << e.what() << std::endl;
-                continue;
-            }
-
-            // Check if update was successful
-            if (!success) {
-                std::cerr << "Failed to update configuration for key: " << key
-                          << std::endl;
-            } else {
-                config_updated = true;
-
-                // Update recreate_xbar flag if this key requires crossbar
-                // recreation
+                // Check if this key requires crossbar recreation
                 if (recreate_xbar &&
                     std::find(recreation_keys.begin(), recreation_keys.end(),
                               key) != recreation_keys.end()) {
                     *recreate_xbar = true;
                 }
+
+                if (verbose) {
+                    std::cout << "Updated configuration key: " << key
+                              << std::endl;
+                }
             }
         }
 
-        return config_updated;
+        // Apply configuration only if changes were made
+        if (config_modified) {
+            return apply_config();
+        }
+
+        return false;
+    } catch (const nlohmann::json::parse_error &e) {
+        std::cerr << "JSON parse error: " << e.what() << std::endl;
+        std::exit(EXIT_FAILURE);
     } catch (const std::exception &e) {
         std::cerr << "Error updating config from JSON: " << e.what()
                   << std::endl;
-        std::exit(EXIT_FAILURE);
-    }
-}
-
-template <typename T>
-bool Config::update_cfg(const std::string &key, const T &value) {
-    try {
-        cfg_data_[key] = value;
-        return apply_config();
-    } catch (const std::exception &e) {
-        std::cerr << "Error updating JSON config for key: " << key << ": "
-                  << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
     }
 }

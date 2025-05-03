@@ -36,15 +36,12 @@ class Config {
     bool is_int_mapping(const MappingMode &mode);
     bool is_bnn_mapping(const MappingMode &mode);
     bool is_tnn_mapping(const MappingMode &mode);
-    bool update_from_json(const char *json_string,
-                          bool *recreate_xbar = nullptr,
-                          const std::vector<std::string> &recreation_keys = {
-                              "M", "N", "SPLIT", "digital_only", "HRS", "LRS",
-                              "adc_type", "alpha", "resolution", "m_mode",
-                              "HRS_NOISE", "LRS_NOISE", "read_disturb",
-                              "V_read", "t_read", "read_disturb_update_freq"});
-    template <typename T>
-    bool update_cfg(const std::string &key, const T &value);
+    bool update_cfg(const char *json_string, bool *recreate_xbar = nullptr,
+                    const std::vector<std::string> &recreation_keys = {
+                        "M", "N", "SPLIT", "digital_only", "HRS", "LRS",
+                        "adc_type", "alpha", "resolution", "m_mode",
+                        "HRS_NOISE", "LRS_NOISE", "read_disturb", "V_read",
+                        "t_read", "read_disturb_update_freq"});
 
     // Matrix dimensions MxN
     uint32_t M;
