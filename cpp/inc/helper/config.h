@@ -41,7 +41,9 @@ class Config {
                         "M", "N", "SPLIT", "digital_only", "HRS", "LRS",
                         "adc_type", "alpha", "resolution", "m_mode",
                         "HRS_NOISE", "LRS_NOISE", "read_disturb", "V_read",
-                        "t_read", "read_disturb_update_freq"});
+                        "t_read", "read_disturb_update_freq",
+                        "read_disturb_mitigation",
+                        "read_disturb_mitigation_fp"});
 
     // Matrix dimensions MxN
     uint32_t M;
@@ -86,6 +88,12 @@ class Config {
     float V_read;
     float t_read;
     uint32_t read_disturb_update_freq;
+
+    // Read disturb mitigation parameters
+    // read_disturb_mitigation: whether to use read disturb mitigation
+    // mitigation_fp: fitting parameter for the refresh time (>= 1.0)
+    bool read_disturb_mitigation;
+    float read_disturb_mitigation_fp;
 
   private:
     Config();

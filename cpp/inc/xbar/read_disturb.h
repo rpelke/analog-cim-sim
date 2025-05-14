@@ -33,8 +33,8 @@ class ReadDisturb {
     float calc_transition_time(const uint64_t N_cycles) const;
 
   private:
-    float calc_exp_tt(float V_read);
-    float calc_p(float V_read);
+    float calc_exp_tt(const float V_read) const;
+    float calc_p(const float V_read) const;
 
     std::vector<std::vector<uint64_t>> cycles_p_;
     std::vector<std::vector<uint64_t>> cycles_m_;

@@ -50,7 +50,6 @@ void Crossbar::write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix) {
                 }
             }
         }
-
         // Update the set-reset cycles for each cell
         rd_model_->update_cycles(update_p, update_m);
     } else {
@@ -69,9 +68,50 @@ void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         mapper_->d_mvm(res, vec, mat, m_matrix, n_matrix);
     } else {
         mapper_->a_mvm(res, vec, mat, m_matrix, n_matrix);
+
         if (CFG.read_disturb && read_num_ % CFG.read_disturb_update_freq == 0) {
-            // Update analog conductance values
-            mapper_->update_conductance(rd_model_, read_num_);
+            // Read disturb effect: update analog conductance values
+            mapper_->rd_update_conductance(rd_model_, read_num_);
+
+            // Read disturb mitigation
+            if (CFG.read_disturb_mitigation) {
+                bool refresh_needed = mapper_->rd_check_refresh(
+                    rd_model_, read_num_, write_xbar_counter_);
+
+                if (refresh_needed) {
+                    // Increase the set-reset cycle for every LRS cell since all
+                    // LRS cells are reprogrammed by resetting and setting again
+                    std::vector<std::vector<bool>> update_p(
+                        CFG.M * CFG.SPLIT.size(),
+                        std::vector<bool>(CFG.N, false));
+                    std::vector<std::vector<bool>> update_m(
+                        CFG.M * CFG.SPLIT.size(),
+                        std::vector<bool>(CFG.N, false));
+
+                    // Get the current gd_p and gd_m
+                    const std::vector<std::vector<int32_t>> &curr_gd_p =
+                        mapper_->get_gd_p();
+                    const std::vector<std::vector<int32_t>> &curr_gd_m =
+                        mapper_->get_gd_m();
+
+                    for (size_t i = 0; i < update_p.size(); i++) {
+                        for (size_t j = 0; j < update_p[i].size(); j++) {
+                            if (curr_gd_p[i][j] == 1) {
+                                update_p[i][j] = true;
+                            }
+                            if (curr_gd_m[i][j] == 1) {
+                                update_m[i][j] = true;
+                            }
+                        }
+                    }
+
+                    // Update the set-reset cycles for each cell
+                    rd_model_->update_cycles(update_p, update_m);
+
+                    // Reset conducance values
+                    mapper_->a_write(CFG.M, CFG.N);
+                }
+            }
         }
     }
 }

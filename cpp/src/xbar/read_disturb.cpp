@@ -49,16 +49,19 @@ float ReadDisturb::calc_G0_scaling_factor(const uint64_t read_num,
     }
 }
 
+// Calculate the transition time based on the V_read of the config
 float ReadDisturb::calc_transition_time(const uint64_t N_cycles) const {
     return t0_ * std::pow(fitting_param_, exp_tt_) *
            std::pow(1 - k_ * std::pow(N_cycles, m_), exp_tt_);
 }
 
-float ReadDisturb::calc_exp_tt(float V_read) {
+// Calculate the exponent for the transition time
+float ReadDisturb::calc_exp_tt(const float V_read) const {
     return 1 / (c1_ * std::exp(a_ * std::abs(V_read) / kb_T_));
 }
 
-float ReadDisturb::calc_p(float V_read) {
+// Calculate the power factor p
+float ReadDisturb::calc_p(const float V_read) const {
     return c1_ * std::exp(a_ * std::abs(V_read) / kb_T_);
 }
 

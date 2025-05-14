@@ -301,8 +301,8 @@ const std::vector<std::vector<float>> &Mapper::get_ia_m() const {
     return ia_m_;
 }
 
-void Mapper::update_conductance(std::shared_ptr<const ReadDisturb> rd_model,
-                                const uint64_t read_num) {
+void Mapper::rd_update_conductance(std::shared_ptr<const ReadDisturb> rd_model,
+                                   const uint64_t read_num) {
     // Update ia_p_
     const std::vector<std::vector<uint64_t>> &cycles_p =
         rd_model->get_cycles_p();
@@ -336,6 +336,19 @@ void Mapper::update_conductance(std::shared_ptr<const ReadDisturb> rd_model,
             }
         }
     }
+}
+
+// Check if the cells require a refresh due to the read disturb effect
+// Determined analytically (i.e., no cells are measured)
+bool Mapper::rd_check_refresh(std::shared_ptr<const ReadDisturb> rd_model,
+                              const uint64_t read_num,
+                              const uint64_t write_num) {
+    float tt = rd_model->calc_transition_time(write_num);
+    float t_stress = read_num * CFG.t_read;
+    if (t_stress >= CFG.read_disturb_mitigation_fp * tt) {
+        return true;
+    }
+    return false;
 }
 
 } // namespace nq

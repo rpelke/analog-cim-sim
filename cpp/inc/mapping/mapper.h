@@ -36,8 +36,10 @@ class Mapper {
     const std::vector<std::vector<int32_t>> &get_gd_m() const;
     const std::vector<std::vector<float>> &get_ia_p() const;
     const std::vector<std::vector<float>> &get_ia_m() const;
-    void update_conductance(std::shared_ptr<const ReadDisturb> rd_model,
-                            const uint64_t read_num);
+    void rd_update_conductance(std::shared_ptr<const ReadDisturb> rd_model,
+                               const uint64_t read_num);
+    bool rd_check_refresh(std::shared_ptr<const ReadDisturb> rd_model,
+                          const uint64_t read_num, const uint64_t write_num);
 
   protected:
     void d_write_diff(const int32_t *mat, int32_t m_matrix, int32_t n_matrix);

@@ -210,6 +210,20 @@ bool Config::apply_config() {
                 t_read = getConfigValue<float>(cfg_data_, "t_read");
                 read_disturb_update_freq = getConfigValue<uint32_t>(
                     cfg_data_, "read_disturb_update_freq", 1);
+
+                // Read disturb mitigation
+                read_disturb_mitigation = getConfigValue<bool>(
+                    cfg_data_, "read_disturb_mitigation", false);
+                if (read_disturb_mitigation) {
+                    read_disturb_mitigation_fp = getConfigValue<float>(
+                        cfg_data_, "read_disturb_mitigation_fp");
+                    if (read_disturb_mitigation_fp < 1.0) {
+                        std::cerr
+                            << "read_disturb_mitigation_fp must be >= 1.0."
+                            << std::endl;
+                        std::exit(EXIT_FAILURE);
+                    }
+                }
             }
         }
 

@@ -23,7 +23,6 @@ class TestReadDisturbModel(unittest.TestCase):
         rd_gm = ReadDisturbGoldenModel(-0.4, 100e-9)
         I_HRS = 5.0
         I_LRS = 30.0
-        G_LRS = I_LRS / rd_gm.V_read
 
         m_matrix = 1
         n_matrix = 1
@@ -32,7 +31,8 @@ class TestReadDisturbModel(unittest.TestCase):
         res = np.array([0], dtype=np.int32)
 
         acs_int.set_config(
-            os.path.abspath(f"{repo_path}/cpp/test/lib/configs/analog/READ_DISTURB.json"))
+            os.path.abspath(
+                f"{repo_path}/cpp/test/lib/configs/analog/READ_DISTURB_MITIGATION.json"))
         assert acs_int.write_ops() == 0
         assert acs_int.mvm_ops() == 0
         assert acs_int.read_ops() == 0
@@ -57,7 +57,7 @@ class TestReadDisturbModel(unittest.TestCase):
             assert acs_int.ia_p()[0][0] == I_HRS
             assert acs_int.ia_m()[0][0] == I_LRS
 
-            for t_idx, stress_time in enumerate(t):
+            for t_idx in range(len(t)):
                 num_reads = int(round(t_to_stress[t_idx] / rd_gm.t_read))
 
                 for r in range(num_reads):
@@ -68,11 +68,9 @@ class TestReadDisturbModel(unittest.TestCase):
                 ia_p = acs_int.ia_p()[0][0]
                 ia_m = acs_int.ia_m()[0][0]
 
-                G_LRS_new = G_LRS * rd_gm.G_scaling(stress_time, N)
-                I_LRS_new = G_LRS_new * rd_gm.V_read
-
-                np.testing.assert_allclose(ia_m, I_LRS_new, atol=1e-6)
-                np.testing.assert_allclose(ia_p, I_HRS, atol=0.0)
+                # Values should not change because conductance is refreshed
+                np.testing.assert_allclose(ia_m, I_LRS, atol=0)
+                np.testing.assert_allclose(ia_p, I_HRS, atol=0)
 
 
 if __name__ == "__main__":
