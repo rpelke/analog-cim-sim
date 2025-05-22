@@ -12,7 +12,6 @@
     "read_disturb": true,
     "V_read": -0.4,
     "t_read": 100e-9,
-    "read_disturb_mitigation": true,
     "read_disturb_mitigation_strategy": "SOFTWARE",
     "read_disturb_mitigation_fp": 1.0
 }
