@@ -122,9 +122,13 @@ void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                             for (size_t j = 0; j < update_p[i].size(); j++) {
                                 if (curr_gd_p[i][j] == 1) {
                                     update_p[i][j] = true;
+                                    refresh_cell_counter_++;
                                 }
-                                if (curr_gd_m[i][j] == 1) {
-                                    update_m[i][j] = true;
+                                if (mapper_->is_diff_weight_mapping()) {
+                                    if (curr_gd_m[i][j] == 1) {
+                                        update_m[i][j] = true;
+                                        refresh_cell_counter_++;
+                                    }
                                 }
                             }
                         }
@@ -270,6 +274,14 @@ const uint64_t Crossbar::get_mvm_counter() const { return mvm_counter_; }
 
 const uint64_t Crossbar::get_read_num() const {
     return consecutive_mvm_counter_;
+}
+
+const uint64_t Crossbar::get_refresh_xbar_counter() const {
+    return refresh_xbar_counter_;
+}
+
+const uint64_t Crossbar::get_refresh_cell_counter() const {
+    return refresh_cell_counter_;
 }
 
 } // namespace nq

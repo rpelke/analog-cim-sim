@@ -68,8 +68,15 @@ class TestReadDisturbModel(unittest.TestCase):
                 ia_p = acs_int.ia_p()[0][0]
                 ia_m = acs_int.ia_m()[0][0]
 
-                G_LRS_new = G_LRS * rd_gm.G_scaling(stress_time, N)
+                G_LRS_new = G_LRS * rd_gm.G_scaling(stress_time, N - 1)
                 I_LRS_new = G_LRS_new * rd_gm.V_read
+
+                # No read disturb mitigation
+                assert acs_int.refresh_cell_ops() == 0
+                assert acs_int.refresh_ops() == 0
+
+                assert acs_int.cycles_p()[0][0] == N
+                assert acs_int.cycles_m()[0][0] == N - 1
 
                 np.testing.assert_allclose(ia_m, I_LRS_new, atol=1e-6)
                 np.testing.assert_allclose(ia_p, I_HRS, atol=0.0)

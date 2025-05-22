@@ -46,6 +46,7 @@ class Mapper {
                                    const uint64_t read_num,
                                    const uint64_t write_num);
     int rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model);
+    bool is_diff_weight_mapping() const;
 
   protected:
     void d_write_diff(const int32_t *mat, int32_t m_matrix, int32_t n_matrix);

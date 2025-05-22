@@ -59,7 +59,4 @@ jobs:
       - name: Execute tests
         run: |
           source .venv/bin/activate
-          gdb --batch \
-            --ex="run" \
-            --ex='python import sys; sys.exit(gdb.parse_and_eval("$_exitcode"))' \
-            --args python3 -m unittest discover -s int-bindings/test -p '*_test.py'
+          python3 -m unittest discover -s int-bindings/test -p '*_test.py'

@@ -444,4 +444,6 @@ int Mapper::rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model) {
     return refresh_count;
 }
 
+bool Mapper::is_diff_weight_mapping() const { return is_diff_weight_mapping_; }
+
 } // namespace nq
