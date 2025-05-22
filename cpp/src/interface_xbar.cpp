@@ -360,6 +360,40 @@ pybind11::array_t<uint64_t> get_cycles_m_pb() {
     return result;
 }
 
+pybind11::array_t<uint64_t> get_consecutive_reads_p_pb() {
+    check_xbar();
+
+    const auto &consecutive_reads_p = xbar->get_consecutive_reads_p();
+    size_t rows = consecutive_reads_p.size();
+    size_t cols = (rows > 0) ? consecutive_reads_p[0].size() : 0;
+
+    pybind11::array_t<uint64_t> result({rows, cols});
+    auto r = result.mutable_unchecked<2>();
+    for (size_t i = 0; i < rows; ++i) {
+        for (size_t j = 0; j < cols; ++j) {
+            r(i, j) = consecutive_reads_p[i][j];
+        }
+    }
+    return result;
+}
+
+pybind11::array_t<uint64_t> get_consecutive_reads_m_pb() {
+    check_xbar();
+
+    const auto &consecutive_reads_m = xbar->get_consecutive_reads_m();
+    size_t rows = consecutive_reads_m.size();
+    size_t cols = (rows > 0) ? consecutive_reads_m[0].size() : 0;
+
+    pybind11::array_t<uint64_t> result({rows, cols});
+    auto r = result.mutable_unchecked<2>();
+    for (size_t i = 0; i < rows; ++i) {
+        for (size_t j = 0; j < cols; ++j) {
+            r(i, j) = consecutive_reads_m[i][j];
+        }
+    }
+    return result;
+}
+
 void update_config_pb(const std::string &json_config) {
     // Check if JSON string is empty
     if (json_config.empty()) {
@@ -397,6 +431,14 @@ EXPORT_API const std::vector<std::vector<uint64_t>> &get_cycles_m() {
     return xbar->get_cycles_m();
 }
 
+EXPORT_API const std::vector<std::vector<uint64_t>> &get_consecutive_reads_p() {
+    return xbar->get_consecutive_reads_p();
+}
+
+EXPORT_API const std::vector<std::vector<uint64_t>> &get_consecutive_reads_m() {
+    return xbar->get_consecutive_reads_m();
+}
+
 /********************* Pybind definitions *********************/
 PYBIND11_MODULE(acs_int, m) {
     m.def("cpy", &cpy_mtrx_pb, "Copy matrix to crossbar.");
@@ -416,6 +458,12 @@ PYBIND11_MODULE(acs_int, m) {
           "Get the number of reset-set cycles of the positive matrix.");
     m.def("cycles_m", &get_cycles_m_pb,
           "Get the number of reset-set cycles of the negative matrix.");
+    m.def(
+        "consecutive_reads_p", &get_consecutive_reads_p_pb,
+        "Get the number of consecutive reads per cell of the positive matrix.");
+    m.def(
+        "consecutive_reads_m", &get_consecutive_reads_m_pb,
+        "Get the number of consecutive reads per cell of the negative matrix.");
     m.def("write_ops", &get_write_xbar_counter,
           "Get the number of write operations.");
     m.def("mvm_ops", &get_mvm_counter,

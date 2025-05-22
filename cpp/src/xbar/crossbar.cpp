@@ -151,6 +151,7 @@ void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                     mapper_->rd_cell_based_refresh(rd_model_);
                 }
                 break;
+
             default:
                 std::cerr << "Unknown read disturb mitigation strategy!"
                           << std::endl;
@@ -244,6 +245,16 @@ const std::vector<std::vector<uint64_t>> &Crossbar::get_cycles_p() const {
 
 const std::vector<std::vector<uint64_t>> &Crossbar::get_cycles_m() const {
     return rd_model_->get_cycles_m();
+}
+
+const std::vector<std::vector<uint64_t>> &
+Crossbar::get_consecutive_reads_p() const {
+    return rd_model_->get_consecutive_reads_p();
+}
+
+const std::vector<std::vector<uint64_t>> &
+Crossbar::get_consecutive_reads_m() const {
+    return rd_model_->get_consecutive_reads_m();
 }
 
 const uint64_t Crossbar::get_write_xbar_counter() const {

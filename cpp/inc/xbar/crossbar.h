@@ -31,6 +31,8 @@ class Crossbar {
     const std::vector<std::vector<float>> &get_ia_m() const;
     const std::vector<std::vector<uint64_t>> &get_cycles_p() const;
     const std::vector<std::vector<uint64_t>> &get_cycles_m() const;
+    const std::vector<std::vector<uint64_t>> &get_consecutive_reads_p() const;
+    const std::vector<std::vector<uint64_t>> &get_consecutive_reads_m() const;
     const uint64_t get_write_xbar_counter() const;
     const uint64_t get_mvm_counter() const;
     const uint64_t get_read_num() const;

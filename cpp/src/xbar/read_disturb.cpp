@@ -27,7 +27,7 @@ const std::vector<std::vector<uint64_t>> &ReadDisturb::get_cycles_p() const {
 }
 
 const std::vector<std::vector<uint64_t>> &ReadDisturb::get_cycles_m() const {
-    return cycles_p_;
+    return cycles_m_;
 }
 
 const std::vector<std::vector<uint64_t>> &
