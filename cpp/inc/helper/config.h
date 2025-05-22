@@ -38,23 +38,10 @@ class Config {
     bool is_tnn_mapping(const MappingMode &mode);
     bool update_cfg(const char *json_string, bool *recreate_xbar = nullptr,
                     const std::vector<std::string> &recreation_keys = {
-                        "M",
-                        "N",
-                        "SPLIT",
-                        "digital_only",
-                        "HRS",
-                        "LRS",
-                        "adc_type",
-                        "alpha",
-                        "resolution",
-                        "m_mode",
-                        "HRS_NOISE",
-                        "LRS_NOISE",
-                        "read_disturb",
-                        "V_read",
-                        "t_read",
-                        "read_disturb_update_freq",
-                        "read_disturb_mitigation",
+                        "M", "N", "SPLIT", "digital_only", "HRS", "LRS",
+                        "adc_type", "alpha", "resolution", "m_mode",
+                        "HRS_NOISE", "LRS_NOISE", "read_disturb", "V_read",
+                        "t_read", "read_disturb_update_freq",
                         "read_disturb_mitigation_strategy",
                         "read_disturb_mitigation_fp",
                         "read_disturb_update_tolerance"});
@@ -104,7 +91,6 @@ class Config {
     uint32_t read_disturb_update_freq;
 
     // Read disturb mitigation parameters
-    // read_disturb_mitigation: whether to simulate read disturb effect
     // read_disturb_mitigation_strategy:
     //    CELL_BASED: Update each cell individually
     //    SOFTWARE: Update all cells at once triggered by software

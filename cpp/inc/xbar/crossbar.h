@@ -44,6 +44,8 @@ class Crossbar {
     std::shared_ptr<ReadDisturb> rd_model_;
     uint64_t consecutive_mvm_counter_; // Number of consecutive read operations
                                        // (without a write in between)
+    uint64_t refresh_xbar_counter_;    // Number of complete crossbar refreshes
+    uint64_t refresh_cell_counter_;    // Number of single-cell refreshes
 };
 
 } // namespace nq

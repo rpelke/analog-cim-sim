@@ -12,7 +12,8 @@ namespace nq {
 
 Crossbar::Crossbar() :
     mapper_(Mapper::create_from_config()), write_xbar_counter_(0),
-    mvm_counter_(0), rd_model_(nullptr), consecutive_mvm_counter_(0) {
+    mvm_counter_(0), rd_model_(nullptr), consecutive_mvm_counter_(0),
+    refresh_xbar_counter_(0), refresh_cell_counter_(0) {
     if (CFG.read_disturb) {
         rd_model_ = std::make_shared<ReadDisturb>(CFG.V_read);
     }
@@ -53,7 +54,7 @@ void Crossbar::write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix) {
         // Update the set-reset cycles for each cell
         rd_model_->update_cycles(update_p, update_m);
 
-        // Reset the consecutive reads when cell base mitigation is used
+        // Reset the consecutive reads when cell_based mitigation is used
         if (CFG.read_disturb_mitigation_strategy ==
             ReadDisturbMitigationStrategy::CELL_BASED) {
             rd_model_->reset_all_consecutive_reads();
@@ -96,9 +97,11 @@ void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                     // Check if a refresh is needed
                     bool refresh_needed = mapper_->rd_check_software_refresh(
                         rd_model_, consecutive_mvm_counter_,
-                        write_xbar_counter_);
+                        write_xbar_counter_ + refresh_xbar_counter_);
 
                     if (refresh_needed) {
+                        refresh_xbar_counter_++;
+
                         // Increase the set-reset cycle for every LRS cell since
                         // all LRS cells are reprogrammed by resetting and
                         // setting again
@@ -148,7 +151,9 @@ void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                         rd_model_->get_consecutive_reads_m());
 
                     // Refresh cell individually if needed
-                    mapper_->rd_cell_based_refresh(rd_model_);
+                    int refresh_operations =
+                        mapper_->rd_cell_based_refresh(rd_model_);
+                    refresh_cell_counter_ += refresh_operations;
                 }
                 break;
 

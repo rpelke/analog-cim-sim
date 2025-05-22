@@ -392,7 +392,10 @@ bool Mapper::rd_check_software_refresh(
 }
 
 // CELL_BASED refresh strategy for read disturb mitigation
-void Mapper::rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model) {
+int Mapper::rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model) {
+    // Count refresh operations
+    int refresh_count = 0;
+
     float tolerance = CFG.read_disturb_update_tolerance;
     float lrs = CFG.LRS;
 
@@ -408,6 +411,8 @@ void Mapper::rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model) {
                     rd_model->update_cycle_p(m, n, 1);
                     // Reset consecutive reads
                     rd_model->reset_consecutive_reads_p(m, n);
+                    // Increment refresh count
+                    refresh_count++;
                 }
             }
         }
@@ -415,7 +420,7 @@ void Mapper::rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model) {
 
     if (!is_diff_weight_mapping_) {
         // No need to check ia_m_ for non-diff weight mapping
-        return;
+        return refresh_count;
     }
 
     for (size_t m = 0; m < ia_m_.size(); ++m) {
@@ -430,10 +435,13 @@ void Mapper::rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model) {
                     rd_model->update_cycle_m(m, n, 1);
                     // Reset consecutive reads
                     rd_model->reset_consecutive_reads_m(m, n);
+                    // Increment refresh count
+                    refresh_count++;
                 }
             }
         }
     }
+    return refresh_count;
 }
 
 } // namespace nq
