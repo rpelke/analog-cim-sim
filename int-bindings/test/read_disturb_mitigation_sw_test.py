@@ -32,7 +32,7 @@ class TestReadDisturbModel(unittest.TestCase):
 
         acs_int.set_config(
             os.path.abspath(
-                f"{repo_path}/cpp/test/lib/configs/analog/READ_DISTURB_MITIGATION.json"))
+                f"{repo_path}/cpp/test/lib/configs/analog/READ_DISTURB_MITIGATION_SW.json"))
         assert acs_int.write_ops() == 0
         assert acs_int.mvm_ops() == 0
         assert acs_int.read_ops() == 0

@@ -338,17 +338,102 @@ void Mapper::rd_update_conductance(std::shared_ptr<const ReadDisturb> rd_model,
     }
 }
 
+void Mapper::rd_update_conductance(
+    std::shared_ptr<const ReadDisturb> rd_model,
+    const std::vector<std::vector<uint64_t>> &consecutive_reads_p,
+    const std::vector<std::vector<uint64_t>> &consecutive_reads_m) {
+    // Update ia_p_
+    const std::vector<std::vector<uint64_t>> &cycles_p =
+        rd_model->get_cycles_p();
+
+    for (size_t i = 0; i < cycles_p.size(); i++) {
+        for (size_t j = 0; j < cycles_p[i].size(); j++) {
+            if (gd_p_[i][j] == 1) {
+                // Update the conductance value of LRS only
+                float LRS_scaling_factor = rd_model->calc_G0_scaling_factor(
+                    consecutive_reads_p[i][j], cycles_p[i][j]);
+                ia_p_[i][j] = CFG.LRS * LRS_scaling_factor;
+            }
+        }
+    }
+
+    if (!is_diff_weight_mapping_) {
+        // No need to update ia_m_ for non-diff weight mapping
+        return;
+    }
+
+    // Update ia_m_ as well
+    const std::vector<std::vector<uint64_t>> &cycles_m =
+        rd_model->get_cycles_m();
+    for (size_t i = 0; i < cycles_m.size(); i++) {
+        for (size_t j = 0; j < cycles_m[i].size(); j++) {
+            if (gd_m_[i][j] == 1) {
+                // Update the conductance value of LRS only
+                float LRS_scaling_factor = rd_model->calc_G0_scaling_factor(
+                    consecutive_reads_m[i][j], cycles_m[i][j]);
+                ia_m_[i][j] = CFG.LRS * LRS_scaling_factor;
+            }
+        }
+    }
+}
+
+// SOFTWARE refresh strategy for read disturb mitigation
 // Check if the cells require a refresh due to the read disturb effect
 // Determined analytically (i.e., no cells are measured)
-bool Mapper::rd_check_refresh(std::shared_ptr<const ReadDisturb> rd_model,
-                              const uint64_t read_num,
-                              const uint64_t write_num) {
+bool Mapper::rd_check_software_refresh(
+    std::shared_ptr<const ReadDisturb> rd_model, const uint64_t read_num,
+    const uint64_t write_num) {
     float tt = rd_model->calc_transition_time(write_num);
     float t_stress = read_num * CFG.t_read;
     if (t_stress >= CFG.read_disturb_mitigation_fp * tt) {
         return true;
     }
     return false;
+}
+
+// CELL_BASED refresh strategy for read disturb mitigation
+void Mapper::rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model) {
+    float tolerance = CFG.read_disturb_update_tolerance;
+    float lrs = CFG.LRS;
+
+    for (size_t m = 0; m < ia_p_.size(); ++m) {
+        for (size_t n = 0; n < ia_p_[m].size(); ++n) {
+            if (gd_p_[m][n] == 1) {
+                // Cell [m][n] is LRS cell -> Check conductance
+                if ((ia_p_[m][n] < (1 - tolerance) * lrs) ||
+                    (ia_p_[m][n] > (1 + tolerance) * lrs)) {
+                    // Refresh needed
+                    ia_p_[m][n] = add_gaussian_noise(lrs);
+                    // Update cycle count
+                    rd_model->update_cycle_p(m, n, 1);
+                    // Reset consecutive reads
+                    rd_model->reset_consecutive_reads_p(m, n);
+                }
+            }
+        }
+    }
+
+    if (!is_diff_weight_mapping_) {
+        // No need to check ia_m_ for non-diff weight mapping
+        return;
+    }
+
+    for (size_t m = 0; m < ia_m_.size(); ++m) {
+        for (size_t n = 0; n < ia_m_[m].size(); ++n) {
+            if (gd_m_[m][n] == 1) {
+                // Cell [m][n] is LRS cell -> Check conductance
+                if ((ia_m_[m][n] < (1 - tolerance) * lrs) ||
+                    (ia_m_[m][n] > (1 + tolerance) * lrs)) {
+                    // Refresh needed
+                    ia_m_[m][n] = add_gaussian_noise(lrs);
+                    // Update cycle count
+                    rd_model->update_cycle_m(m, n, 1);
+                    // Reset consecutive reads
+                    rd_model->reset_consecutive_reads_m(m, n);
+                }
+            }
+        }
+    }
 }
 
 } // namespace nq

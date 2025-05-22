@@ -38,8 +38,14 @@ class Mapper {
     const std::vector<std::vector<float>> &get_ia_m() const;
     void rd_update_conductance(std::shared_ptr<const ReadDisturb> rd_model,
                                const uint64_t read_num);
-    bool rd_check_refresh(std::shared_ptr<const ReadDisturb> rd_model,
-                          const uint64_t read_num, const uint64_t write_num);
+    void rd_update_conductance(
+        std::shared_ptr<const ReadDisturb> rd_model,
+        const std::vector<std::vector<uint64_t>> &consecutive_reads_p,
+        const std::vector<std::vector<uint64_t>> &consecutive_reads_m);
+    bool rd_check_software_refresh(std::shared_ptr<const ReadDisturb> rd_model,
+                                   const uint64_t read_num,
+                                   const uint64_t write_num);
+    void rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model);
 
   protected:
     void d_write_diff(const int32_t *mat, int32_t m_matrix, int32_t n_matrix);

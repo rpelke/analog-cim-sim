@@ -190,7 +190,7 @@ bool Config::apply_config() {
             HRS_NOISE = getConfigValue<float>(cfg_data_, "HRS_NOISE");
             LRS_NOISE = getConfigValue<float>(cfg_data_, "LRS_NOISE");
 
-            // Read disturb
+            // Read disturb simulation
             read_disturb =
                 getConfigValue<bool>(cfg_data_, "read_disturb", false);
             if (read_disturb) {
@@ -200,6 +200,8 @@ bool Config::apply_config() {
                         << std::endl;
                     std::exit(EXIT_FAILURE);
                 }
+
+                // Parameters for read disturb model
                 V_read = getConfigValue<float>(cfg_data_, "V_read");
                 if (V_read >= 0.0) {
                     std::cerr << "The implemented read disturb model requires "
@@ -212,15 +214,44 @@ bool Config::apply_config() {
                     cfg_data_, "read_disturb_update_freq", 1);
 
                 // Read disturb mitigation
-                read_disturb_mitigation = getConfigValue<bool>(
-                    cfg_data_, "read_disturb_mitigation", false);
-                if (read_disturb_mitigation) {
+                std::string rd_mitigation_strategy_name =
+                    getConfigValue<std::string>(
+                        cfg_data_, "read_disturb_mitigation_strategy", "OFF");
+                if (rd_mitigation_strategy_name == "SOFTWARE") {
+                    read_disturb_mitigation_strategy =
+                        ReadDisturbMitigationStrategy::SOFTWARE;
+                } else if (rd_mitigation_strategy_name == "CELL_BASED") {
+                    read_disturb_mitigation_strategy =
+                        ReadDisturbMitigationStrategy::CELL_BASED;
+                } else if (rd_mitigation_strategy_name == "OFF") {
+                    read_disturb_mitigation_strategy =
+                        ReadDisturbMitigationStrategy::OFF;
+                } else {
+                    std::cerr << "Unkown read disturb mitigation strategy."
+                              << std::endl;
+                    std::exit(EXIT_FAILURE);
+                }
+
+                // Read disturb mitigation strategy parameters
+                if (read_disturb_mitigation_strategy ==
+                    ReadDisturbMitigationStrategy::SOFTWARE) {
                     read_disturb_mitigation_fp = getConfigValue<float>(
                         cfg_data_, "read_disturb_mitigation_fp");
                     if (read_disturb_mitigation_fp < 1.0) {
                         std::cerr
                             << "read_disturb_mitigation_fp must be >= 1.0."
                             << std::endl;
+                        std::exit(EXIT_FAILURE);
+                    }
+                } else if (read_disturb_mitigation_strategy ==
+                           ReadDisturbMitigationStrategy::CELL_BASED) {
+                    read_disturb_update_tolerance = getConfigValue<float>(
+                        cfg_data_, "read_disturb_update_tolerance");
+                    if (read_disturb_update_tolerance < 0.0 ||
+                        read_disturb_update_tolerance > 1.0) {
+                        std::cerr << "read_disturb_update_tolerance must be in "
+                                     "[0, 1]."
+                                  << std::endl;
                         std::exit(EXIT_FAILURE);
                     }
                 }

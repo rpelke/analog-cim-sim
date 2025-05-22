@@ -12,7 +12,7 @@ namespace nq {
 
 Crossbar::Crossbar() :
     mapper_(Mapper::create_from_config()), write_xbar_counter_(0),
-    mvm_counter_(0), rd_model_(nullptr), read_num_(0) {
+    mvm_counter_(0), rd_model_(nullptr), consecutive_mvm_counter_(0) {
     if (CFG.read_disturb) {
         rd_model_ = std::make_shared<ReadDisturb>(CFG.V_read);
     }
@@ -20,7 +20,7 @@ Crossbar::Crossbar() :
 
 void Crossbar::write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix) {
     write_xbar_counter_++;
-    read_num_ = 0;
+    consecutive_mvm_counter_ = 0;
     if (CFG.read_disturb) {
         std::vector<std::vector<bool>> update_p(
             CFG.M * CFG.SPLIT.size(), std::vector<bool>(CFG.N, false));
@@ -52,6 +52,12 @@ void Crossbar::write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix) {
         }
         // Update the set-reset cycles for each cell
         rd_model_->update_cycles(update_p, update_m);
+
+        // Reset the consecutive reads when cell base mitigation is used
+        if (CFG.read_disturb_mitigation_strategy ==
+            ReadDisturbMitigationStrategy::CELL_BASED) {
+            rd_model_->reset_all_consecutive_reads();
+        }
     } else {
         mapper_->d_write(mat, m_matrix, n_matrix);
     }
@@ -63,54 +69,92 @@ void Crossbar::write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix) {
 void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                    int32_t m_matrix, int32_t n_matrix) {
     mvm_counter_++;
-    read_num_++;
+    consecutive_mvm_counter_++;
     if (CFG.digital_only) {
         mapper_->d_mvm(res, vec, mat, m_matrix, n_matrix);
     } else {
         mapper_->a_mvm(res, vec, mat, m_matrix, n_matrix);
 
-        if (CFG.read_disturb && read_num_ % CFG.read_disturb_update_freq == 0) {
-            // Read disturb effect: update analog conductance values
-            mapper_->rd_update_conductance(rd_model_, read_num_);
+        if (CFG.read_disturb) {
+            switch (CFG.read_disturb_mitigation_strategy) {
+            case ReadDisturbMitigationStrategy::OFF:
+                // No read disturb mitigation -> Simulate effect only
+                if (consecutive_mvm_counter_ % CFG.read_disturb_update_freq ==
+                    0) {
+                    mapper_->rd_update_conductance(rd_model_,
+                                                   consecutive_mvm_counter_);
+                }
+                break;
 
-            // Read disturb mitigation
-            if (CFG.read_disturb_mitigation) {
-                bool refresh_needed = mapper_->rd_check_refresh(
-                    rd_model_, read_num_, write_xbar_counter_);
+            case ReadDisturbMitigationStrategy::SOFTWARE:
+                // Software refresh, simulate effect first
+                if (consecutive_mvm_counter_ % CFG.read_disturb_update_freq ==
+                    0) {
+                    // Update the conductance values
+                    mapper_->rd_update_conductance(rd_model_,
+                                                   consecutive_mvm_counter_);
+                    // Check if a refresh is needed
+                    bool refresh_needed = mapper_->rd_check_software_refresh(
+                        rd_model_, consecutive_mvm_counter_,
+                        write_xbar_counter_);
 
-                if (refresh_needed) {
-                    // Increase the set-reset cycle for every LRS cell since all
-                    // LRS cells are reprogrammed by resetting and setting again
-                    std::vector<std::vector<bool>> update_p(
-                        CFG.M * CFG.SPLIT.size(),
-                        std::vector<bool>(CFG.N, false));
-                    std::vector<std::vector<bool>> update_m(
-                        CFG.M * CFG.SPLIT.size(),
-                        std::vector<bool>(CFG.N, false));
+                    if (refresh_needed) {
+                        // Increase the set-reset cycle for every LRS cell since
+                        // all LRS cells are reprogrammed by resetting and
+                        // setting again
+                        std::vector<std::vector<bool>> update_p(
+                            CFG.M * CFG.SPLIT.size(),
+                            std::vector<bool>(CFG.N, false));
+                        std::vector<std::vector<bool>> update_m(
+                            CFG.M * CFG.SPLIT.size(),
+                            std::vector<bool>(CFG.N, false));
 
-                    // Get the current gd_p and gd_m
-                    const std::vector<std::vector<int32_t>> &curr_gd_p =
-                        mapper_->get_gd_p();
-                    const std::vector<std::vector<int32_t>> &curr_gd_m =
-                        mapper_->get_gd_m();
+                        // Get the current gd_p and gd_m
+                        const std::vector<std::vector<int32_t>> &curr_gd_p =
+                            mapper_->get_gd_p();
+                        const std::vector<std::vector<int32_t>> &curr_gd_m =
+                            mapper_->get_gd_m();
 
-                    for (size_t i = 0; i < update_p.size(); i++) {
-                        for (size_t j = 0; j < update_p[i].size(); j++) {
-                            if (curr_gd_p[i][j] == 1) {
-                                update_p[i][j] = true;
-                            }
-                            if (curr_gd_m[i][j] == 1) {
-                                update_m[i][j] = true;
+                        for (size_t i = 0; i < update_p.size(); i++) {
+                            for (size_t j = 0; j < update_p[i].size(); j++) {
+                                if (curr_gd_p[i][j] == 1) {
+                                    update_p[i][j] = true;
+                                }
+                                if (curr_gd_m[i][j] == 1) {
+                                    update_m[i][j] = true;
+                                }
                             }
                         }
+
+                        // Update the set-reset cycles for each cell
+                        rd_model_->update_cycles(update_p, update_m);
+
+                        // Reset conducance values
+                        mapper_->a_write(CFG.M, CFG.N);
                     }
-
-                    // Update the set-reset cycles for each cell
-                    rd_model_->update_cycles(update_p, update_m);
-
-                    // Reset conducance values
-                    mapper_->a_write(CFG.M, CFG.N);
                 }
+                break;
+
+            case ReadDisturbMitigationStrategy::CELL_BASED:
+                // Cell-based refresh
+                // Update consecutive reads first
+                rd_model_->update_consecutive_reads(m_matrix, n_matrix);
+
+                if (consecutive_mvm_counter_ % CFG.read_disturb_update_freq ==
+                    0) {
+                    // Update the conductance values
+                    mapper_->rd_update_conductance(
+                        rd_model_, rd_model_->get_consecutive_reads_p(),
+                        rd_model_->get_consecutive_reads_m());
+
+                    // Refresh cell individually if needed
+                    mapper_->rd_cell_based_refresh(rd_model_);
+                }
+                break;
+            default:
+                std::cerr << "Unknown read disturb mitigation strategy!"
+                          << std::endl;
+                std::exit(EXIT_FAILURE);
             }
         }
     }
@@ -208,6 +252,8 @@ const uint64_t Crossbar::get_write_xbar_counter() const {
 
 const uint64_t Crossbar::get_mvm_counter() const { return mvm_counter_; }
 
-const uint64_t Crossbar::get_read_num() const { return read_num_; }
+const uint64_t Crossbar::get_read_num() const {
+    return consecutive_mvm_counter_;
+}
 
 } // namespace nq

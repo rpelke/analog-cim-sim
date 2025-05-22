@@ -97,6 +97,8 @@ static std::string m_mode_to_string(MappingMode mode) {
     }
 }
 
+enum class ReadDisturbMitigationStrategy { SOFTWARE, CELL_BASED, OFF };
+
 } // namespace nq
 
 #endif

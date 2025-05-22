@@ -26,11 +26,19 @@ class ReadDisturb {
 
     const std::vector<std::vector<uint64_t>> &get_cycles_p() const;
     const std::vector<std::vector<uint64_t>> &get_cycles_m() const;
+    const std::vector<std::vector<uint64_t>> &get_consecutive_reads_p() const;
+    const std::vector<std::vector<uint64_t>> &get_consecutive_reads_m() const;
     void update_cycles(const std::vector<std::vector<bool>> &update_p,
                        const std::vector<std::vector<bool>> &update_m);
     float calc_G0_scaling_factor(const uint64_t read_num,
                                  const uint64_t N_cycles) const;
     float calc_transition_time(const uint64_t N_cycles) const;
+    void update_cycle_p(int m, int n, uint64_t cycles);
+    void update_cycle_m(int m, int n, uint64_t cycles);
+    void update_consecutive_reads(int32_t m_matrix, int32_t n_matrix);
+    void reset_all_consecutive_reads();
+    void reset_consecutive_reads_p(int m, int n);
+    void reset_consecutive_reads_m(int m, int n);
 
   private:
     float calc_exp_tt(const float V_read) const;
@@ -38,6 +46,8 @@ class ReadDisturb {
 
     std::vector<std::vector<uint64_t>> cycles_p_;
     std::vector<std::vector<uint64_t>> cycles_m_;
+    std::vector<std::vector<uint64_t>> consecutive_reads_p_;
+    std::vector<std::vector<uint64_t>> consecutive_reads_m_;
 
     const float t0_;
     const float fitting_param_; // Obtained from papers graphs

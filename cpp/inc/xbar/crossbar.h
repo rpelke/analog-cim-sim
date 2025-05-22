@@ -40,7 +40,8 @@ class Crossbar {
     uint64_t write_xbar_counter_; // Number of write function calls
     uint64_t mvm_counter_;        // Number of MVM function calls
     std::shared_ptr<ReadDisturb> rd_model_;
-    uint64_t read_num_; // Number of consecutive read operations
+    uint64_t consecutive_mvm_counter_; // Number of consecutive read operations
+                                       // (without a write in between)
 };
 
 } // namespace nq

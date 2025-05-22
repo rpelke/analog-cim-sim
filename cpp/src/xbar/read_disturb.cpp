@@ -13,6 +13,10 @@ namespace nq {
 ReadDisturb::ReadDisturb(const float V_read) :
     cycles_p_(CFG.M * CFG.SPLIT.size(), std::vector<uint64_t>(CFG.N, 0)),
     cycles_m_(CFG.M * CFG.SPLIT.size(), std::vector<uint64_t>(CFG.N, 0)),
+    consecutive_reads_p_(CFG.M * CFG.SPLIT.size(),
+                         std::vector<uint64_t>(CFG.N, 0)),
+    consecutive_reads_m_(CFG.M * CFG.SPLIT.size(),
+                         std::vector<uint64_t>(CFG.N, 0)),
     t0_(1.55e-8), fitting_param_(1.43339), c1_(0.0068), a_(0.11),
     kb_(1.38064852e-23), T_(300.0), k_(0.003), m_(0.41),
     kb_T_(kb_ * T_ / 1.602176634e-19), V_read_(V_read),
@@ -24,6 +28,16 @@ const std::vector<std::vector<uint64_t>> &ReadDisturb::get_cycles_p() const {
 
 const std::vector<std::vector<uint64_t>> &ReadDisturb::get_cycles_m() const {
     return cycles_p_;
+}
+
+const std::vector<std::vector<uint64_t>> &
+ReadDisturb::get_consecutive_reads_p() const {
+    return consecutive_reads_p_;
+}
+
+const std::vector<std::vector<uint64_t>> &
+ReadDisturb::get_consecutive_reads_m() const {
+    return consecutive_reads_m_;
 }
 
 // Count the number of set-reset cycles for each cell
@@ -63,6 +77,40 @@ float ReadDisturb::calc_exp_tt(const float V_read) const {
 // Calculate the power factor p
 float ReadDisturb::calc_p(const float V_read) const {
     return c1_ * std::exp(a_ * std::abs(V_read) / kb_T_);
+}
+
+void ReadDisturb::update_cycle_p(int m, int n, uint64_t cycles) {
+    cycles_p_[m][n] += cycles;
+}
+
+void ReadDisturb::update_cycle_m(int m, int n, uint64_t cycles) {
+    cycles_m_[m][n] += cycles;
+}
+
+void ReadDisturb::update_consecutive_reads(int32_t m_matrix, int32_t n_matrix) {
+    for (size_t m = 0; m < m_matrix; ++m) {
+        for (size_t n = 0; n < n_matrix; ++n) {
+            consecutive_reads_p_[m][n]++;
+            consecutive_reads_m_[m][n]++;
+        }
+    }
+}
+
+void ReadDisturb::reset_all_consecutive_reads() {
+    for (size_t m = 0; m < CFG.M * CFG.SPLIT.size(); ++m) {
+        for (size_t n = 0; n < CFG.N; ++n) {
+            consecutive_reads_p_[m][n] = 0;
+            consecutive_reads_m_[m][n] = 0;
+        }
+    }
+}
+
+void ReadDisturb::reset_consecutive_reads_p(int m, int n) {
+    consecutive_reads_p_[m][n] = 0;
+}
+
+void ReadDisturb::reset_consecutive_reads_m(int m, int n) {
+    consecutive_reads_m_[m][n] = 0;
 }
 
 } // namespace nq
