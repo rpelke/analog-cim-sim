@@ -6,6 +6,20 @@
 
 Yet another simulator for executing matrix-vector multiplications on analog computing-in-memory crossbars.
 
+If you use the code of this repository, please consider citing the corresponding [paper](https://arxiv.org/abs/2505.14303):
+```
+@misc{pelke2025optimizingbinaryternaryneural,
+    title={{Optimizing Binary and Ternary Neural Network Inference on RRAM Crossbars using CIM-Explorer}}, 
+    author={Rebecca Pelke and José Cubero-Cascante and Nils Bosbach and Niklas Degener and Florian Idrizi and Lennart M. Reimann and Jan Moritz Joseph and Rainer Leupers},
+    year={2025},
+    eprint={2505.14303},
+    archivePrefix={arXiv},
+    primaryClass={cs.ET},
+    url={https://arxiv.org/abs/2505.14303}, 
+}
+```
+This simulator is used by [CIM-E](https://github.com/rpelke/CIM-E), a design space exploration tool for neural networks.
+
 ## Build instructions
 To build the project, you need cmake and a *dev version* of python.
 If you don't have python3-dev, pybind won't compile.
