@@ -136,7 +136,10 @@ void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                         // Update the set-reset cycles for each cell
                         rd_model_->update_cycles(update_p, update_m);
 
-                        // Reset conducance values
+                        // Reset the consecutive reads
+                        consecutive_mvm_counter_ = 0;
+
+                        // Reset conductance values
                         mapper_->a_write(CFG.M, CFG.N);
                     }
                 }
