@@ -81,6 +81,46 @@ class TestReadDisturbModel(unittest.TestCase):
                 np.testing.assert_allclose(ia_m, I_LRS_new, atol=1e-6)
                 np.testing.assert_allclose(ia_p, I_HRS, atol=0.0)
 
+    def test_rd_model_boundaries(self):
+        rd_gm = ReadDisturbGoldenModel(-0.4, 100e-9)
+        I_HRS = 5.0
+        I_LRS = 30.0
+
+        m_matrix = 1
+        n_matrix = 1
+        mat = np.array([-1], dtype=np.int32)
+        vec = np.array([1], dtype=np.int32)
+        res = np.array([0], dtype=np.int32)
+
+        acs_int.set_config(
+            os.path.abspath(f"{repo_path}/cpp/test/lib/configs/analog/READ_DISTURB.json"))
+        assert acs_int.write_ops() == 0
+        assert acs_int.mvm_ops() == 0
+        assert acs_int.read_ops() == 0
+
+        N_cycles = int(1.4e6)
+        for n in range(N_cycles):
+            mat[0] = +1
+            acs_int.cpy(mat, m_matrix, n_matrix)
+            mat[0] = -1
+            acs_int.cpy(mat, m_matrix, n_matrix)
+
+        assert acs_int.write_ops() == 2 * N_cycles
+        assert acs_int.read_ops() == 0
+        assert acs_int.ia_p()[0][0] == I_HRS
+        assert acs_int.ia_m()[0][0] == I_LRS
+
+        acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+
+        N_cycles = int(0.1e6)
+        for n in range(N_cycles):
+            mat[0] = +1
+            acs_int.cpy(mat, m_matrix, n_matrix)
+            mat[0] = -1
+            acs_int.cpy(mat, m_matrix, n_matrix)
+
+        acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+
 
 if __name__ == "__main__":
     unittest.main()
