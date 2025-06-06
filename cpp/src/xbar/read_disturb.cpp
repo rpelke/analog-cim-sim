@@ -56,11 +56,6 @@ float ReadDisturb::calc_G0_scaling_factor(const uint64_t read_num,
                                           const uint64_t N_cycles) const {
     float tt = calc_transition_time(N_cycles);
     float t_stress = read_num * CFG.t_read;
-    if (tt < 0) {
-        std::cerr << "Set scaling factor to 0.0 instead." << std::endl;
-        return 0.0f;
-    }
-
     if (t_stress < tt) {
         return 1.0f;
     } else {
@@ -70,15 +65,16 @@ float ReadDisturb::calc_G0_scaling_factor(const uint64_t read_num,
 
 // Calculate the transition time based on the V_read of the config
 float ReadDisturb::calc_transition_time(const uint64_t N_cycles) const {
-    double exp = std::pow(1 - k_ * std::pow(N_cycles, m_), exp_tt_);
-    if (exp != exp) {
+    double exp = k_ * std::pow(N_cycles, m_);
+    if (exp >= 1.0) {
         std::cerr
             << "Warning: N_cycle too big for read disturb model. Model not "
                "defined for N_cycles >= "
             << N_cycles << ". ";
-        return -1.0f; // Return -1 to indicate an error
+        return 0.0f;
     }
-    return t0_ * std::pow(fitting_param_, exp_tt_) * exp;
+    return t0_ * std::pow(fitting_param_, exp_tt_) *
+           std::pow(1.0 - exp, exp_tt_);
 }
 
 // Calculate the exponent for the transition time
