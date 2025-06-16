@@ -20,7 +20,8 @@ ReadDisturb::ReadDisturb(const float V_read) :
     t0_(1.55e-8), fitting_param_(1.43339), c1_(0.0068), a_(0.11),
     kb_(1.38064852e-23), T_(300.0), k_(0.003), m_(0.41),
     kb_T_(kb_ * T_ / 1.602176634e-19), V_read_(V_read),
-    exp_tt_(calc_exp_tt(V_read)), p_(calc_p(V_read)) {}
+    exp_tt_(calc_exp_tt(V_read)), p_(calc_p(V_read)),
+    run_out_of_bounds_(false) {}
 
 const std::vector<std::vector<uint64_t>> &ReadDisturb::get_cycles_p() const {
     return cycles_p_;
@@ -67,10 +68,13 @@ float ReadDisturb::calc_G0_scaling_factor(const uint64_t read_num,
 float ReadDisturb::calc_transition_time(const uint64_t N_cycles) const {
     double exp = k_ * std::pow(N_cycles, m_);
     if (exp >= 1.0) {
-        std::cerr
-            << "Warning: N_cycle too big for read disturb model. Model not "
-               "defined for N_cycles >= "
-            << N_cycles << ". ";
+        if (!run_out_of_bounds_) {
+            std::cerr
+                << "Warning: N_cycle too big for read disturb model. Model not "
+                   "defined for N_cycles >= "
+                << N_cycles << ". ";
+            run_out_of_bounds_ = true;
+        }
         return 0.0f;
     }
     return t0_ * std::pow(fitting_param_, exp_tt_) *
@@ -119,6 +123,10 @@ void ReadDisturb::reset_consecutive_reads_p(int m, int n) {
 
 void ReadDisturb::reset_consecutive_reads_m(int m, int n) {
     consecutive_reads_m_[m][n] = 0;
+}
+
+const bool ReadDisturb::get_run_out_of_bounds() const {
+    return run_out_of_bounds_;
 }
 
 } // namespace nq

@@ -39,6 +39,7 @@ class ReadDisturb {
     void reset_all_consecutive_reads();
     void reset_consecutive_reads_p(int m, int n);
     void reset_consecutive_reads_m(int m, int n);
+    const bool get_run_out_of_bounds() const;
 
   private:
     float calc_exp_tt(const float V_read) const;
@@ -59,8 +60,10 @@ class ReadDisturb {
     const float m_;
     const float kb_T_;
     const float V_read_;
-    const float exp_tt_; // Exponent for transition time calculation
-    const float p_;      // Power factor
+    const float exp_tt_;             // Exponent for transition time calculation
+    const float p_;                  // Power factor
+    mutable bool run_out_of_bounds_; // Flag to indicate if the model is run out
+                                     // of bounds
 };
 
 } // namespace nq

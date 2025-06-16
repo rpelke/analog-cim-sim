@@ -38,6 +38,7 @@ class Crossbar {
     const uint64_t get_read_num() const;
     const uint64_t get_refresh_xbar_counter() const;
     const uint64_t get_refresh_cell_counter() const;
+    const bool get_rd_run_out_of_bounds() const;
 
   private:
     std::unique_ptr<Mapper> mapper_;

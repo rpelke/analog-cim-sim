@@ -287,4 +287,8 @@ const uint64_t Crossbar::get_refresh_cell_counter() const {
     return refresh_cell_counter_;
 }
 
+const bool Crossbar::get_rd_run_out_of_bounds() const {
+    return rd_model_->get_run_out_of_bounds();
+}
+
 } // namespace nq

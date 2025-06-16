@@ -244,6 +244,11 @@ extern "C" EXPORT_API const uint64_t get_refresh_cell_counter() {
     return xbar->get_refresh_cell_counter();
 }
 
+extern "C" EXPORT_API const bool get_rd_run_out_of_bounds() {
+    check_xbar();
+    return xbar->get_rd_run_out_of_bounds();
+}
+
 /********************* Pybind interface *********************/
 int32_t exe_mvm_pb(pybind11::array_t<int32_t> res,
                    pybind11::array_t<int32_t> vec,
@@ -484,4 +489,6 @@ PYBIND11_MODULE(acs_int, m) {
           "Get the number of refresh operations on the crossbar.");
     m.def("refresh_cell_ops", &get_refresh_cell_counter,
           "Get the number of refresh operations on the cells.");
+    m.def("rd_run_out_of_bounds", &get_rd_run_out_of_bounds,
+          "Check if the read disturb model ran out of bounds.");
 }

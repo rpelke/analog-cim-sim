@@ -109,6 +109,7 @@ class TestReadDisturbModel(unittest.TestCase):
         assert acs_int.read_ops() == 0
         assert acs_int.ia_p()[0][0] == I_HRS
         assert acs_int.ia_m()[0][0] == I_LRS
+        assert acs_int.rd_run_out_of_bounds() == False
 
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
 
@@ -120,6 +121,7 @@ class TestReadDisturbModel(unittest.TestCase):
             acs_int.cpy(mat, m_matrix, n_matrix)
 
         acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+        assert acs_int.rd_run_out_of_bounds() == True
 
 
 if __name__ == "__main__":
