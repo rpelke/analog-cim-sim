@@ -54,14 +54,24 @@ extern "C" EXPORT_API void set_config(const char *cfg_file) {
     xbar = std::make_unique<nq::Crossbar>();
 }
 
-extern "C" EXPORT_API void update_config(const char *json_config) {
+extern "C" EXPORT_API int32_t update_config(const char *json_config,
+                                            const char *l_name = "Unknown") {
+#ifdef DEBUG_MODE
+    std::cout << "Update config" << std::endl;
+    std::cout << "Layer: " << l_name << std::endl;
+    std::cout << "Update config called with JSON: " << json_config << std::endl;
+#endif
+    if (xbar == nullptr) {
+        std::cerr << "Error: Crossbar is not initialized. Please call "
+                     "set_config() first."
+                  << std::endl;
+        return -1;
+    }
     if (json_config == nullptr) {
         std::cerr << "Warning: Config JSON is null. No changes applied."
                   << std::endl;
-        return;
+        return -1;
     }
-
-    check_xbar();
 
     // Track whether parameters requiring crossbar recreation were updated
     bool recreate_xbar = false;
@@ -74,6 +84,10 @@ extern "C" EXPORT_API void update_config(const char *json_config) {
     if (config_updated && recreate_xbar) {
         xbar = std::make_unique<nq::Crossbar>();
     }
+#ifdef DEBUG_MODE
+    std::cout << "Config update completed." << std::endl;
+#endif
+    return 0;
 }
 
 extern "C" EXPORT_API int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
