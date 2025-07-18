@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke                                           *
+ * Copyright (C) 2025 Rebecca Pelke & Joel Klein                              *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This is work is licensed under the terms described in the LICENSE file     *
@@ -19,8 +19,8 @@ mvm_c_to_py_funcptr mvm_c_to_py = nullptr;
 extern "C" void set_mvm_python_cb(mvm_c_to_py_funcptr cb) { mvm_c_to_py = cb; }
 
 // Typedef for the function pointer for the C - Python conversion
-typedef int32_t (*cpy_c_to_py_funcptr)(int32_t *mat, int32_t m_matrix,
-                                       int32_t n_matrix, const char *l_name);
+typedef void (*cpy_c_to_py_funcptr)(int32_t *mat, int32_t m_matrix,
+                                    int32_t n_matrix, const char *l_name);
 
 // Function pointer for the Python callback function
 cpy_c_to_py_funcptr cpy_c_to_py = nullptr;
@@ -28,7 +28,41 @@ cpy_c_to_py_funcptr cpy_c_to_py = nullptr;
 // Set funtion pointer
 extern "C" void set_cpy_python_cb(cpy_c_to_py_funcptr cb) { cpy_c_to_py = cb; }
 
-extern "C" void update_config(const char *json_config) { return; }
+// Typedef for the function pointer for the C - Python conversion
+typedef int32_t (*update_config_c_to_py_funcptr)(const char *json_config,
+                                                 const char *l_name);
+                                                 const char *l_name);
+
+// Function pointer for the Python callback function
+update_config_c_to_py_funcptr update_config_c_to_py = nullptr;
+
+// Set function pointer
+extern "C" void set_update_config_cb(update_config_c_to_py_funcptr cb) {
+    update_config_c_to_py = cb;
+}
+
+extern "C" void update_config(const char *json_config,
+                              const char *l_name = "Unknown") {
+#ifdef DEBUG_MODE
+    std::cout << "Update config" << std::endl;
+    std::cout << "Layer: " << l_name << std::endl;
+    std::cout << "Update config called with JSON: " << json_config << std::endl;
+#endif
+    static int warning_done = 0;
+    if (!update_config_c_to_py) {
+        if (!warning_done) {
+            std::cout << "Function pointer update_config_c_to_py not set. "
+                         "Emulate operation instead."
+                      << std::endl;
+            warning_done = 1;
+        }
+        return;
+    }
+    (*update_config_c_to_py)(json_config, l_name);
+#ifdef DEBUG_MODE
+    std::cout << "Config update completed." << std::endl;
+#endif
+}
 
 extern "C" int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
                            int32_t m_matrix, int32_t n_matrix,
