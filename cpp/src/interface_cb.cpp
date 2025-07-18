@@ -10,7 +10,8 @@
 
 // Typedef for the function pointer for the C - Python conversion
 typedef int32_t (*mvm_c_to_py_funcptr)(int32_t *res, int32_t *vec, int32_t *mat,
-                                       int32_t m_matrix, int32_t n_matrix);
+                                       int32_t m_matrix, int32_t n_matrix,
+                                       const char *l_name);
 
 // Function pointer for the Python callback function
 mvm_c_to_py_funcptr mvm_c_to_py = nullptr;
@@ -19,8 +20,8 @@ mvm_c_to_py_funcptr mvm_c_to_py = nullptr;
 extern "C" void set_mvm_python_cb(mvm_c_to_py_funcptr cb) { mvm_c_to_py = cb; }
 
 // Typedef for the function pointer for the C - Python conversion
-typedef void (*cpy_c_to_py_funcptr)(int32_t *mat, int32_t m_matrix,
-                                    int32_t n_matrix, const char *l_name);
+typedef int32_t (*cpy_c_to_py_funcptr)(int32_t *mat, int32_t m_matrix,
+                                       int32_t n_matrix, const char *l_name);
 
 // Function pointer for the Python callback function
 cpy_c_to_py_funcptr cpy_c_to_py = nullptr;
@@ -100,7 +101,7 @@ extern "C" int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
         }
         return 0;
     }
-    (*mvm_c_to_py)(res, vec, mat, m_matrix, n_matrix);
+    (*mvm_c_to_py)(res, vec, mat, m_matrix, n_matrix, l_name);
 #ifdef DEBUG_MODE
 // Find max and min values in the result vector
 #include <cstdint>
