@@ -32,7 +32,6 @@ extern "C" void set_cpy_python_cb(cpy_c_to_py_funcptr cb) { cpy_c_to_py = cb; }
 // Typedef for the function pointer for the C - Python conversion
 typedef int32_t (*update_config_c_to_py_funcptr)(const char *json_config,
                                                  const char *l_name);
-                                                 const char *l_name);
 
 // Function pointer for the Python callback function
 update_config_c_to_py_funcptr update_config_c_to_py = nullptr;
@@ -42,8 +41,8 @@ extern "C" void set_update_config_cb(update_config_c_to_py_funcptr cb) {
     update_config_c_to_py = cb;
 }
 
-extern "C" void update_config(const char *json_config,
-                              const char *l_name = "Unknown") {
+extern "C" int32_t update_config(const char *json_config,
+                                 const char *l_name = "Unknown") {
 #ifdef DEBUG_MODE
     std::cout << "Update config" << std::endl;
     std::cout << "Layer: " << l_name << std::endl;
@@ -57,12 +56,13 @@ extern "C" void update_config(const char *json_config,
                       << std::endl;
             warning_done = 1;
         }
-        return;
+        return 0;
     }
     (*update_config_c_to_py)(json_config, l_name);
 #ifdef DEBUG_MODE
     std::cout << "Config update completed." << std::endl;
 #endif
+    return 0;
 }
 
 extern "C" int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
