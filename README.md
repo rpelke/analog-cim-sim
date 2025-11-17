@@ -63,6 +63,11 @@ Use C++17 `filesystem` features for the [unittests](cpp/test/lib/inc/test_helper
 cmake -DUSE_STDCXXFS=ON ...
 ```
 
+Build the simulator with AVX support using GCC:
+``` bash
+cmake -DCMAKE_CXX_FLAGS="-mavx" ...
+```
+
 ## Testing and debugging
 Execute the tests:
 ```bash
