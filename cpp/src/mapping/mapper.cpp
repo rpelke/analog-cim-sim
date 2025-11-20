@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke                                           *
+ * Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This is work is licensed under the terms described in the LICENSE file     *
@@ -65,6 +65,10 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
                 i_step_size_[s] = i_mm_ / ((1 << CFG.SPLIT[s]) - 1);
             }
         }
+    }
+
+    if (CFG.parasitics) {
+        par_solver_ = std::make_shared<ParasiticSolver>(CFG.w_res, CFG.V_read);
     }
 }
 

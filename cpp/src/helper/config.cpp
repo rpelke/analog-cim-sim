@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke & Joel Klein                              *
+ * Copyright (C) 2025 Rebecca Pelke, Joel Klein, Arunkumar Vaidyanathan       *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This is work is licensed under the terms described in the LICENSE file     *
@@ -193,6 +193,19 @@ bool Config::apply_config() {
             // Read disturb simulation
             read_disturb =
                 getConfigValue<bool>(cfg_data_, "read_disturb", false);
+            // Parasitics modelling
+            parasitics = getConfigValue<bool>(cfg_data_, "parasitics", false);
+
+            if (parasitics | read_disturb) {
+                V_read = getConfigValue<float>(cfg_data_, "V_read");
+                if (V_read >= 0.0) {
+                    std::cerr << "The implemented read disturb/parasitics "
+                                 "model requires a negative V_read voltage."
+                              << std::endl;
+                    std::exit(EXIT_FAILURE);
+                }
+            }
+
             if (read_disturb) {
                 if (is_int_mapping(m_mode)) {
                     std::cerr
@@ -202,13 +215,6 @@ bool Config::apply_config() {
                 }
 
                 // Parameters for read disturb model
-                V_read = getConfigValue<float>(cfg_data_, "V_read");
-                if (V_read >= 0.0) {
-                    std::cerr << "The implemented read disturb model requires "
-                                 "a negative V_read voltage."
-                              << std::endl;
-                    std::exit(EXIT_FAILURE);
-                }
                 t_read = getConfigValue<float>(cfg_data_, "t_read");
                 read_disturb_update_freq = getConfigValue<uint32_t>(
                     cfg_data_, "read_disturb_update_freq", 1);
@@ -255,6 +261,11 @@ bool Config::apply_config() {
                         std::exit(EXIT_FAILURE);
                     }
                 }
+            }
+
+            if (parasitics) {
+                // Parameters for parasitics modelling
+                w_res = getConfigValue<float>(cfg_data_, "w_res");
             }
         }
 

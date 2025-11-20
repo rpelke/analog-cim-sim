@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke                                           *
+ * Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This is work is licensed under the terms described in the LICENSE file     *
@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "adc/adc.h"
+#include "xbar/parasitics.h"
 #include "xbar/read_disturb.h"
 
 namespace nq {
@@ -77,6 +78,7 @@ class Mapper {
     int num_segments_;
     float i_mm_;
     const std::unique_ptr<ADC> adc_;
+    std::shared_ptr<ParasiticSolver> par_solver_; // Parasitic resistance solver
 
   private:
     // State variability

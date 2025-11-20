@@ -98,6 +98,7 @@ if(BUILD_LIB_ACS_INT)
         src/mapping/tnn_mapper/tnn_v.cpp
         src/xbar/crossbar.cpp
         src/xbar/read_disturb.cpp
+	src/xbar/parasitics.cpp
         src/adc/adc.cpp
         src/adc/adcfactory.cpp
         src/adc/symadc.cpp

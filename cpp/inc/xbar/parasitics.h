@@ -36,7 +36,8 @@ class ParasiticSolver {
      * @param ia_m Negative currents matrix ("minus" mnemonic)
      */
     void set_conductance_matrix(std::vector<std::vector<float>> &ia_p,
-                                std::vector<std::vector<float>> &ia_m);
+                                std::vector<std::vector<float>> &ia_m,
+                                int32_t m_matrix, int32_t n_matrix);
 
     /** Compute output current with parasitics.
      *
@@ -49,8 +50,8 @@ class ParasiticSolver {
     void compute_currents(std::vector<int32_t> &vd, std::vector<float> &res);
 
   private:
-    uint32_t m_matrix;  /**< Matrix rows */
-    uint32_t n_matrix;  /**< Matrix columns */
+    uint32_t m_xbar;    /**< Crossbar rows */
+    uint32_t n_xbar;    /**< Crossbar columns */
     float w_res;        /**< Parasitic wire resistance (in Ohms)*/
     float v_read;       /**< Crossbar read voltage (in Volts)*/
     MappingMode m_mode; /**< Mapping mode */
