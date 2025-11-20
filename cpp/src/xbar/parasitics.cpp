@@ -90,7 +90,7 @@ void ParasiticSolver::compute_currents(std::vector<int32_t> &vd,
                               num_cols](std::vector<float> &ga_row) {
         float ga_col_row_parallel;
 
-#pragma omp parallel for private(ga_col_row_parallel)
+#pragma omp for private(ga_col_row_parallel)
         for (size_t col = 0; col < num_cols; col++) {
             ga_col_row_parallel = ga_col_acc[col] + ga_row[col];
             ga_col_acc[col] = (ga_col_row_parallel * ga_wire[col]) /
@@ -98,6 +98,7 @@ void ParasiticSolver::compute_currents(std::vector<int32_t> &vd,
         }
     };
 
+#pragma omp parallel
     for (auto ga_row : ga_mat_gated) {
         accumulate_ga_col(ga_row);
     }
