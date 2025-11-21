@@ -11,9 +11,13 @@
 namespace nq {
 
 Crossbar::Crossbar() :
-    mapper_(Mapper::create_from_config()), write_xbar_counter_(0),
-    mvm_counter_(0), rd_model_(nullptr), consecutive_mvm_counter_(0),
-    refresh_xbar_counter_(0), refresh_cell_counter_(0) {
+    mapper_(Mapper::create_from_config()),
+    write_xbar_counter_(0),
+    mvm_counter_(0),
+    rd_model_(nullptr),
+    consecutive_mvm_counter_(0),
+    refresh_xbar_counter_(0),
+    refresh_cell_counter_(0) {
     if (CFG.read_disturb) {
         rd_model_ = std::make_shared<ReadDisturb>(CFG.V_read);
     }

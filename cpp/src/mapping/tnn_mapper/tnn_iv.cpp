@@ -11,8 +11,11 @@
 namespace nq {
 
 MapperTnnIV::MapperTnnIV() :
-    vd_p_(CFG.N, 0), vd_m_(CFG.N, 0), tmp_out_(CFG.M, 0.0),
-    tmp_out_fp_(CFG.M, 0.0), Mapper(false) {}
+    vd_p_(CFG.N, 0),
+    vd_m_(CFG.N, 0),
+    tmp_out_(CFG.M, 0.0),
+    tmp_out_fp_(CFG.M, 0.0),
+    Mapper(false) {}
 
 MapperTnnIV::~MapperTnnIV() {}
 

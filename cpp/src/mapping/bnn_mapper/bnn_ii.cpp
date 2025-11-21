@@ -11,7 +11,9 @@
 namespace nq {
 
 MapperBnnII::MapperBnnII() :
-    vd_(CFG.N, 0), tmp_out_(CFG.M, 0.0), Mapper(true) {}
+    vd_(CFG.N, 0),
+    tmp_out_(CFG.M, 0.0),
+    Mapper(true) {}
 
 MapperBnnII::~MapperBnnII() {}
 

@@ -11,8 +11,12 @@
 namespace nq {
 
 MapperBnnIII::MapperBnnIII() :
-    vd_p_(CFG.N, 0), vd_m_(CFG.N, 0), tmp_out_(CFG.M, 0.0),
-    tmp_out_p_(CFG.M, 0.0), tmp_out_m_(CFG.M, 0.0), Mapper(false) {}
+    vd_p_(CFG.N, 0),
+    vd_m_(CFG.N, 0),
+    tmp_out_(CFG.M, 0.0),
+    tmp_out_p_(CFG.M, 0.0),
+    tmp_out_m_(CFG.M, 0.0),
+    Mapper(false) {}
 
 MapperBnnIII::~MapperBnnIII() {}
 

@@ -12,7 +12,8 @@ namespace nq {
 
 MapperIntIV::MapperIntIV() :
     tmp_out_int_(CFG.M * CFG.SPLIT.size(), 0),
-    tmp_out_fp_(CFG.M * CFG.SPLIT.size(), 0.0), Mapper(true) {}
+    tmp_out_fp_(CFG.M * CFG.SPLIT.size(), 0.0),
+    Mapper(true) {}
 
 MapperIntIV::~MapperIntIV() {}
 

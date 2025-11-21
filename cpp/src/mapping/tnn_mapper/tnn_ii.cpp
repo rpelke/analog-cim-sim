@@ -11,7 +11,9 @@
 namespace nq {
 
 MapperTnnII::MapperTnnII() :
-    vd_p_(CFG.N, 0), tmp_out_(CFG.M, 0.0), Mapper(true) {}
+    vd_p_(CFG.N, 0),
+    tmp_out_(CFG.M, 0.0),
+    Mapper(true) {}
 
 MapperTnnII::~MapperTnnII() {}
 

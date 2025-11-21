@@ -15,7 +15,10 @@
 namespace nq {
 ParasiticSolver::ParasiticSolver(const float wire_resistance,
                                  const float V_read) :
-    m_xbar(CFG.M), n_xbar(CFG.N), w_res(wire_resistance), v_read(V_read),
+    m_xbar(CFG.M),
+    n_xbar(CFG.N),
+    w_res(wire_resistance),
+    v_read(V_read),
     m_mode(CFG.m_mode) {
 
     // TODO: Current support limited to BNN_I mapping mode. Need to implement
