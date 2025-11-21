@@ -13,7 +13,7 @@ import tempfile
 from pathlib import Path
 
 proj_dir = Path(__file__).resolve().parents[1]
-formatter = 'clang-format-12'
+formatter = 'clang-format-18'
 src_dirs = [f"{proj_dir}/cpp"]
 exclude = [f"{proj_dir}/cpp/extern", f"{proj_dir}/cpp/test/googletest"]
 
