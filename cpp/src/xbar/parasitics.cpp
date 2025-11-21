@@ -83,24 +83,28 @@ void ParasiticSolver::compute_currents(std::vector<int32_t> &vd,
     // Calculate column conductances
     std::vector<float> ga_col_acc(num_cols, 0);
 
-    // Lambda to accumulate column conductances. Each row is parallel to
+    // Lambdas to accumulate column conductances. Each row is parallel to
     // the previous columns and parasitic wires are in series to the the
     // columns.
-    auto accumulate_ga_col = [&ga_col_acc, &ga_wire,
-                              num_cols](std::vector<float> &ga_row) {
-        float ga_col_row_parallel;
-
-#pragma omp for private(ga_col_row_parallel)
-        for (size_t col = 0; col < num_cols; col++) {
-            ga_col_row_parallel = ga_col_acc[col] + ga_row[col];
-            ga_col_acc[col] = (ga_col_row_parallel * ga_wire[col]) /
-                              (ga_col_row_parallel + ga_wire[col]);
+    auto reduce_par_g = [](std::vector<float> &a, std::vector<float> &b,
+                           size_t len) {
+#pragma omp parallel for
+        for (size_t n = 0; n < len; n++) {
+            a[n] = a[n] + b[n];
         }
     };
 
-#pragma omp parallel
+    auto reduce_ser_g = [](std::vector<float> &a, std::vector<float> &b,
+                           size_t len) {
+#pragma omp parallel for
+        for (size_t n = 0; n < len; n++) {
+            a[n] = (a[n] * b[n]) / (a[n] + b[n]);
+        }
+    };
+
     for (auto ga_row : ga_mat_gated) {
-        accumulate_ga_col(ga_row);
+        reduce_par_g(ga_col_acc, ga_row, num_cols);
+        reduce_ser_g(ga_col_acc, ga_wire, num_cols);
     }
 
     // Compute output currents. Substract adjacent output currents and

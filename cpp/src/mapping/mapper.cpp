@@ -46,6 +46,11 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
         std::mt19937 lrs_gen(lrs_rd());
         hrs_var_ = std::normal_distribution<float>(0.0f, CFG.HRS_NOISE);
         lrs_var_ = std::normal_distribution<float>(0.0f, CFG.LRS_NOISE);
+
+        if (CFG.parasitics) {
+            par_solver_ =
+                std::make_shared<ParasiticSolver>(CFG.w_res, CFG.V_read);
+        }
     }
 
     if (CFG.is_int_mapping(CFG.m_mode) || (CFG.m_mode == MappingMode::TNN_IV)) {
@@ -65,10 +70,6 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
                 i_step_size_[s] = i_mm_ / ((1 << CFG.SPLIT[s]) - 1);
             }
         }
-    }
-
-    if (CFG.parasitics) {
-        par_solver_ = std::make_shared<ParasiticSolver>(CFG.w_res, CFG.V_read);
     }
 }
 
