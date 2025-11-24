@@ -60,7 +60,7 @@ void MapperBnnI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
             }
         }
     } else {
-        par_solver_->compute_currents(vd_, tmp_out_);
+        par_solver_->compute_currents(vd_, tmp_out_, m_matrix, n_matrix);
     }
 
     for (size_t m = 0; m < m_matrix; ++m) {
