@@ -22,7 +22,7 @@ void MapperBnnI::d_write(const int32_t *mat, int32_t m_matrix,
 void MapperBnnI::a_write(int32_t m_matrix, int32_t n_matrix) {
     a_write_p_m_bnn_tnn(m_matrix, n_matrix);
 
-    // Set conductance matrix of parasitic solver as well
+    // Set conductance matrix of parasitic solver
     if (CFG.parasitics) {
         par_solver_->set_conductance_matrix(ia_p_, ia_m_, m_matrix, n_matrix);
     }

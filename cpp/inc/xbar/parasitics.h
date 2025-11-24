@@ -48,10 +48,9 @@ class ParasiticSolver {
      * @param m_matrix Number of columns in conductance matrix
      * @param n_matrix Number of rows in conductance matrix
      */
-    void
-    set_conductance_matrix(std::vector<std::vector<float>> &ia_p,
-                           std::vector<std::vector<float>> &ia_m,
-                           int32_t m_matrix, int32_t n_matrix);
+    void set_conductance_matrix(std::vector<std::vector<float>> &ia_p,
+                                std::vector<std::vector<float>> &ia_m,
+                                int32_t m_matrix, int32_t n_matrix);
 
     /** Compute output current with parasitics.
      *
@@ -78,9 +77,8 @@ class ParasiticSolver {
      * @param res Reference to output vector (analog currents)
      */
     void compute_currents(std::vector<int32_t> &vd_p,
-                          std::vector<int32_t> &vd_m,
-                          std::vector<float> &res, int32_t m_matrix,
-                          int32_t n_matrix);
+                          std::vector<int32_t> &vd_m, std::vector<float> &res,
+                          int32_t m_matrix, int32_t n_matrix);
 
     // Encoding function pointer types for different mappings
     typedef void (ParasiticSolver::*WeightEncFunc)(
@@ -130,7 +128,7 @@ class ParasiticSolver {
         {MappingMode::BNN_II, &ParasiticSolver::o_enc_double},
         {MappingMode::BNN_III, &ParasiticSolver::o_enc_single},
         {MappingMode::BNN_IV, &ParasiticSolver::o_enc_single},
-        {MappingMode::BNN_V, &ParasiticSolver::o_enc_double},
+        {MappingMode::BNN_V, &ParasiticSolver::o_enc_single},
         {MappingMode::BNN_VI, &ParasiticSolver::o_enc_double},
         {MappingMode::TNN_I, &ParasiticSolver::o_enc_double},
         {MappingMode::TNN_II, &ParasiticSolver::o_enc_double},

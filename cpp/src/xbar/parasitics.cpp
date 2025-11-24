@@ -36,8 +36,8 @@ ParasiticSolver::ParasiticSolver(const float wire_resistance,
 
 void ParasiticSolver::set_conductance_matrix(
     std::vector<std::vector<float>> &ia, int32_t m_matrix, int32_t n_matrix) {
-    auto ia_m = std::vector<std::vector<float>>{};
-    set_conductance_matrix(ia, ia_m, m_matrix, n_matrix);
+    auto empty_vec = std::vector<std::vector<float>>{};
+    set_conductance_matrix(ia, empty_vec, m_matrix, n_matrix);
 }
 
 void ParasiticSolver::set_conductance_matrix(
@@ -75,8 +75,8 @@ void ParasiticSolver::set_conductance_matrix(
 void ParasiticSolver::compute_currents(std::vector<int32_t> &vd,
                                        std::vector<float> &res,
                                        int32_t m_matrix, int32_t n_matrix) {
-    auto vd_m = std::vector<int32_t>{};
-    compute_currents(vd, vd_m, res, m_matrix, n_matrix);
+    auto empty_vec = std::vector<int32_t>{};
+    compute_currents(vd, empty_vec, res, m_matrix, n_matrix);
 }
 
 void ParasiticSolver::compute_currents(std::vector<int32_t> &vd_p,

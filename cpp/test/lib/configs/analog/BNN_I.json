@@ -10,5 +10,8 @@
     "m_mode": "BNN_I",
     "HRS_NOISE": 0.0,
     "LRS_NOISE": 0.0,
-    "verbose": false
+    "verbose": false,
+    "parasitics": false,
+    "w_res": 1,
+    "V_read": -0.4
 }

@@ -24,6 +24,12 @@ void MapperBnnII::d_write(const int32_t *mat, int32_t m_matrix,
 
 void MapperBnnII::a_write(int32_t m_matrix, int32_t n_matrix) {
     a_write_p_m_bnn_tnn(m_matrix, n_matrix);
+
+    // Set conductance matrix of parasitic solver
+    if (CFG.parasitics) {
+        // Switch ia_p and ia_m for proper conductance encoding
+        par_solver_->set_conductance_matrix(ia_m_, ia_p_, m_matrix, n_matrix);
+    }
 }
 
 void MapperBnnII::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
@@ -51,10 +57,14 @@ void MapperBnnII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         vd_[n] = (vec[n] - 1) / (-2);
     }
 
-    for (size_t m = 0; m < m_matrix; ++m) {
-        for (size_t n = 0; n < n_matrix; ++n) {
-            tmp_out_[m] += (ia_m_[m][n] - ia_p_[m][n]) * vd_[n];
+    if (!CFG.parasitics) {
+        for (size_t m = 0; m < m_matrix; ++m) {
+            for (size_t n = 0; n < n_matrix; ++n) {
+                tmp_out_[m] += (ia_m_[m][n] - ia_p_[m][n]) * vd_[n];
+            }
         }
+    } else {
+        par_solver_->compute_currents(vd_, tmp_out_, m_matrix, n_matrix);
     }
 
     for (size_t m = 0; m < m_matrix; ++m) {
