@@ -24,7 +24,9 @@ TEST(ParasiticsTests, BNN_I) {
     set_config(cfg.c_str());
     update_config(R"(
       {
-         "parasitics": true
+         "parasitics": true,
+         "w_res": 1,
+         "V_read": -0.4
       }
     )");
     int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
@@ -52,7 +54,9 @@ TEST(ParasiticsTests, BNN_II) {
     set_config(cfg.c_str());
     update_config(R"(
       {
-         "parasitics": true
+         "parasitics": true,
+         "w_res": 1,
+         "V_read": -0.4
       }
     )");
     int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
@@ -80,7 +84,9 @@ TEST(ParasiticsTests, BNN_III) {
     set_config(cfg.c_str());
     update_config(R"(
       {
-         "parasitics": true
+         "parasitics": true,
+         "w_res": 1,
+         "V_read": -0.4
       }
     )");
     int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
@@ -108,7 +114,9 @@ TEST(ParasiticsTests, BNN_IV) {
     set_config(cfg.c_str());
     update_config(R"(
       {
-         "parasitics": true
+         "parasitics": true,
+         "w_res": 1,
+         "V_read": -0.4
       }
     )");
     int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
@@ -136,7 +144,9 @@ TEST(ParasiticsTests, BNN_V) {
     set_config(cfg.c_str());
     update_config(R"(
       {
-         "parasitics": true
+         "parasitics": true,
+         "w_res": 1,
+         "V_read": -0.4
       }
     )");
     int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
@@ -164,7 +174,9 @@ TEST(ParasiticsTests, BNN_VI) {
     set_config(cfg.c_str());
     update_config(R"(
       {
-         "parasitics": true
+         "parasitics": true,
+         "w_res": 1,
+         "V_read": -0.4
       }
     )");
     int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
@@ -192,7 +204,9 @@ TEST(ParasiticsTests, TNN_I) {
     set_config(cfg.c_str());
     update_config(R"(
       {
-         "parasitics": true
+         "parasitics": true,
+         "w_res": 1,
+         "V_read": -0.4
       }
     )");
     int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
@@ -220,7 +234,9 @@ TEST(ParasiticsTests, TNN_II) {
     set_config(cfg.c_str());
     update_config(R"(
       {
-         "parasitics": true
+         "parasitics": true,
+         "w_res": 1,
+         "V_read": -0.4
       }
     )");
     int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
@@ -248,7 +264,9 @@ TEST(ParasiticsTests, TNN_III) {
     set_config(cfg.c_str());
     update_config(R"(
       {
-         "parasitics": true
+         "parasitics": true,
+         "w_res": 1,
+         "V_read": -0.4
       }
     )");
     int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
@@ -276,7 +294,9 @@ TEST(ParasiticsTests, TNN_IV_split) {
     set_config(cfg.c_str());
     update_config(R"(
       {
-         "parasitics": true
+         "parasitics": true,
+         "w_res": 1,
+         "V_read": -0.4
       }
     )");
     int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
@@ -304,7 +324,9 @@ TEST(ParasiticsTests, TNN_V_split) {
     set_config(cfg.c_str());
     update_config(R"(
       {
-         "parasitics": true
+         "parasitics": true,
+         "w_res": 1,
+         "V_read": -0.4
       }
     )");
     int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
