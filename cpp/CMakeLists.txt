@@ -40,6 +40,7 @@ option(DEBUG_MODE "Enable debug output for matrix operations" OFF)
 # Build lib options
 option(BUILD_LIB_CB_EMU "Build emulater/callback interface." OFF)
 option(BUILD_LIB_ACS_INT "Build int lib." OFF)
+option(BUILD_WITH_OPENMP "Build with OpenMP support (for parasitics modelling)" OFF)
 
 if (COVERAGE)
     if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -98,6 +99,7 @@ if(BUILD_LIB_ACS_INT)
         src/mapping/tnn_mapper/tnn_v.cpp
         src/xbar/crossbar.cpp
         src/xbar/read_disturb.cpp
+        src/xbar/parasitics.cpp
         src/adc/adc.cpp
         src/adc/adcfactory.cpp
         src/adc/symadc.cpp
@@ -109,10 +111,19 @@ if(BUILD_LIB_ACS_INT)
     pybind11_add_module(acs_int SHARED ${SOURCES_INT})
     include_directories(inc extern/json/include)
     target_link_libraries(acs_int PRIVATE nlohmann_json::nlohmann_json pybind11::module)
+
     if (COVERAGE)
         target_compile_options(acs_int PRIVATE -fprofile-arcs -ftest-coverage)
         target_link_libraries(acs_int PRIVATE gcov)
     endif()
+
+    if (BUILD_WITH_OPENMP)
+      find_package(OpenMP)
+      if(OpenMP_CXX_FOUND)
+	target_link_libraries(acs_int PUBLIC OpenMP::OpenMP_CXX)
+      endif()
+    endif()
+
     set_target_properties(acs_int PROPERTIES POSITION_INDEPENDENT_CODE ON)
     install(TARGETS acs_int DESTINATION ${PY_INSTALL_PATH})
 endif()

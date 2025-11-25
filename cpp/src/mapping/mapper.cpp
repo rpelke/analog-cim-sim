@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke                                           *
+ * Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This is work is licensed under the terms described in the LICENSE file     *
@@ -32,7 +32,8 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
     is_diff_weight_mapping_(is_diff_weight_mapping),
     gd_p_(CFG.M * CFG.SPLIT.size(), std::vector<int32_t>(CFG.N, 0)),
     gd_m_(CFG.M * CFG.SPLIT.size(), std::vector<int32_t>(CFG.N, 0)),
-    shift_(CFG.SPLIT.size(), 0), sum_w_(CFG.M, 0),
+    shift_(CFG.SPLIT.size(), 0),
+    sum_w_(CFG.M, 0),
     ia_p_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
     ia_m_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
     i_step_size_(CFG.SPLIT.size(), 0.0),
@@ -46,6 +47,11 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
         std::mt19937 lrs_gen(lrs_rd());
         hrs_var_ = std::normal_distribution<float>(0.0f, CFG.HRS_NOISE);
         lrs_var_ = std::normal_distribution<float>(0.0f, CFG.LRS_NOISE);
+
+        if (CFG.parasitics) {
+            par_solver_ =
+                std::make_shared<ParasiticSolver>(CFG.w_res, CFG.V_read);
+        }
     }
 
     if (CFG.is_int_mapping(CFG.m_mode) || (CFG.m_mode == MappingMode::TNN_IV)) {

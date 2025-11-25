@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke & Joel Klein                              *
+ * Copyright (C) 2025 Rebecca Pelke, Joel Klein, Arunkumar Vaidyanathan       *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This is work is licensed under the terms described in the LICENSE file     *
@@ -57,7 +57,8 @@ class Config {
                         "read_disturb_update_freq",
                         "read_disturb_mitigation_strategy",
                         "read_disturb_mitigation_fp",
-                        "read_disturb_update_tolerance"});
+                        "read_disturb_update_tolerance",
+                        "parasitics"});
 
     // Matrix dimensions MxN
     uint32_t M;
@@ -94,12 +95,10 @@ class Config {
     float LRS_NOISE;
 
     // Read disturb parameters
-    // V_read: read voltage (in V, negative)
     // t_read: time of a read pulse (in s)
     // read_disturb_update_freq: how often (in number of MVMs) the conductance
     // is updated
     bool read_disturb;
-    float V_read;
     float t_read;
     uint32_t read_disturb_update_freq;
 
@@ -114,6 +113,15 @@ class Config {
     ReadDisturbMitigationStrategy read_disturb_mitigation_strategy;
     float read_disturb_mitigation_fp;
     float read_disturb_update_tolerance;
+
+    // Parasitic resistance modeling parameters
+    // w_res: parasitic wire resistance (in Ohm)
+    bool parasitics;
+    float w_res;
+
+    // V_read: read voltage (in V, negative) - Needed for parasitics and read
+    // disturb modelling.
+    float V_read;
 
   private:
     Config();

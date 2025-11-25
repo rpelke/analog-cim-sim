@@ -11,8 +11,11 @@
 namespace nq {
 
 MapperTnnV::MapperTnnV() :
-    vd_p_(CFG.N, 0), vd_m_(CFG.N, 0), tmp_out_(CFG.M, 0.0),
-    tmp_out_fp_(CFG.M, 0.0), Mapper(false) {}
+    vd_p_(CFG.N, 0),
+    vd_m_(CFG.N, 0),
+    tmp_out_(CFG.M, 0.0),
+    tmp_out_fp_(CFG.M, 0.0),
+    Mapper(false) {}
 
 MapperTnnV::~MapperTnnV() {}
 
@@ -23,6 +26,11 @@ void MapperTnnV::d_write(const int32_t *mat, int32_t m_matrix,
 
 void MapperTnnV::a_write(int32_t m_matrix, int32_t n_matrix) {
     a_write_p_m_bnn_tnn(m_matrix, n_matrix);
+
+    // Set conductance matrix of parasitic solver
+    if (CFG.parasitics) {
+        par_solver_->set_conductance_matrix(ia_p_, ia_m_, m_matrix, n_matrix);
+    }
 }
 
 void MapperTnnV::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
@@ -102,41 +110,66 @@ void MapperTnnV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     // Analog correction term
     float analog_correction = 3 * inp_sum * CFG.HRS / i_mm_;
 
-    // LSB weights ia_p_ ; positive input
-    std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
-    for (size_t m = 0; m < m_matrix; ++m) {
-        for (size_t n = 0; n < n_matrix; ++n) {
-            tmp_out_[m] += ia_p_[m][n] * vd_p_[n];
+    if (!CFG.parasitics) {
+        // LSB weights ia_p_ ; positive input
+        std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
+        for (size_t m = 0; m < m_matrix; ++m) {
+            for (size_t n = 0; n < n_matrix; ++n) {
+                tmp_out_[m] += ia_p_[m][n] * vd_p_[n];
+            }
+            tmp_out_fp_[m] +=
+                adc_->analog_digital_conversion(tmp_out_[m]) / i_mm_;
         }
-        tmp_out_fp_[m] += adc_->analog_digital_conversion(tmp_out_[m]) / i_mm_;
-    }
 
-    // LSB weights ia_p_ ; negative input
-    std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
-    for (size_t m = 0; m < m_matrix; ++m) {
-        for (size_t n = 0; n < n_matrix; ++n) {
-            tmp_out_[m] += ia_p_[m][n] * vd_m_[n];
+        // LSB weights ia_p_ ; negative input
+        std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
+        for (size_t m = 0; m < m_matrix; ++m) {
+            for (size_t n = 0; n < n_matrix; ++n) {
+                tmp_out_[m] += ia_p_[m][n] * vd_m_[n];
+            }
+            tmp_out_fp_[m] -=
+                adc_->analog_digital_conversion(tmp_out_[m]) / i_mm_;
         }
-        tmp_out_fp_[m] -= adc_->analog_digital_conversion(tmp_out_[m]) / i_mm_;
-    }
 
-    // MSB weights ia_m_ ; positive input
-    std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
-    for (size_t m = 0; m < m_matrix; ++m) {
-        for (size_t n = 0; n < n_matrix; ++n) {
-            tmp_out_[m] += ia_m_[m][n] * vd_p_[n];
+        // MSB weights ia_m_ ; positive input
+        std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
+        for (size_t m = 0; m < m_matrix; ++m) {
+            for (size_t n = 0; n < n_matrix; ++n) {
+                tmp_out_[m] += ia_m_[m][n] * vd_p_[n];
+            }
+            tmp_out_fp_[m] +=
+                adc_->analog_digital_conversion(tmp_out_[m]) * 2 / i_mm_;
         }
-        tmp_out_fp_[m] +=
-            adc_->analog_digital_conversion(tmp_out_[m]) * 2 / i_mm_;
-    }
 
-    std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
-    for (size_t m = 0; m < m_matrix; ++m) {
-        for (size_t n = 0; n < n_matrix; ++n) {
-            tmp_out_[m] += ia_m_[m][n] * vd_m_[n];
+        // MSB weights ia_m_ ; negative input
+        std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
+        for (size_t m = 0; m < m_matrix; ++m) {
+            for (size_t n = 0; n < n_matrix; ++n) {
+                tmp_out_[m] += ia_m_[m][n] * vd_m_[n];
+            }
+            tmp_out_fp_[m] -=
+                adc_->analog_digital_conversion(tmp_out_[m]) * 2 / i_mm_;
         }
-        tmp_out_fp_[m] -=
-            adc_->analog_digital_conversion(tmp_out_[m]) * 2 / i_mm_;
+    } else {
+        // Positive input
+        par_solver_->compute_currents(vd_p_, tmp_out_, 2 * m_matrix, n_matrix);
+        for (size_t m = 0; m < m_matrix; m++) {
+            tmp_out_fp_[m] +=
+                adc_->analog_digital_conversion(tmp_out_[2 * m]) / i_mm_;
+            tmp_out_fp_[m] +=
+                adc_->analog_digital_conversion(tmp_out_[2 * m + 1]) * 2 /
+                i_mm_;
+        }
+
+        // Negative input
+        par_solver_->compute_currents(vd_m_, tmp_out_, 2 * m_matrix, n_matrix);
+        for (size_t m = 0; m < m_matrix; m++) {
+            tmp_out_fp_[m] -=
+                adc_->analog_digital_conversion(tmp_out_[2 * m]) / i_mm_;
+            tmp_out_fp_[m] -=
+                adc_->analog_digital_conversion(tmp_out_[2 * m + 1]) * 2 /
+                i_mm_;
+        }
     }
 
     for (size_t m = 0; m < m_matrix; ++m) {

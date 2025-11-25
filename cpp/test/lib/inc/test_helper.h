@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke                                           *
+ * Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This is work is licensed under the terms described in the LICENSE file     *
@@ -22,6 +22,7 @@ int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat, int32_t m_matrix,
 int32_t cpy_mtrx(int32_t *mat, int32_t m_matrix, int32_t n_matrix,
                  const char *l_name = "Unkown");
 void set_config(const char *cfg_file);
+int32_t update_config(const char *json_config, const char *l_name = "Unknown");
 const void *get_ia_p(size_t *size);
 const void *get_ia_m(size_t *size);
 const void *get_gd_p(size_t *size);

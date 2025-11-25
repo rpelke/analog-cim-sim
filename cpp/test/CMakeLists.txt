@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (C) 2025 Rebecca Pelke                                           #
+# Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   #
 # All Rights Reserved                                                        #
 #                                                                            #
 # This is work is licensed under the terms described in the LICENSE file     #
@@ -42,3 +42,4 @@ add_library_test(bnn_tnn_tests lib/lib_cb_emu_tests.cpp ${CMAKE_CURRENT_SOURCE_D
 add_library_test(mvm_tests lib/mvm_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)
 add_library_test(var_tests lib/var_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)
 add_library_test(adc_tests lib/adc_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)
+add_library_test(parasitics_tests lib/parasitics_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)

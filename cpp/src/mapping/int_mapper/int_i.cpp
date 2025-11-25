@@ -11,8 +11,11 @@
 namespace nq {
 
 MapperIntI::MapperIntI() :
-    vd_p_(CFG.N, 0), vd_m_(CFG.N, 0), tmp_out_int_(CFG.M * CFG.SPLIT.size(), 0),
-    tmp_out_fp_(CFG.M * CFG.SPLIT.size(), 0.0), Mapper(true) {}
+    vd_p_(CFG.N, 0),
+    vd_m_(CFG.N, 0),
+    tmp_out_int_(CFG.M * CFG.SPLIT.size(), 0),
+    tmp_out_fp_(CFG.M * CFG.SPLIT.size(), 0.0),
+    Mapper(true) {}
 
 MapperIntI::~MapperIntI() {}
 

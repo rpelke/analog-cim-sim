@@ -9,6 +9,7 @@
 #define DEFINITIONS_H
 
 #include <map>
+#include <string>
 
 namespace nq {
 

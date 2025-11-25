@@ -12,7 +12,8 @@
 namespace nq {
 
 ADC::ADC(const float min_curr, const float max_curr) :
-    min_adc_curr_(min_curr), max_adc_curr_(max_curr) {}
+    min_adc_curr_(min_curr),
+    max_adc_curr_(max_curr) {}
 
 float ADC::clip(const float current) const {
     return std::min(std::max(current, CFG.alpha * min_adc_curr_),

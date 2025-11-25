@@ -17,10 +17,18 @@ ReadDisturb::ReadDisturb(const float V_read) :
                          std::vector<uint64_t>(CFG.N, 0)),
     consecutive_reads_m_(CFG.M * CFG.SPLIT.size(),
                          std::vector<uint64_t>(CFG.N, 0)),
-    t0_(1.55e-8), fitting_param_(1.43339), c1_(0.0068), a_(0.11),
-    kb_(1.38064852e-23), T_(300.0), k_(0.003), m_(0.41),
-    kb_T_(kb_ * T_ / 1.602176634e-19), V_read_(V_read),
-    exp_tt_(calc_exp_tt(V_read)), p_(calc_p(V_read)),
+    t0_(1.55e-8),
+    fitting_param_(1.43339),
+    c1_(0.0068),
+    a_(0.11),
+    kb_(1.38064852e-23),
+    T_(300.0),
+    k_(0.003),
+    m_(0.41),
+    kb_T_(kb_ * T_ / 1.602176634e-19),
+    V_read_(V_read),
+    exp_tt_(calc_exp_tt(V_read)),
+    p_(calc_p(V_read)),
     run_out_of_bounds_(false) {}
 
 const std::vector<std::vector<uint64_t>> &ReadDisturb::get_cycles_p() const {

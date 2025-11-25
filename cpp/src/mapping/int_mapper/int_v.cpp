@@ -13,7 +13,8 @@ namespace nq {
 MapperIntV::MapperIntV() :
     tmp_out_int_(CFG.M * CFG.SPLIT.size(), 0),
     tmp_out_fp_(CFG.M * CFG.SPLIT.size(), 0.0),
-    res_fp_(CFG.M * CFG.SPLIT.size(), 0.0), Mapper(false) {
+    res_fp_(CFG.M * CFG.SPLIT.size(), 0.0),
+    Mapper(false) {
     // Calculation of the delta factor
     delta_ = 0.0;
     if (CFG.m_mode == MappingMode::I_UINT_W_OFFS) {
