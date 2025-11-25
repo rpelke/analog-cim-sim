@@ -31,8 +31,10 @@ class MapperIntIV : public Mapper {
 
   private:
     // Temporary data for MVM
+    std::vector<int32_t> vd_p_;
     std::vector<int32_t> tmp_out_int_;
     std::vector<float> tmp_out_fp_;
+    std::vector<int32_t> vd_slice_;
 };
 
 } // namespace nq

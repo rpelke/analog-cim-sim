@@ -7,6 +7,7 @@
  ******************************************************************************/
 #include "mapping/int_mapper/int_ii.h"
 #include "helper/config.h"
+#include <algorithm>
 
 namespace nq {
 
@@ -14,6 +15,7 @@ MapperIntII::MapperIntII() :
     vd_p_(CFG.N, 0),
     tmp_out_int_(CFG.M * CFG.SPLIT.size(), 0),
     tmp_out_fp_(CFG.M * CFG.SPLIT.size(), 0.0),
+    vd_slice_(CFG.N, 0),
     Mapper(true) {}
 
 MapperIntII::~MapperIntII() {}
@@ -25,6 +27,12 @@ void MapperIntII::d_write(const int32_t *mat, int32_t m_matrix,
 
 void MapperIntII::a_write(int32_t m_matrix, int32_t n_matrix) {
     a_write_p_m(m_matrix, n_matrix);
+
+    // Set conductance matrix of parasitic solver
+    if (CFG.parasitics) {
+        par_solver_->set_conductance_matrix(
+            ia_p_, ia_m_, m_matrix * CFG.SPLIT.size(), n_matrix);
+    }
 }
 
 void MapperIntII::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
@@ -74,12 +82,19 @@ void MapperIntII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     // ia_m_ MSB of input has position: CFG.I_BIT + 1 Subract both results in
     // the analog domain
     for (size_t i_bit = 0; i_bit < CFG.I_BIT + 1; ++i_bit) {
+        // Slice input vector
+        slice_vd(vd_p_, vd_slice_, n_matrix, i_bit);
         // Calculcate multiplications with negative and positive weights
-        for (size_t t_m = 0; t_m < tmp_size; ++t_m) {
-            for (size_t n = 0; n < n_matrix; ++n) {
-                tmp_out_fp_[t_m] +=
-                    (ia_p_[t_m][n] - ia_m_[t_m][n]) * ((vd_p_[n] >> i_bit) & 1);
+        if (!CFG.parasitics) {
+            for (size_t t_m = 0; t_m < tmp_size; ++t_m) {
+                for (size_t n = 0; n < n_matrix; ++n) {
+                    tmp_out_fp_[t_m] +=
+                        (ia_p_[t_m][n] - ia_m_[t_m][n]) * vd_slice_[n];
+                }
             }
+        } else {
+            par_solver_->compute_currents(vd_slice_, tmp_out_fp_, tmp_size,
+                                          n_matrix);
         }
 
         // Addition of the partial results caused by splitted weights

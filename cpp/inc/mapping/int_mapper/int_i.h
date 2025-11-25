@@ -30,11 +30,15 @@ class MapperIntI : public Mapper {
                int32_t m_matrix, int32_t n_matrix) override;
 
   private:
+    void a_mvm_parasitics(int32_t *res, const int32_t *vec, const int32_t *mat,
+                          int32_t m_matrix, int32_t n_matrix);
     // Temporary data for MVM
     std::vector<int32_t> vd_p_;
     std::vector<int32_t> vd_m_;
     std::vector<int32_t> tmp_out_int_;
     std::vector<float> tmp_out_fp_;
+
+    std::vector<int32_t> vd_slice_;
 };
 
 } // namespace nq

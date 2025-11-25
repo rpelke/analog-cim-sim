@@ -7,13 +7,16 @@
  ******************************************************************************/
 #include "mapping/int_mapper/int_v.h"
 #include "helper/config.h"
+#include <algorithm>
 
 namespace nq {
 
 MapperIntV::MapperIntV() :
+    vd_p_(CFG.N, 0),
     tmp_out_int_(CFG.M * CFG.SPLIT.size(), 0),
     tmp_out_fp_(CFG.M * CFG.SPLIT.size(), 0.0),
     res_fp_(CFG.M * CFG.SPLIT.size(), 0.0),
+    vd_slice_(CFG.N, 0),
     Mapper(false) {
     // Calculation of the delta factor
     delta_ = 0.0;
@@ -37,6 +40,12 @@ void MapperIntV::d_write(const int32_t *mat, int32_t m_matrix,
 
 void MapperIntV::a_write(int32_t m_matrix, int32_t n_matrix) {
     a_write_p(m_matrix, n_matrix);
+
+    // Set conductance matrix of parasitic solver
+    if (CFG.parasitics) {
+        par_solver_->set_conductance_matrix(ia_p_, m_matrix * CFG.SPLIT.size(),
+                                            n_matrix);
+    }
 }
 
 void MapperIntV::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
@@ -48,6 +57,7 @@ void MapperIntV::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     const uint32_t tmp_size = m_matrix * split.size();
     std::fill(tmp_out_int_.begin(), tmp_out_int_.end(), 0);
 
+    //
     // Calculate sum over all inputs
     int64_t inp_sum = 0;
     for (size_t n = 0; n < n_matrix; ++n) {
@@ -80,18 +90,26 @@ void MapperIntV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     std::fill(tmp_out_fp_.begin(), tmp_out_fp_.end(), 0.0);
     std::fill(res_fp_.begin(), res_fp_.end(), 0.0);
 
-    // Calculate sum over all inputs
+    // Construct input vector and calculate sum over all inputs
     int64_t inp_sum = 0;
     for (size_t n = 0; n < n_matrix; ++n) {
+        vd_p_[n] = vec[n];
         inp_sum += vec[n];
     }
 
     // For each bit in vec execute one MVM operation with ia_p_
     for (size_t i_bit = 0; i_bit < CFG.I_BIT; ++i_bit) {
-        for (size_t t_m = 0; t_m < tmp_size; ++t_m) {
-            for (size_t n = 0; n < n_matrix; ++n) {
-                tmp_out_fp_[t_m] += ia_p_[t_m][n] * ((vec[n] >> i_bit) & 1);
+        // Slice input vector
+        slice_vd(vd_p_, vd_slice_, n_matrix, i_bit);
+        if (!CFG.parasitics) {
+            for (size_t t_m = 0; t_m < tmp_size; ++t_m) {
+                for (size_t n = 0; n < n_matrix; ++n) {
+                    tmp_out_fp_[t_m] += ia_p_[t_m][n] * vd_slice_[n];
+                }
             }
+        } else {
+            par_solver_->compute_currents(vd_slice_, tmp_out_fp_, tmp_size,
+                                          n_matrix);
         }
 
         // Addition of the partial results caused by splitted weights

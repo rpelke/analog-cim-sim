@@ -65,6 +65,10 @@ class Mapper {
 
     bool is_diff_weight_mapping_;
 
+    // Helper functions
+    void slice_vd(std::vector<int32_t> &vd, std::vector<int32_t> &vd_slice,
+                  size_t n, size_t i_bit);
+
     // Parameters for the digital crossbar
     std::vector<std::vector<int32_t>> gd_p_;
     std::vector<std::vector<int32_t>> gd_m_;

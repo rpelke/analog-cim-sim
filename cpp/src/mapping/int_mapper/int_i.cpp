@@ -7,6 +7,8 @@
  ******************************************************************************/
 #include "mapping/int_mapper/int_i.h"
 #include "helper/config.h"
+#include <algorithm>
+#include <execution>
 
 namespace nq {
 
@@ -15,6 +17,7 @@ MapperIntI::MapperIntI() :
     vd_m_(CFG.N, 0),
     tmp_out_int_(CFG.M * CFG.SPLIT.size(), 0),
     tmp_out_fp_(CFG.M * CFG.SPLIT.size(), 0.0),
+    vd_slice_(CFG.N, 0),
     Mapper(true) {}
 
 MapperIntI::~MapperIntI() {}
@@ -26,6 +29,12 @@ void MapperIntI::d_write(const int32_t *mat, int32_t m_matrix,
 
 void MapperIntI::a_write(int32_t m_matrix, int32_t n_matrix) {
     a_write_p_m(m_matrix, n_matrix);
+
+    // Set conductance matrix of parasitic solver
+    if (CFG.parasitics) {
+        par_solver_->set_conductance_matrix(
+            ia_p_, ia_m_, m_matrix * CFG.SPLIT.size(), n_matrix);
+    }
 }
 
 void MapperIntI::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
@@ -97,12 +106,19 @@ void MapperIntI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     // ia_m_ For positive inputs vd_p: bit 7 is always 0 (sign bit) -> CFG.I_BIT
     // - 1 Subract both results in the analog domain
     for (size_t i_bit = 0; i_bit < CFG.I_BIT - 1; ++i_bit) {
+        // Slice input vector
+        slice_vd(vd_p_, vd_slice_, n_matrix, i_bit);
         // Calculcate multiplications with negative and positive weights
-        for (size_t t_m = 0; t_m < tmp_size; ++t_m) {
-            for (size_t n = 0; n < n_matrix; ++n) {
-                tmp_out_fp_[t_m] +=
-                    (ia_p_[t_m][n] - ia_m_[t_m][n]) * ((vd_p_[n] >> i_bit) & 1);
+        if (!CFG.parasitics) {
+            for (size_t t_m = 0; t_m < tmp_size; ++t_m) {
+                for (size_t n = 0; n < n_matrix; ++n) {
+                    tmp_out_fp_[t_m] +=
+                        (ia_p_[t_m][n] - ia_m_[t_m][n]) * vd_slice_[n];
+                }
             }
+        } else {
+            par_solver_->compute_currents(vd_slice_, tmp_out_fp_,
+                                          m_matrix * split.size(), n_matrix);
         }
 
         // Addition of the partial results caused by splitted weights
@@ -123,12 +139,19 @@ void MapperIntI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     // For each bit in vd_m execute one MVM operation with ia_p_ and one with
     // ia_m_ Subract both results in the analog domain
     for (size_t i_bit = 0; i_bit < CFG.I_BIT; ++i_bit) {
+        // Slice input vector
+        slice_vd(vd_m_, vd_slice_, n_matrix, i_bit);
         // Calculcate multiplications with negative and positive weights
-        for (size_t t_m = 0; t_m < tmp_size; ++t_m) {
-            for (size_t n = 0; n < n_matrix; ++n) {
-                tmp_out_fp_[t_m] +=
-                    (ia_m_[t_m][n] - ia_p_[t_m][n]) * ((vd_m_[n] >> i_bit) & 1);
+        if (!CFG.parasitics) {
+            for (size_t t_m = 0; t_m < tmp_size; ++t_m) {
+                for (size_t n = 0; n < n_matrix; ++n) {
+                    tmp_out_fp_[t_m] +=
+                        (ia_p_[t_m][n] - ia_m_[t_m][n]) * vd_slice_[n];
+                }
             }
+        } else {
+            par_solver_->compute_currents(vd_slice_, tmp_out_fp_, tmp_size,
+                                          n_matrix);
         }
 
         // Addition of the partial results caused by splitted weights
@@ -137,7 +160,7 @@ void MapperIntI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                 res[m] += static_cast<int32_t>(
                     round(adc_->analog_digital_conversion(
                               tmp_out_fp_[m * split.size() + s]) /
-                          i_step_size_[s] * std::pow(2, shift_[s]) *
+                          -i_step_size_[s] * std::pow(2, shift_[s]) *
                           std::pow(2, i_bit)));
             }
         }
