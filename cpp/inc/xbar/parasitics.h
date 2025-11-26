@@ -98,6 +98,11 @@ class ParasiticSolver {
 
     // Mapping mode to encoding function pointer maps
     const std::unordered_map<MappingMode, WeightEncFunc> mm_to_wenc = {
+        {MappingMode::I_DIFF_W_DIFF_1XB, &ParasiticSolver::w_enc_double_col},
+        {MappingMode::I_DIFF_W_DIFF_2XB, &ParasiticSolver::w_enc_double_col},
+        {MappingMode::I_OFFS_W_DIFF, &ParasiticSolver::w_enc_double_col},
+        {MappingMode::I_UINT_W_DIFF, &ParasiticSolver::w_enc_double_col},
+        {MappingMode::I_UINT_W_OFFS, &ParasiticSolver::w_enc_single},
         {MappingMode::BNN_I, &ParasiticSolver::w_enc_double_col},
         {MappingMode::BNN_II, &ParasiticSolver::w_enc_double_col},
         {MappingMode::BNN_III, &ParasiticSolver::w_enc_single},
@@ -111,6 +116,11 @@ class ParasiticSolver {
         {MappingMode::TNN_V, &ParasiticSolver::w_enc_double_col}};
 
     const std::unordered_map<MappingMode, InputEncFunc> mm_to_ienc = {
+        {MappingMode::I_DIFF_W_DIFF_1XB, &ParasiticSolver::i_enc_single},
+        {MappingMode::I_DIFF_W_DIFF_2XB, &ParasiticSolver::i_enc_single},
+        {MappingMode::I_OFFS_W_DIFF, &ParasiticSolver::i_enc_single},
+        {MappingMode::I_UINT_W_DIFF, &ParasiticSolver::i_enc_single},
+        {MappingMode::I_UINT_W_OFFS, &ParasiticSolver::i_enc_single},
         {MappingMode::BNN_I, &ParasiticSolver::i_enc_single},
         {MappingMode::BNN_II, &ParasiticSolver::i_enc_single},
         {MappingMode::BNN_III, &ParasiticSolver::i_enc_single},
@@ -124,6 +134,11 @@ class ParasiticSolver {
         {MappingMode::TNN_V, &ParasiticSolver::i_enc_single}};
 
     const std::unordered_map<MappingMode, OutputEncFunc> mm_to_oenc = {
+        {MappingMode::I_DIFF_W_DIFF_1XB, &ParasiticSolver::o_enc_double},
+        {MappingMode::I_DIFF_W_DIFF_2XB, &ParasiticSolver::o_enc_double},
+        {MappingMode::I_OFFS_W_DIFF, &ParasiticSolver::o_enc_double},
+        {MappingMode::I_UINT_W_DIFF, &ParasiticSolver::o_enc_double},
+        {MappingMode::I_UINT_W_OFFS, &ParasiticSolver::o_enc_single},
         {MappingMode::BNN_I, &ParasiticSolver::o_enc_double},
         {MappingMode::BNN_II, &ParasiticSolver::o_enc_double},
         {MappingMode::BNN_III, &ParasiticSolver::o_enc_single},

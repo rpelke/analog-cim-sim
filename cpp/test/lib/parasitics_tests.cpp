@@ -13,6 +13,156 @@
 
 #include "inc/test_helper.h"
 
+TEST(ParasiticsTests, I_DIFF_W_DIFF_1XB) {
+    const int32_t m_matrix = 3;
+    const int32_t n_matrix = 2;
+    int32_t vec[n_matrix] = {-120, 55};
+    int32_t vec2[n_matrix] = {0, 10};
+    int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, 12, 1};
+
+    std::string cfg = get_cfg_file("analog/I_DIFF_W_DIFF_1XB.json");
+    set_config(cfg.c_str());
+    update_config(R"(
+      {
+         "parasitics": true,
+         "w_res": 0.01,
+         "V_read": -0.4
+      }
+    )");
+    int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
+    int32_t res[m_matrix] = {1, 1, -1};
+    status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+    ASSERT_THAT(res, ::testing::ElementsAre(-13759, -119, -1386));
+
+    int32_t res2[m_matrix] = {0, 0, 0};
+    status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+    ASSERT_THAT(res2, ::testing::ElementsAre(-320, 0, 10));
+}
+
+TEST(ParasiticsTests, I_DIFF_W_DIFF_2XB) {
+    const int32_t m_matrix = 3;
+    const int32_t n_matrix = 2;
+    int32_t vec[n_matrix] = {-120, 55};
+    int32_t vec2[n_matrix] = {0, 10};
+    int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, 12, 1};
+
+    std::string cfg = get_cfg_file("analog/I_DIFF_W_DIFF_2XB.json");
+    set_config(cfg.c_str());
+    update_config(R"(
+      {
+         "parasitics": true,
+         "w_res": 0.01,
+         "V_read": -0.4
+      }
+    )");
+    int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
+    int32_t res[m_matrix] = {1, 1, -1};
+    status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+    ASSERT_THAT(res, ::testing::ElementsAre(-13759, -119, -1386));
+
+    int32_t res2[m_matrix] = {0, 0, 0};
+    status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+    ASSERT_THAT(res2, ::testing::ElementsAre(-320, 0, 10));
+}
+
+TEST(ParasiticsTests, I_OFFS_W_DIFF) {
+    const int32_t m_matrix = 3;
+    const int32_t n_matrix = 2;
+    int32_t vec[n_matrix] = {-120, 55};
+    int32_t vec2[n_matrix] = {0, 10};
+    int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, 12, 1};
+
+    std::string cfg = get_cfg_file("analog/I_OFFS_W_DIFF.json");
+    set_config(cfg.c_str());
+    update_config(R"(
+      {
+         "parasitics": true,
+         "w_res": 0.01,
+         "V_read": -0.4
+      }
+    )");
+    int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
+    int32_t res[m_matrix] = {1, 1, -1};
+    status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+    ASSERT_THAT(res, ::testing::ElementsAre(-13759, -119, -1386));
+
+    int32_t res2[m_matrix] = {0, 0, 0};
+    status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+    ASSERT_THAT(res2, ::testing::ElementsAre(-320, 0, 10));
+}
+
+TEST(ParasiticsTests, I_UINT_W_DIFF) {
+    const int32_t m_matrix = 3;
+    const int32_t n_matrix = 2;
+    int32_t vec1[n_matrix] = {120, 55};
+    int32_t vec2[n_matrix] = {0, 10};
+    int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, -12, 1};
+
+    std::string cfg = get_cfg_file("analog/I_UINT_W_DIFF.json");
+    set_config(cfg.c_str());
+    update_config(R"(
+      {
+         "parasitics": true,
+         "w_res": 0.001,
+         "V_read": -0.4
+      }
+    )");
+    int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
+    int32_t res1[m_matrix] = {1, 1, -1};
+    status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+    ASSERT_THAT(res1, ::testing::ElementsAre(10241, 121, -1386));
+
+    int32_t res2[m_matrix] = {0, 0, 0};
+    status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+    ASSERT_THAT(res2, ::testing::ElementsAre(-320, 0, 10));
+}
+
+TEST(INTLibTests, I_UINT_W_OFFS) {
+    const int32_t m_matrix = 3;
+    const int32_t n_matrix = 2;
+    int32_t vec1[n_matrix] = {120, 55};
+    int32_t vec2[n_matrix] = {0, 10};
+    int32_t mat[m_matrix * n_matrix] = {100, -32, 1, 0, -12, 1};
+
+    std::string cfg = get_cfg_file("analog/I_UINT_W_OFFS.json");
+    set_config(cfg.c_str());
+    update_config(R"(
+      {
+         "parasitics": true,
+         "w_res": 0.001,
+         "V_read": -0.4
+      }
+    )");
+    int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
+    int32_t res1[m_matrix] = {1, 1, -1};
+    status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+    ASSERT_THAT(res1, ::testing::ElementsAre(10241, 121, -1386));
+
+    int32_t res2[m_matrix] = {0, 0, 0};
+    status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+    ASSERT_THAT(res2, ::testing::ElementsAre(-320, 0, 10));
+}
+
 TEST(ParasiticsTests, BNN_I) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;

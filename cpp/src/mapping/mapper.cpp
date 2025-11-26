@@ -25,6 +25,7 @@
 #include "mapping/tnn_mapper/tnn_v.h"
 
 #include <algorithm>
+#include <execution>
 
 namespace nq {
 
@@ -451,5 +452,12 @@ int Mapper::rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model) {
 }
 
 bool Mapper::is_diff_weight_mapping() const { return is_diff_weight_mapping_; }
+
+void Mapper::slice_vd(std::vector<int32_t> &vd, std::vector<int32_t> &vd_slice,
+                      size_t n, size_t i_bit) {
+    std::transform(std::execution::par, vd.begin(), vd.begin() + n,
+                   vd_slice.begin(),
+                   [i_bit](int32_t v) { return (v >> i_bit) & 1; });
+}
 
 } // namespace nq

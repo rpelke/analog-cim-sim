@@ -35,6 +35,8 @@ class MapperIntI : public Mapper {
     std::vector<int32_t> vd_m_;
     std::vector<int32_t> tmp_out_int_;
     std::vector<float> tmp_out_fp_;
+
+    std::vector<int32_t> vd_slice_;
 };
 
 } // namespace nq
