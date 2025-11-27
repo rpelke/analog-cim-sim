@@ -124,6 +124,12 @@ if(BUILD_LIB_ACS_INT)
       endif()
     endif()
 
+    find_package(TBB)
+    if(TBB_FOUND)
+        message(STATUS "TBB found, linking acs_int against TBB (Parallel STL backend).")
+        target_link_libraries(acs_int PRIVATE TBB::tbb)
+    endif()
+
     set_target_properties(acs_int PROPERTIES POSITION_INDEPENDENT_CODE ON)
     install(TARGETS acs_int DESTINATION ${PY_INSTALL_PATH})
 endif()
