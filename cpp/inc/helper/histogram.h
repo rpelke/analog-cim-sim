@@ -46,6 +46,47 @@ class SimpleHistogram {
     std::vector<int32_t> data_;   /**< Histogram data */
     std::vector<int32_t> values_; /**< Sample values stored in histogram */
 };
+
+class Histogram {
+  public:
+    /** Constructor
+     *
+     * @param min Minimum value to be stored
+     * @param max Maximum value to be stored
+     * @param bin_size Required bin size when updating histogram
+     */
+    Histogram(float min, float max, float bin_size);
+    Histogram() = delete;
+    Histogram(const SimpleHistogram &) = delete;
+
+    /** Destructor */
+    virtual ~Histogram() = default;
+
+    /** Update histogram with a vector of values. */
+    void update(const std::vector<float> &values);
+
+    /** Get number of samples present in histogram. */
+    int64_t get_samples();
+
+    /** Get mean value. */
+    float get_mean();
+
+    /** Get variance. */
+    float get_variance();
+
+    /** Get histogram data as a JSON object. */
+    json to_json();
+
+  private:
+    float min_;      /**< Minimum value */
+    float max_;      /**< Maximum value */
+    float bin_size_; /**< Bin size */
+    float num_bins_; /**< Number of bins */
+
+    std::vector<int32_t> data_; /**< Histogram data */
+    std::vector<float> values_; /**< Sample values (mid-point of bins)
+                                       stored in histogram */
+};
 } // namespace nq
 
 #endif /* HISTOGRAM_H */
