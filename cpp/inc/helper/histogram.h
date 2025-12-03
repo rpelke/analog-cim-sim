@@ -2,6 +2,7 @@
 #define HISTOGRAM_H
 
 #include <cstdint>
+#include <map>
 #include <vector>
 
 #include "nlohmann/json.hpp"
@@ -47,7 +48,8 @@ class SimpleHistogram {
     std::vector<int32_t> values_; /**< Sample values stored in histogram */
 };
 
-class Histogram {
+/** Histogram for profiling float arrays with binning. */
+class BinnedHistogram {
   public:
     /** Constructor
      *
@@ -55,12 +57,12 @@ class Histogram {
      * @param max Maximum value to be stored
      * @param bin_size Required bin size when updating histogram
      */
-    Histogram(float min, float max, float bin_size);
-    Histogram() = delete;
-    Histogram(const SimpleHistogram &) = delete;
+    BinnedHistogram(float min, float max, float bin_size);
+    BinnedHistogram() = delete;
+    BinnedHistogram(const SimpleHistogram &) = delete;
 
     /** Destructor */
-    virtual ~Histogram() = default;
+    virtual ~BinnedHistogram() = default;
 
     /** Update histogram with a vector of values. */
     void update(const std::vector<float> &values);
@@ -86,6 +88,58 @@ class Histogram {
     std::vector<int32_t> data_; /**< Histogram data */
     std::vector<float> values_; /**< Sample values (mid-point of bins)
                                        stored in histogram */
+};
+
+/** Collection of histograms associated with each operator in a NN
+ * workload.
+ */
+class WorkloadHistograms {
+  public:
+    WorkloadHistograms();
+    WorkloadHistograms(const WorkloadHistograms &) = delete;
+    WorkloadHistograms &operator=(const WorkloadHistograms &) = delete;
+
+    /** Destructor */
+    virtual ~WorkloadHistograms();
+
+    /** Check if histogram already exists for a layer. */
+    bool has_histogram(std::string l_name);
+
+    /** Add a histogram associated with a layer. */
+    bool add_histogram(std::string l_name, float min, float max,
+                       float bin_size = 1.0);
+
+    /** Get histogram associated with a layer. */
+    std::optional<std::reference_wrapper<BinnedHistogram>>
+    get_histogram(std::string l_name);
+
+    /** Get histogram data as a JSON object. */
+    json to_json();
+
+  protected:
+    std::map<std::string, BinnedHistogram> hists_; /**< Layer histograms */
+};
+
+/** Singleton collection of histograms profiling ADC inputs.
+ */
+class ADCHistograms : public WorkloadHistograms {
+  public:
+    ADCHistograms(const ADCHistograms &) = delete;
+    ADCHistograms &operator=(const ADCHistograms &) = delete;
+
+    /** Destructor */
+    virtual ~ADCHistograms() override;
+
+    /** Get singleton instance. */
+    static ADCHistograms &get_instance();
+
+  private:
+    /** Constructor
+     *
+     * Private constructor for singleton. Can only be accessed with
+     * WorkloadHistograms::get_histograms().
+     */
+    ADCHistograms();
 };
 } // namespace nq
 

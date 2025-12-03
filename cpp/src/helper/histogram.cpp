@@ -61,7 +61,7 @@ json SimpleHistogram::to_json() {
                 {"var", get_variance()}};
 }
 
-Histogram::Histogram(float min, float max, float bin_size) :
+BinnedHistogram::BinnedHistogram(float min, float max, float bin_size) :
     min_(min),
     max_(max),
     bin_size_(bin_size),
@@ -71,10 +71,14 @@ Histogram::Histogram(float min, float max, float bin_size) :
     // Generate values present in histogram
     std::generate(
         values_.begin(), values_.end(),
-        [n = this->min_, this]() mutable { return n += this->bin_size_ / 2; });
+        [n = this->min_ + this->bin_size_ / 2, p = 0.0, this]() mutable {
+            p = n;
+            n += this->bin_size_;
+            return p;
+        });
 }
 
-void Histogram::update(const std::vector<float> &values) {
+void BinnedHistogram::update(const std::vector<float> &values) {
     // TODO: Check if values are within histogram ranges
     // Offset values to get indices to update histogram data
     std::vector<int32_t> indices(values.size(), 0);
@@ -87,19 +91,19 @@ void Histogram::update(const std::vector<float> &values) {
                   [this](int32_t i) -> void { this->data_[i]++; });
 }
 
-int64_t Histogram::get_samples() {
+int64_t BinnedHistogram::get_samples() {
     return std::reduce(std::execution::par, this->data_.begin(),
                        this->data_.end(), int64_t(0), std::plus<int64_t>());
 }
 
-float Histogram::get_mean() {
+float BinnedHistogram::get_mean() {
     return std::transform_reduce(std::execution::par, this->data_.begin(),
                                  this->data_.end(), this->values_.begin(), 0.0,
                                  std::plus<float>(), std::multiplies<float>()) /
            this->get_samples();
 }
 
-float Histogram::get_variance() {
+float BinnedHistogram::get_variance() {
     float mean = get_mean();
     return std::transform_reduce(
         std::execution::par, this->data_.begin(), this->data_.end(),
@@ -107,7 +111,7 @@ float Histogram::get_variance() {
         [mean](int32_t d, int32_t v) { return (v * std::pow(d - mean, 2)); });
 }
 
-json Histogram::to_json() {
+json BinnedHistogram::to_json() {
     std::map<float, int32_t> hist_map;
     std::transform(std::execution::par, this->data_.begin(), this->data_.end(),
                    this->values_.begin(),
@@ -119,4 +123,47 @@ json Histogram::to_json() {
                 {"mean", get_mean()},
                 {"var", get_variance()}};
 }
+
+WorkloadHistograms::WorkloadHistograms() {}
+
+WorkloadHistograms::~WorkloadHistograms() {}
+
+bool WorkloadHistograms::has_histogram(std::string l_name) {
+    auto val = hists_.find(l_name);
+    return val != hists_.end();
+}
+
+bool WorkloadHistograms::add_histogram(std::string l_name, float min, float max,
+                                       float bin_size) {
+    return hists_.insert({l_name, BinnedHistogram(min, max, bin_size)}).second;
+}
+
+std::optional<std::reference_wrapper<BinnedHistogram>>
+WorkloadHistograms::get_histogram(std::string l_name) {
+    if (auto val = hists_.find(l_name); val != hists_.end()) {
+        return std::optional<std::reference_wrapper<BinnedHistogram>>(
+            val->second);
+    }
+    return std::optional<std::reference_wrapper<BinnedHistogram>>();
+}
+
+json WorkloadHistograms::to_json() {
+    json json_obj{};
+    std::for_each(
+        std::execution::seq, this->hists_.begin(), this->hists_.end(),
+        [json_obj](std::pair<std::string, BinnedHistogram> hist) mutable {
+            json_obj.merge_patch(json{{hist.first, hist.second.to_json()}});
+        });
+    return json_obj;
+}
+
+ADCHistograms::ADCHistograms() {}
+
+ADCHistograms::~ADCHistograms() {}
+
+ADCHistograms &ADCHistograms::get_instance() {
+    static ADCHistograms instance;
+    return instance;
+}
+
 } // namespace nq
