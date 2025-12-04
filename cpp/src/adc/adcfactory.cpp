@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke                                           *
+ * Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This is work is licensed under the terms described in the LICENSE file     *
@@ -21,6 +21,19 @@ std::unique_ptr<ADC> ADCFactory::createADC(ADCType type) {
     case ADCType::POS_RANGE_ONLY_ADC:
         return std::make_unique<PosADC>();
         return nullptr;
+    default:
+        return nullptr;
+    }
+}
+
+std::unique_ptr<BaseADC> ADCFactory::createADCNew(ADCType type) {
+    switch (type) {
+    case ADCType::INF_ADC:
+        return std::make_unique<ADCInfinite>();
+    case ADCType::SYM_RANGE_ADC:
+        return std::make_unique<ADCSigned>();
+    case ADCType::POS_RANGE_ONLY_ADC:
+        return std::make_unique<ADCUnsigned>();
     default:
         return nullptr;
     }

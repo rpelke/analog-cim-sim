@@ -82,6 +82,7 @@ class Mapper {
     int num_segments_;
     float i_mm_;
     const std::unique_ptr<ADC> adc_;
+    const std::unique_ptr<BaseADC> adc_new_;
     std::shared_ptr<ParasiticSolver> par_solver_; // Parasitic resistance solver
 
   private:

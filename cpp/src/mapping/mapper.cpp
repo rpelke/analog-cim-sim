@@ -38,7 +38,8 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
     ia_p_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
     ia_m_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
     i_step_size_(CFG.SPLIT.size(), 0.0),
-    adc_(ADCFactory::createADC(CFG.adc_type)) {
+    adc_(ADCFactory::createADC(CFG.adc_type)),
+    adc_new_(ADCFactory::createADCNew(CFG.adc_type)) {
 
     if (!CFG.digital_only) {
         i_mm_ = CFG.LRS - CFG.HRS;

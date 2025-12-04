@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke                                           *
+ * Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This is work is licensed under the terms described in the LICENSE file     *
@@ -26,6 +26,24 @@ class PosADC : public ADC {
     const float step_size_; // ADC step size (delta)
 };
 
+class ADCUnsigned : public BaseADC {
+  public:
+    /** Constructor */
+    explicit ADCUnsigned();
+    ADCUnsigned(const ADCUnsigned &) = delete;
+    virtual ~ADCUnsigned() = default;
+
+    /** Convert a vector of analog input currents to digital outputs. */
+    virtual void convert(const std::vector<float> &in, std::vector<float> &out,
+                         float scale = 1.0, float offset = 0.0) override;
+
+  protected:
+    /** Get maximum possible current to ADC */
+    virtual float maximum_max_current() override;
+
+    /** Get minimum possible current to ADC */
+    virtual float maximum_min_current() override;
+};
 } // namespace nq
 
 #endif

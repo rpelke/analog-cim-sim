@@ -26,6 +26,24 @@ class InfADC : public ADC {
     float analog_digital_conversion(const float current) const override;
 };
 
+class ADCInfinite : public BaseADC {
+  public:
+    /** Constructor */
+    explicit ADCInfinite();
+    ADCInfinite(const ADCInfinite &) = delete;
+    virtual ~ADCInfinite() = default;
+
+    /** Convert a vector of analog input currents to digital outputs. */
+    virtual void convert(const std::vector<float> &in, std::vector<float> &out,
+                         float scale = 1.0, float offset = 0.0) override;
+
+  protected:
+    /** Get maximum possible current to ADC */
+    virtual float maximum_max_current() override;
+
+    /** Get minimum possible current to ADC */
+    virtual float maximum_min_current() override;
+};
 } // namespace nq
 
 #endif
