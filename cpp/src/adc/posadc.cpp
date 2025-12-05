@@ -37,7 +37,7 @@ void ADCUnsigned::convert(const std::vector<float> &in, std::vector<float> &out,
 
     // Add offset to input currents
     std::transform(std::execution::par, in.begin(), in.end(), out.begin(),
-                   [offset](float current) { return current - offset; });
+                   [offset](float current) { return current + offset; });
 
     // Clip currents
     clip(out, out);

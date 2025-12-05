@@ -83,10 +83,10 @@ void MapperBnnV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                                       n_matrix);
     }
 
+    adc_new_->convert(tmp_out_, tmp_out_, 2 / i_mm_, -n_matrix * CFG.HRS);
+
     for (size_t m = 0; m < m_matrix; ++m) {
-        res[m] +=
-            round(2 / i_mm_ * adc_->analog_digital_conversion(tmp_out_[m]) -
-                  n_matrix - 2 * n_matrix * CFG.HRS / i_mm_);
+        res[m] += tmp_out_[m] - n_matrix;
     }
 }
 
