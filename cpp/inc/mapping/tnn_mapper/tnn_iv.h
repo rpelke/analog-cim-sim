@@ -34,6 +34,8 @@ class MapperTnnIV : public Mapper {
     std::vector<int32_t> vd_p_;
     std::vector<int32_t> vd_m_;
     std::vector<float> tmp_out_;
+    std::vector<float> tmp_out_lsb_;
+    std::vector<float> tmp_out_msb_;
     std::vector<float> tmp_out_fp_;
 };
 
