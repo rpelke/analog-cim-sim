@@ -45,12 +45,16 @@ class BaseADC {
     virtual void convert(const std::vector<float> &in, std::vector<float> &out,
                          float scale = 1.0, float offset = 0.0) = 0;
 
+    /** Convert an analog input current to digital output. */
+    virtual float convert(const float current, float scale = 1.0,
+                          float offset = 0.0) = 0;
+
   protected:
     /** Set maximum and minimum currents to the ADC. */
     void calibrate_currents();
 
     /** Clip input currents vector for ADC ranges. */
-    void clip(const std::vector<float> &in, std::vector<float> &out);
+    float clip(float current);
 
     /** Get maximum possible current to ADC */
     virtual float maximum_max_current() = 0;

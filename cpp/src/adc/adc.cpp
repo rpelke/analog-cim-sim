@@ -34,11 +34,8 @@ void BaseADC::calibrate_currents() {
     curr_range_ = max_curr_ - min_curr_;
 }
 
-void BaseADC::clip(const std::vector<float> &in, std::vector<float> &out) {
-    std::transform(std::execution::par, in.begin(), in.end(), out.begin(),
-                   [this](float current) {
-                       return std::min(std::max(current, min_curr_), max_curr_);
-                   });
+float BaseADC::clip(float current) {
+    return std::min(std::max(current, min_curr_), max_curr_);
 }
 
 } // namespace nq

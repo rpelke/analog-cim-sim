@@ -27,9 +27,14 @@ void ADCInfinite::convert(const std::vector<float> &in, std::vector<float> &out,
     out.resize(in.size(), 0.0);
 
     // Apply offset and scale
-    std::transform(
-        std::execution::par, in.begin(), in.end(), out.begin(),
-        [scale, offset](float current) { return (current - offset) * scale; });
+    std::transform(std::execution::par, in.begin(), in.end(), out.begin(),
+                   [this, scale, offset](float current) {
+                       return convert(current, scale, offset);
+                   });
+}
+
+float ADCInfinite::convert(const float current, float scale, float offset) {
+    return (current + offset) * scale;
 }
 
 float ADCInfinite::maximum_max_current() {

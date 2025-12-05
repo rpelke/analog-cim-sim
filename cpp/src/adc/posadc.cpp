@@ -35,31 +35,35 @@ void ADCUnsigned::convert(const std::vector<float> &in, std::vector<float> &out,
     // Resize output vector
     out.resize(in.size(), 0.0);
 
-    // Add offset to input currents
-    std::transform(std::execution::par, in.begin(), in.end(), out.begin(),
-                   [offset](float current) { return current + offset; });
+    // Apply conversion function to each input current
+    std::transform(std::execution::par_unseq, in.begin(), in.end(), out.begin(),
+                   [this, scale, offset](float current) {
+                       return convert(current, scale, offset);
+                   });
+}
 
+float ADCUnsigned::convert(const float current, float scale, float offset) {
+    float tmp;
+    // Add offset to input current
+    tmp = current + offset;
     // Clip currents
-    clip(out, out);
+    tmp = clip(tmp);
 
     // Quantization
     // Calculate step size. Number of steps is reduced by one to account for
     // extra step near zero.
     float step_size = curr_range_ / (steps_ - 1);
-    // Quantize and scale output
-    std::transform(std::execution::par, out.begin(), out.end(), out.begin(),
-                   [this, step_size, scale](float current) {
-                       // Offset currents from minimum to zero to ensure
-                       // rounding correctness.
-                       current -= min_curr_;
-                       // Divide by step size and round to quantize.
-                       current = round(current / step_size);
-                       // Bring value back to original level by multipliying
-                       // with step size and shitfting back to minimum.
-                       current = current * step_size + min_curr_;
-                       // Scale and round final outputs
-                       return round(current * scale);
-                   });
+    // Offset current from minimum to zero to ensure
+    // rounding correctness.
+    tmp -= min_curr_;
+    // Divide by step size and round to quantize.
+    tmp = round(tmp / step_size);
+    // Bring value back to original level by multipliying
+    // with step size and shitfting back to minimum.
+    tmp = tmp * step_size + min_curr_;
+
+    // Scale and round final output
+    return round(tmp * scale);
 }
 
 float ADCUnsigned::maximum_max_current() {

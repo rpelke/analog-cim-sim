@@ -37,6 +37,10 @@ class ADCUnsigned : public BaseADC {
     virtual void convert(const std::vector<float> &in, std::vector<float> &out,
                          float scale = 1.0, float offset = 0.0) override;
 
+    /** Convert an analog input current to digital output. */
+    virtual float convert(const float current, float scale = 1.0,
+                          float offset = 0.0) override;
+
   protected:
     /** Get maximum possible current to ADC */
     virtual float maximum_max_current() override;
