@@ -10,16 +10,11 @@
 
 #include <cstdint>
 #include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <memory>
 #include <vector>
 
-#include "adc/adcfactory.h"
 #include "helper/definitions.h"
-#include "mapping/mapper.h"
 #include "nlohmann/json.hpp"
-#include "xbar/crossbar.h"
+#include "xbar/adc.h"
 
 #define CFG ::nq::Config::get_cfg()
 

@@ -8,6 +8,8 @@
 #include "mapping/bnn_mapper/bnn_iv.h"
 #include "helper/config.h"
 
+#include <iostream>
+
 namespace nq {
 
 MapperBnnIV::MapperBnnIV() :
@@ -99,8 +101,8 @@ void MapperBnnIV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         par_solver_->compute_currents(vd_m_, tmp_out_m_, m_matrix, n_matrix);
     }
 
-    adc_new_->convert(tmp_out_p_, tmp_out_p_, 2 / i_mm_, -vec_sum * CFG.HRS);
-    adc_new_->convert(tmp_out_m_, tmp_out_m_, 2 / i_mm_, 0.0);
+    adc_->convert(tmp_out_p_, tmp_out_p_, 2 / i_mm_, -vec_sum * CFG.HRS);
+    adc_->convert(tmp_out_m_, tmp_out_m_, 2 / i_mm_, 0.0);
 
     for (size_t m = 0; m < m_matrix; ++m) {
         res[m] += tmp_out_m_[m] - tmp_out_p_[m] + vec_sum;

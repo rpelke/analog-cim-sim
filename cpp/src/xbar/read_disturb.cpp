@@ -8,6 +8,8 @@
 #include "xbar/read_disturb.h"
 #include "helper/config.h"
 
+#include <iostream>
+
 namespace nq {
 
 ReadDisturb::ReadDisturb(const float V_read) :

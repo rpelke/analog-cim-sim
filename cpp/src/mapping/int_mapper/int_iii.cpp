@@ -111,7 +111,7 @@ void MapperIntIII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         // Addition of the partial results caused by splitted weights
         for (size_t m = 0; m < m_matrix; ++m) {
             for (size_t s = 0; s < split.size(); ++s) {
-                res[m] += adc_new_->convert(
+                res[m] += adc_->convert(
                     tmp_out_fp_[m * split.size() + s],
                     (std::pow(2, shift_[s]) * std::pow(2, i_bit)) /
                         i_step_size_[s]);
@@ -139,7 +139,7 @@ void MapperIntIII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     // Addition of the partial results caused by splitted weights
     for (size_t m = 0; m < m_matrix; ++m) {
         for (size_t s = 0; s < split.size(); ++s) {
-            res[m] -= adc_new_->convert(
+            res[m] -= adc_->convert(
                 tmp_out_fp_[m * split.size() + s],
                 (std::pow(2, shift_[s]) * std::pow(2, CFG.I_BIT - 1)) /
                     i_step_size_[s]);

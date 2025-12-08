@@ -13,7 +13,7 @@
 #include <random>
 #include <vector>
 
-#include "adc/adc.h"
+#include "xbar/adc.h"
 #include "xbar/parasitics.h"
 #include "xbar/read_disturb.h"
 
@@ -82,7 +82,6 @@ class Mapper {
     int num_segments_;
     float i_mm_;
     const std::unique_ptr<ADC> adc_;
-    const std::unique_ptr<BaseADC> adc_new_;
     std::shared_ptr<ParasiticSolver> par_solver_; // Parasitic resistance solver
 
   private:

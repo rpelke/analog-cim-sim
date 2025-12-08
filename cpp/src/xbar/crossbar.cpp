@@ -8,6 +8,8 @@
 #include "xbar/crossbar.h"
 #include "helper/config.h"
 
+#include <iostream>
+
 namespace nq {
 
 Crossbar::Crossbar() :
