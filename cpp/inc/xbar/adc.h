@@ -27,7 +27,7 @@ class ADC {
 
     /** Convert a vector of analog input currents to digital outputs. */
     virtual void convert(const std::vector<float> &in, std::vector<float> &out,
-                         float scale = 1.0, float offset = 0.0) = 0;
+                         float scale = 1.0, float offset = 0.0);
 
     /** Convert an analog input current to digital output. */
     virtual float convert(const float current, float scale = 1.0,
@@ -61,10 +61,6 @@ class ADCInfinite : public ADC {
     ADCInfinite(const ADCInfinite &) = delete;
     virtual ~ADCInfinite() = default;
 
-    /** Convert a vector of analog input currents to digital outputs. */
-    virtual void convert(const std::vector<float> &in, std::vector<float> &out,
-                         float scale = 1.0, float offset = 0.0) override;
-
     /** Convert an analog input current to digital output. */
     virtual float convert(const float current, float scale = 1.0,
                           float offset = 0.0) override;
@@ -84,10 +80,6 @@ class ADCUnsigned : public ADC {
     explicit ADCUnsigned();
     ADCUnsigned(const ADCUnsigned &) = delete;
     virtual ~ADCUnsigned() = default;
-
-    /** Convert a vector of analog input currents to digital outputs. */
-    virtual void convert(const std::vector<float> &in, std::vector<float> &out,
-                         float scale = 1.0, float offset = 0.0) override;
 
     /** Convert an analog input current to digital output. */
     virtual float convert(const float current, float scale = 1.0,

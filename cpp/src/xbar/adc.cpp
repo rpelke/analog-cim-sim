@@ -9,6 +9,18 @@ namespace nq {
 
 ADC::ADC() : resolution_(CFG.resolution), steps_(std::pow(2, resolution_)) {}
 
+void ADC::convert(const std::vector<float> &in, std::vector<float> &out,
+                  float scale, float offset) {
+    // Resize output vector
+    out.resize(in.size(), 0.0);
+
+    // Apply offset and scale
+    std::transform(std::execution::par, in.begin(), in.end(), out.begin(),
+                   [this, scale, offset](float current) {
+                       return convert(current, scale, offset);
+                   });
+}
+
 void ADC::calibrate_currents() {
     // TODO: Implement with calibration mode
     max_curr_ = maximum_max_current();
@@ -23,18 +35,6 @@ float ADC::clip(float current) {
 
 ADCInfinite::ADCInfinite() : ADC() { calibrate_currents(); }
 
-void ADCInfinite::convert(const std::vector<float> &in, std::vector<float> &out,
-                          float scale, float offset) {
-    // Resize output vector
-    out.resize(in.size(), 0.0);
-
-    // Apply offset and scale
-    std::transform(std::execution::par, in.begin(), in.end(), out.begin(),
-                   [this, scale, offset](float current) {
-                       return convert(current, scale, offset);
-                   });
-}
-
 float ADCInfinite::convert(const float current, float scale, float offset) {
     return (current + offset) * scale;
 }
@@ -48,18 +48,6 @@ float ADCInfinite::maximum_min_current() {
 }
 
 ADCUnsigned::ADCUnsigned() : ADC() { calibrate_currents(); }
-
-void ADCUnsigned::convert(const std::vector<float> &in, std::vector<float> &out,
-                          float scale, float offset) {
-    // Resize output vector
-    out.resize(in.size(), 0.0);
-
-    // Apply conversion function to each input current
-    std::transform(std::execution::par_unseq, in.begin(), in.end(), out.begin(),
-                   [this, scale, offset](float current) {
-                       return convert(current, scale, offset);
-                   });
-}
 
 float ADCUnsigned::convert(const float current, float scale, float offset) {
     float tmp;
