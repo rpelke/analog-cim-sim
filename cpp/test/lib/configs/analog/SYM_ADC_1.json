@@ -5,7 +5,7 @@
         8
     ],
     "W_BIT": 8,
-    "I_BIT": 1,
+    "I_BIT": 2,
     "digital_only": false,
     "HRS": 5.0,
     "LRS": 30.0,

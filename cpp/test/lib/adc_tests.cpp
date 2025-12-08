@@ -21,7 +21,7 @@ TEST(ADCTests, SymADCTest) {
 
     status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
     ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
-    ASSERT_THAT(res, ::testing::ElementsAre(643, -637, -40));
+    ASSERT_THAT(res, ::testing::ElementsAre(640, -635, -40));
 }
 
 TEST(ADCTests, PosADCTest) {
