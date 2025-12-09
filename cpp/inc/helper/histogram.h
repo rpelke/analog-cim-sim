@@ -116,12 +116,14 @@ class WorkloadHistograms {
     /** Get histogram data as a JSON object. */
     json to_json();
 
+    /** Get histogram data as a JSON string. */
+    std::string to_json_string();
+
   protected:
     std::map<std::string, BinnedHistogram> hists_; /**< Layer histograms */
 };
 
-/** Singleton collection of histograms profiling ADC inputs.
- */
+/** Singleton collection of histograms profiling ADC inputs. */
 class ADCHistograms : public WorkloadHistograms {
   public:
     ADCHistograms(const ADCHistograms &) = delete;

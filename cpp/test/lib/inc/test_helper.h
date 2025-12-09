@@ -18,7 +18,7 @@
 // C interface of acs_int
 extern "C" {
 int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat, int32_t m_matrix,
-                int32_t n_matrix);
+                int32_t n_matrix, const char *l_name = "Unknown");
 int32_t cpy_mtrx(int32_t *mat, int32_t m_matrix, int32_t n_matrix,
                  const char *l_name = "Unkown");
 void set_config(const char *cfg_file);
@@ -34,6 +34,7 @@ extern const std::vector<std::vector<float>> &get_ia_p();
 extern const std::vector<std::vector<float>> &get_ia_m();
 extern const std::vector<std::vector<int32_t>> &get_gd_p();
 extern const std::vector<std::vector<int32_t>> &get_gd_m();
+extern const std::string get_adc_profile();
 
 std::string get_cfg_file(const std::string &file_name) {
     const char *cfg_dir = std::getenv("CFG_DIR_TESTS");

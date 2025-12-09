@@ -7,10 +7,17 @@
 
 namespace nq {
 
-ADC::ADC() : resolution_(CFG.resolution), steps_(std::pow(2, resolution_)) {}
+ADC::ADC() :
+    resolution_(CFG.resolution),
+    steps_(std::pow(2, resolution_)),
+    hists_(ADCHistograms::get_instance()) {}
 
 void ADC::convert(const std::vector<float> &in, std::vector<float> &out,
-                  float scale, float offset) {
+                  float scale, float offset, const char *l_name) {
+    if (CFG.adc_profile) {
+        profile_inputs(in, l_name);
+    }
+
     // Resize output vector
     out.resize(in.size(), 0.0);
 
@@ -31,6 +38,19 @@ void ADC::calibrate_currents() {
 
 float ADC::clip(float current) {
     return std::min(std::max(current, min_curr_), max_curr_);
+}
+
+void ADC::profile_inputs(const std::vector<float> &in, const char *l_name) {
+    // Check if a histogram already exists for the given layer, otherwise
+    // create one.
+    if (!hists_.get().has_histogram(l_name)) {
+        hists_.get().add_histogram(l_name, min_curr_, max_curr_);
+    }
+
+    // Update values in layer histogram
+    std::reference_wrapper<BinnedHistogram> l_hist(
+        hists_.get().get_histogram(l_name).value());
+    l_hist.get().update(in);
 }
 
 ADCInfinite::ADCInfinite() : ADC() { calibrate_currents(); }

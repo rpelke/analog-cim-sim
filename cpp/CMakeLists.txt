@@ -80,6 +80,7 @@ if(BUILD_LIB_ACS_INT)
     set(SOURCES_INT
         src/interface_xbar.cpp
         src/helper/config.cpp
+        src/helper/histogram.cpp
         src/mapping/mapper.cpp
         src/mapping/int_mapper/int_i.cpp
         src/mapping/int_mapper/int_ii.cpp

@@ -43,6 +43,7 @@ class Config {
                         "adc_type",
                         "alpha",
                         "resolution",
+                        "profile_adc",
                         "m_mode",
                         "HRS_NOISE",
                         "LRS_NOISE",
@@ -78,6 +79,7 @@ class Config {
     ADCType adc_type;
     float alpha;
     int32_t resolution;
+    bool adc_profile;
 
     // Mapping strategy
     MappingMode m_mode;

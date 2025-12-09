@@ -58,7 +58,7 @@ void MapperBnnV::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 }
 
 void MapperBnnV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                       int32_t m_matrix, int32_t n_matrix) {
+                       int32_t m_matrix, int32_t n_matrix, const char *l_name) {
     std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
 
     for (size_t n = 0; n < n_matrix; ++n) {
@@ -85,7 +85,7 @@ void MapperBnnV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                                       n_matrix);
     }
 
-    adc_->convert(tmp_out_, tmp_out_, 2 / i_mm_, -n_matrix * CFG.HRS);
+    adc_->convert(tmp_out_, tmp_out_, 2 / i_mm_, -n_matrix * CFG.HRS, l_name);
 
     for (size_t m = 0; m < m_matrix; ++m) {
         res[m] += tmp_out_[m] - n_matrix;

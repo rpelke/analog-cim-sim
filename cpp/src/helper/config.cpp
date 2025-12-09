@@ -46,22 +46,14 @@ bool Config::load_cfg(const char *cfg_file = "") {
         if (cfg_file == nullptr) {
             return false;
         }
-        std::ifstream file_stream(cfg_file);
-        if (!file_stream.is_open()) {
-            std::cerr << "Could not open config file!";
-            std::exit(EXIT_FAILURE);
-        }
-        file_stream >> cfg_data_;
-        file_stream.close();
-    } else {
-        std::ifstream file_stream(cfg_file);
-        if (!file_stream.is_open()) {
-            std::cerr << "Could not open config file!";
-            std::exit(EXIT_FAILURE);
-        }
-        file_stream >> cfg_data_;
-        file_stream.close();
     }
+    std::ifstream file_stream(cfg_file);
+    if (!file_stream.is_open()) {
+        std::cerr << "Could not open config file!";
+        std::exit(EXIT_FAILURE);
+    }
+    file_stream >> cfg_data_;
+    file_stream.close();
 
     return apply_config();
 }
@@ -186,6 +178,7 @@ bool Config::apply_config() {
                 std::cerr << "Unkown MappingMode." << std::endl;
                 std::exit(EXIT_FAILURE);
             }
+            adc_profile = getConfigValue<bool>(cfg_data_, "adc_profile", false);
 
             // Noise of a state is modeled as a Gaussian noise with mean 0
             // The standard deviation is HRS_NOISE for HRS and LRS_NOISE for LRS

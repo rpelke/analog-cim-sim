@@ -67,7 +67,8 @@ void MapperBnnIII::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 }
 
 void MapperBnnIII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                         int32_t m_matrix, int32_t n_matrix) {
+                         int32_t m_matrix, int32_t n_matrix,
+                         const char *l_name) {
     std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
     std::fill(tmp_out_p_.begin(), tmp_out_p_.end(), 0.0);
     std::fill(tmp_out_m_.begin(), tmp_out_m_.end(), 0.0);
@@ -101,8 +102,9 @@ void MapperBnnIII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         par_solver_->compute_currents(vd_m_, tmp_out_m_, m_matrix, n_matrix);
     }
 
-    adc_->convert(tmp_out_p_, tmp_out_p_, 2 / i_mm_, -vec_sum * CFG.HRS);
-    adc_->convert(tmp_out_m_, tmp_out_m_, 2 / i_mm_, 0.0);
+    adc_->convert(tmp_out_p_, tmp_out_p_, 2 / i_mm_, -vec_sum * CFG.HRS,
+                  l_name);
+    adc_->convert(tmp_out_m_, tmp_out_m_, 2 / i_mm_, 0.0, l_name);
 
     for (size_t m = 0; m < m_matrix; ++m) {
         res[m] += tmp_out_p_[m] - tmp_out_m_[m] - vec_sum;

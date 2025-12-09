@@ -3,6 +3,10 @@
 #include <algorithm>
 #include <cmath>
 #include <execution>
+#include <functional>
+#include <iostream>
+#include <iterator>
+#include <unordered_map>
 
 namespace nq {
 
@@ -49,11 +53,13 @@ float SimpleHistogram::get_variance() {
 }
 
 json SimpleHistogram::to_json() {
-    std::map<int32_t, int32_t> hist_map;
-    std::transform(std::execution::par, this->data_.begin(), this->data_.end(),
+    std::unordered_map<int32_t, int32_t> hist_map;
+    std::transform(this->data_.begin(), this->data_.end(),
                    this->values_.begin(),
                    std::inserter(hist_map, hist_map.end()),
-                   [](int32_t d, int32_t v) { return std::make_pair(v, d); });
+                   [](int32_t d, int32_t v) -> std::pair<int32_t, int32_t> {
+                       return std::make_pair(v, d);
+                   });
 
     return json{{"hist", hist_map},
                 {"samples", get_samples()},
@@ -112,8 +118,8 @@ float BinnedHistogram::get_variance() {
 }
 
 json BinnedHistogram::to_json() {
-    std::map<float, int32_t> hist_map;
-    std::transform(std::execution::par, this->data_.begin(), this->data_.end(),
+    std::unordered_map<float, int32_t> hist_map;
+    std::transform(this->data_.begin(), this->data_.end(),
                    this->values_.begin(),
                    std::inserter(hist_map, hist_map.end()),
                    [](int32_t d, float v) { return std::make_pair(v, d); });
@@ -148,13 +154,15 @@ WorkloadHistograms::get_histogram(std::string l_name) {
 }
 
 json WorkloadHistograms::to_json() {
-    json json_obj{};
-    std::for_each(
-        std::execution::seq, this->hists_.begin(), this->hists_.end(),
-        [json_obj](std::pair<std::string, BinnedHistogram> hist) mutable {
-            json_obj.merge_patch(json{{hist.first, hist.second.to_json()}});
-        });
-    return json_obj;
+    struct JSONConstructor {
+        void operator()(std::pair<std::string, BinnedHistogram> hist) {
+            json_obj.emplace(hist.first, hist.second.to_json());
+        }
+        json json_obj{};
+    };
+    JSONConstructor json_cons = std::for_each(
+        this->hists_.begin(), this->hists_.end(), JSONConstructor());
+    return json_cons.json_obj;
 }
 
 ADCHistograms::ADCHistograms() {}

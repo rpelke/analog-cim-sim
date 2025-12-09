@@ -2,8 +2,11 @@
 #define ADC_H
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <vector>
+
+#include "helper/histogram.h"
 
 namespace nq {
 
@@ -27,7 +30,8 @@ class ADC {
 
     /** Convert a vector of analog input currents to digital outputs. */
     virtual void convert(const std::vector<float> &in, std::vector<float> &out,
-                         float scale = 1.0, float offset = 0.0);
+                         float scale = 1.0, float offset = 0.0,
+                         const char *l_name = "Unknown");
 
     /** Convert an analog input current to digital output. */
     virtual float convert(const float current, float scale = 1.0,
@@ -40,6 +44,9 @@ class ADC {
     /** Clip input currents vector for ADC ranges. */
     float clip(float current);
 
+    /** Profile ADC inputs using histograms. */
+    void profile_inputs(const std::vector<float> &in, const char *l_name);
+
     /** Get maximum possible current to ADC */
     virtual float maximum_max_current() = 0;
 
@@ -51,6 +58,8 @@ class ADC {
     float min_curr_;     /**< Minimum current to ADC */
     float curr_range_;   /**< Current range sensed by ADC */
     int32_t steps_;      /**< Number of quantization steps */
+    std::reference_wrapper<ADCHistograms>
+        hists_; /**< Reference to singleton ADC input histograms */
 };
 
 /** Ideal ADC with infinite resolution (no clipping/quantization). */
@@ -109,6 +118,7 @@ class ADCSigned : public ADCUnsigned {
     virtual float maximum_min_current() override;
 };
 
+/** Factory class to create ADC from configured option. */
 class ADCFactory {
   public:
     static std::unique_ptr<ADC> createADC(ADCType type);

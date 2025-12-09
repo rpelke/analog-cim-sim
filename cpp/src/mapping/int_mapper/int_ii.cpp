@@ -65,7 +65,8 @@ void MapperIntII::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 }
 
 void MapperIntII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                        int32_t m_matrix, int32_t n_matrix) {
+                        int32_t m_matrix, int32_t n_matrix,
+                        const char *l_name) {
     // The splitted matrix is of size CFG.SPLITsize*M x N (CFG.SPLITsize values
     // per original matrix value) Two matrices exist: ia+ (ia_p_) and ia-
     // (ia_m_).
