@@ -1,3 +1,11 @@
+/******************************************************************************
+ * Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   *
+ * All Rights Reserved                                                        *
+ *                                                                            *
+ * This is work is licensed under the terms described in the LICENSE file     *
+ * found in the root directory of this source tree.                           *
+ ******************************************************************************/
+
 #ifndef HISTOGRAM_H
 #define HISTOGRAM_H
 

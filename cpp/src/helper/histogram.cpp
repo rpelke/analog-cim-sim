@@ -1,10 +1,17 @@
+/******************************************************************************
+ * Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   *
+ * All Rights Reserved                                                        *
+ *                                                                            *
+ * This is work is licensed under the terms described in the LICENSE file     *
+ * found in the root directory of this source tree.                           *
+ ******************************************************************************/
+
 #include "helper/histogram.h"
 
 #include <algorithm>
 #include <cmath>
 #include <execution>
 #include <functional>
-#include <iostream>
 #include <iterator>
 #include <unordered_map>
 
