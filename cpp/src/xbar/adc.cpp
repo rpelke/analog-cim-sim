@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cmath>
 #include <execution>
+#include <iostream>
 
 namespace nq {
 
@@ -37,9 +38,18 @@ void ADC::convert(const std::vector<float> &in, std::vector<float> &out,
 }
 
 void ADC::calibrate_currents() {
-    // TODO: Implement with calibration mode
-    max_curr_ = maximum_max_current();
-    min_curr_ = maximum_min_current();
+    switch (CFG.adc_calib_mode) {
+    case ADCCalibMode::MAX:
+        max_curr_ = maximum_max_current();
+        min_curr_ = maximum_min_current();
+        break;
+    case ADCCalibMode::CALIB:
+        max_curr_ = CFG.adc_calib_max_curr;
+        min_curr_ = CFG.adc_calib_min_curr;
+        break;
+    default:
+        break;
+    }
 
     curr_range_ = max_curr_ - min_curr_;
 }

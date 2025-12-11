@@ -132,11 +132,31 @@ bool Config::apply_config() {
             }
 
             if (adc_type != ADCType::INF_ADC) {
-                alpha = getConfigValue<float>(cfg_data_, "alpha");
-                resolution = getConfigValue<int32_t>(cfg_data_, "resolution");
-                if ((resolution == -1) && (adc_type != ADCType::INF_ADC)) {
-                    std::cerr << "ADC resolution is -1. INF_ADC expected"
+                if (resolution == -1) {
+                    std::cerr << "ADC resolution is -1. INF_ADC expected."
                               << std::endl;
+                    std::exit(EXIT_FAILURE);
+                }
+                resolution = getConfigValue<int32_t>(cfg_data_, "resolution");
+                // Calibration mode
+                std::string adc_calib_mode_name = getConfigValue<std::string>(
+                    cfg_data_, "adc_calib_mode", "MAX");
+                if (adc_calib_mode_name == "MAX") {
+                    adc_calib_mode = ADCCalibMode::MAX;
+                } else if (adc_calib_mode_name == "CALIB") {
+                    adc_calib_mode = ADCCalibMode::CALIB;
+                    adc_calib_max_curr =
+                        getConfigValue<float>(cfg_data_, "adc_calib_max_curr");
+                    adc_calib_min_curr =
+                        getConfigValue<float>(cfg_data_, "adc_calib_min_curr");
+                    if (adc_calib_max_curr < adc_calib_min_curr) {
+                        std::cerr << "Maximum ADC current must be greater than "
+                                     "minimum ADC current!"
+                                  << std::endl;
+                        std::exit(EXIT_FAILURE);
+                    }
+                } else {
+                    std::cerr << "Unknown ADC calibration mode." << std::endl;
                     std::exit(EXIT_FAILURE);
                 }
             }
