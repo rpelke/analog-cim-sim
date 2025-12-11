@@ -32,7 +32,6 @@ class TestADC(unittest.TestCase):
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
 
-        cfg["alpha"] = 1.0
         cfg["SPLIT"] = [cfg["W_BIT"]]
         cfg["m_mode"] = "I_DIFF_W_DIFF_1XB"
         cfg["I_BIT"] = 1
@@ -76,7 +75,6 @@ class TestADC(unittest.TestCase):
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
 
-        cfg["alpha"] = 1.0
         cfg["SPLIT"] = [cfg["W_BIT"]]
         cfg["m_mode"] = "I_OFFS_W_DIFF"
         cfg["I_BIT"] = 1
@@ -120,7 +118,6 @@ class TestADC(unittest.TestCase):
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
 
-        cfg["alpha"] = 1.0
         cfg["SPLIT"] = [cfg["W_BIT"]]
         cfg["m_mode"] = "I_TC_W_DIFF"
         cfg["I_BIT"] = 1
@@ -164,7 +161,6 @@ class TestADC(unittest.TestCase):
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
 
-        cfg["alpha"] = 1.0
         cfg["SPLIT"] = [cfg["W_BIT"]]
         cfg["m_mode"] = "I_UINT_W_DIFF"
         cfg["I_BIT"] = 1
@@ -208,7 +204,6 @@ class TestADC(unittest.TestCase):
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
 
-        cfg["alpha"] = 1.0
         cfg["SPLIT"] = [cfg["W_BIT"]]
         cfg["m_mode"] = "I_UINT_W_OFFS"
         cfg["I_BIT"] = 1

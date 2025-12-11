@@ -41,7 +41,6 @@ class Config {
                         "HRS",
                         "LRS",
                         "adc_type",
-                        "alpha",
                         "resolution",
                         "adc_profile",
                         "adc_calib_mode",

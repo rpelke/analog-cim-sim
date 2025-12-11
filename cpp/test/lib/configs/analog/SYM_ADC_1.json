@@ -10,7 +10,6 @@
     "HRS": 5.0,
     "LRS": 30.0,
     "adc_type": "SYM_RANGE_ADC",
-    "alpha": 1.0,
     "resolution": 8,
     "m_mode": "I_DIFF_W_DIFF_1XB",
     "HRS_NOISE": 0.0,
