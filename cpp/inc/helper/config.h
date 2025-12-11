@@ -10,16 +10,11 @@
 
 #include <cstdint>
 #include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <memory>
 #include <vector>
 
-#include "adc/adcfactory.h"
 #include "helper/definitions.h"
-#include "mapping/mapper.h"
 #include "nlohmann/json.hpp"
-#include "xbar/crossbar.h"
+#include "xbar/adc.h"
 
 #define CFG ::nq::Config::get_cfg()
 
@@ -46,8 +41,11 @@ class Config {
                         "HRS",
                         "LRS",
                         "adc_type",
-                        "alpha",
                         "resolution",
+                        "adc_profile",
+                        "adc_calib_mode",
+                        "adc_calib_max_curr",
+                        "adc_calib_min_curr",
                         "m_mode",
                         "HRS_NOISE",
                         "LRS_NOISE",
@@ -79,10 +77,18 @@ class Config {
     float LRS;
 
     // ADC parameters
-    // alpha: clipping factor
+    // adc_type: Type of ADC
+    // resolution: ADC resolution
+    // adc_profile: Whether ADC inputs need to be profiled
+    // adc_calib_mode: Calibration mode for ADC
+    // adc_calib_max_curr: Maximum calibrated ADC input current (in uA)
+    // adc_calib_min_curr: Minimum calibrated ADC input current (in uA)
     ADCType adc_type;
-    float alpha;
     int32_t resolution;
+    bool adc_profile;
+    ADCCalibMode adc_calib_mode;
+    float adc_calib_max_curr;
+    float adc_calib_min_curr;
 
     // Mapping strategy
     MappingMode m_mode;

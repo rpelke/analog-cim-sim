@@ -80,6 +80,7 @@ if(BUILD_LIB_ACS_INT)
     set(SOURCES_INT
         src/interface_xbar.cpp
         src/helper/config.cpp
+        src/helper/histogram.cpp
         src/mapping/mapper.cpp
         src/mapping/int_mapper/int_i.cpp
         src/mapping/int_mapper/int_ii.cpp
@@ -100,11 +101,7 @@ if(BUILD_LIB_ACS_INT)
         src/xbar/crossbar.cpp
         src/xbar/read_disturb.cpp
         src/xbar/parasitics.cpp
-        src/adc/adc.cpp
-        src/adc/adcfactory.cpp
-        src/adc/symadc.cpp
-        src/adc/posadc.cpp
-        src/adc/infadc.cpp
+        src/xbar/adc.cpp
     )
 
     # Build pybind module

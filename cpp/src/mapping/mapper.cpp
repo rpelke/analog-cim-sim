@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <execution>
+#include <iostream>
 
 namespace nq {
 
@@ -156,7 +157,7 @@ void Mapper::d_write_diff_bnn(const int32_t *mat, int32_t m_matrix,
                 gd_p_[m][n] = 0;
                 gd_m_[m][n] = -mat_val;
             } else {
-                std::cerr << "BNN weigth is neither +1 nor -1.";
+                std::cerr << "BNN weight is neither +1 nor -1.";
                 abort();
             }
         }

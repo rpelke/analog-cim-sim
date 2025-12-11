@@ -8,6 +8,8 @@
 #include "mapping/tnn_mapper/tnn_i.h"
 #include "helper/config.h"
 
+#include <iostream>
+
 namespace nq {
 
 MapperTnnI::MapperTnnI() :
@@ -59,7 +61,7 @@ void MapperTnnI::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 }
 
 void MapperTnnI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                       int32_t m_matrix, int32_t n_matrix) {
+                       int32_t m_matrix, int32_t n_matrix, const char *l_name) {
     std::fill(tmp_out_.begin(), tmp_out_.end(), 0.0);
 
     for (size_t n = 0; n < n_matrix; ++n) {
@@ -90,8 +92,10 @@ void MapperTnnI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                                       n_matrix);
     }
 
+    adc_->convert(tmp_out_, tmp_out_, 1 / i_mm_, 0.0, l_name);
+
     for (size_t m = 0; m < m_matrix; ++m) {
-        res[m] += round(adc_->analog_digital_conversion(tmp_out_[m]) / i_mm_);
+        res[m] += tmp_out_[m];
     }
 }
 

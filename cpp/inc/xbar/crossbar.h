@@ -24,7 +24,8 @@ class Crossbar {
 
     void write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix);
     void mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-             int32_t m_matrix, int32_t n_matrix);
+             int32_t m_matrix, int32_t n_matrix,
+             const char *l_name = "Unknown");
     const std::vector<std::vector<int32_t>> &get_gd_p() const;
     const std::vector<std::vector<int32_t>> &get_gd_m() const;
     const std::vector<std::vector<float>> &get_ia_p() const;

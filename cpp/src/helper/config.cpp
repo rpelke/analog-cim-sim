@@ -6,6 +6,8 @@
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
 #include "helper/config.h"
+#include <fstream>
+#include <iostream>
 #include <optional>
 
 namespace nq {
@@ -44,22 +46,14 @@ bool Config::load_cfg(const char *cfg_file = "") {
         if (cfg_file == nullptr) {
             return false;
         }
-        std::ifstream file_stream(cfg_file);
-        if (!file_stream.is_open()) {
-            std::cerr << "Could not open config file!";
-            std::exit(EXIT_FAILURE);
-        }
-        file_stream >> cfg_data_;
-        file_stream.close();
-    } else {
-        std::ifstream file_stream(cfg_file);
-        if (!file_stream.is_open()) {
-            std::cerr << "Could not open config file!";
-            std::exit(EXIT_FAILURE);
-        }
-        file_stream >> cfg_data_;
-        file_stream.close();
     }
+    std::ifstream file_stream(cfg_file);
+    if (!file_stream.is_open()) {
+        std::cerr << "Could not open config file!";
+        std::exit(EXIT_FAILURE);
+    }
+    file_stream >> cfg_data_;
+    file_stream.close();
 
     return apply_config();
 }
@@ -138,11 +132,31 @@ bool Config::apply_config() {
             }
 
             if (adc_type != ADCType::INF_ADC) {
-                alpha = getConfigValue<float>(cfg_data_, "alpha");
-                resolution = getConfigValue<int32_t>(cfg_data_, "resolution");
-                if ((resolution == -1) && (adc_type != ADCType::INF_ADC)) {
-                    std::cerr << "ADC resolution is -1. INF_ADC expected"
+                if (resolution == -1) {
+                    std::cerr << "ADC resolution is -1. INF_ADC expected."
                               << std::endl;
+                    std::exit(EXIT_FAILURE);
+                }
+                resolution = getConfigValue<int32_t>(cfg_data_, "resolution");
+                // Calibration mode
+                std::string adc_calib_mode_name = getConfigValue<std::string>(
+                    cfg_data_, "adc_calib_mode", "MAX");
+                if (adc_calib_mode_name == "MAX") {
+                    adc_calib_mode = ADCCalibMode::MAX;
+                } else if (adc_calib_mode_name == "CALIB") {
+                    adc_calib_mode = ADCCalibMode::CALIB;
+                    adc_calib_max_curr =
+                        getConfigValue<float>(cfg_data_, "adc_calib_max_curr");
+                    adc_calib_min_curr =
+                        getConfigValue<float>(cfg_data_, "adc_calib_min_curr");
+                    if (adc_calib_max_curr < adc_calib_min_curr) {
+                        std::cerr << "Maximum ADC current must be greater than "
+                                     "minimum ADC current!"
+                                  << std::endl;
+                        std::exit(EXIT_FAILURE);
+                    }
+                } else {
+                    std::cerr << "Unknown ADC calibration mode." << std::endl;
                     std::exit(EXIT_FAILURE);
                 }
             }
@@ -184,6 +198,7 @@ bool Config::apply_config() {
                 std::cerr << "Unkown MappingMode." << std::endl;
                 std::exit(EXIT_FAILURE);
             }
+            adc_profile = getConfigValue<bool>(cfg_data_, "adc_profile", false);
 
             // Noise of a state is modeled as a Gaussian noise with mean 0
             // The standard deviation is HRS_NOISE for HRS and LRS_NOISE for LRS

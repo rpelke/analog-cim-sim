@@ -10,7 +10,6 @@
     "adc_type": "INF_ADC",
     "min_adc_curr": -34500.0,
     "max_adc_curr": 34500.0,
-    "alpha": 1.0,
     "resolution": 20,
     "m_mode": "I_DIFF_W_DIFF_1XB",
     "NOISE": 0.0,

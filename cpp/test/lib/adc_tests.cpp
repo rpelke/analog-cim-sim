@@ -21,7 +21,7 @@ TEST(ADCTests, SymADCTest) {
 
     status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
     ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
-    ASSERT_THAT(res, ::testing::ElementsAre(643, -637, -40));
+    ASSERT_THAT(res, ::testing::ElementsAre(640, -635, -40));
 }
 
 TEST(ADCTests, PosADCTest) {
@@ -41,6 +41,32 @@ TEST(ADCTests, PosADCTest) {
     status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
     ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
     ASSERT_THAT(res, ::testing::ElementsAre(635, -637, -1));
+}
+
+TEST(ADCTests, SymADCCalibrationTest) {
+    const int32_t m_matrix = 3;
+    const int32_t n_matrix = 5;
+    int32_t mat[m_matrix * n_matrix] = {-4, 4, -3, 3, -1, 1, 2,  1,
+                                        2,  1, 5,  6, 7,  8, -20};
+    int32_t vec[n_matrix] = {-1, -1, -1, -1, -1};
+    int32_t res[m_matrix] = {0, 0, 0};
+
+    std::string cfg = get_cfg_file("analog/SYM_ADC_1.json");
+    set_config(cfg.c_str());
+    update_config(R"(
+      {
+         "adc_calib_mode": "CALIB",
+         "adc_calib_max_curr": 30.0,
+         "adc_calib_min_curr": -30.0
+      }
+    )");
+
+    int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
+    status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+    ASSERT_THAT(res, ::testing::ElementsAre(1, -7, -6));
 }
 
 int main(int argc, char **argv) {

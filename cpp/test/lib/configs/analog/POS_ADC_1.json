@@ -10,7 +10,6 @@
     "HRS": 5.0,
     "LRS": 30.0,
     "adc_type": "POS_RANGE_ONLY_ADC",
-    "alpha": 1.0,
     "resolution": 8,
     "m_mode": "I_UINT_W_OFFS",
     "HRS_NOISE": 0.0,

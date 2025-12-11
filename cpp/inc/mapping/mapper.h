@@ -13,7 +13,7 @@
 #include <random>
 #include <vector>
 
-#include "adc/adc.h"
+#include "xbar/adc.h"
 #include "xbar/parasitics.h"
 #include "xbar/read_disturb.h"
 
@@ -31,7 +31,8 @@ class Mapper {
     virtual void d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                        int32_t m_matrix, int32_t n_matrix) = 0;
     virtual void a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                       int32_t m_matrix, int32_t n_matrix) = 0;
+                       int32_t m_matrix, int32_t n_matrix,
+                       const char *l_name) = 0;
     static std::unique_ptr<Mapper> create_from_config();
     const std::vector<std::vector<int32_t>> &get_gd_p() const;
     const std::vector<std::vector<int32_t>> &get_gd_m() const;

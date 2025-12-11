@@ -5,6 +5,7 @@
  * This is work is licensed under the terms described in the LICENSE file     *
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <pybind11/numpy.h>
@@ -13,6 +14,7 @@
 #include <vector>
 
 #include "helper/config.h"
+#include "xbar/crossbar.h"
 
 #ifndef EXPORT_API
 #define EXPORT_API __attribute__((visibility("default")))
@@ -22,6 +24,7 @@
 bool cfg_loaded = nq::Config::get_cfg().load_cfg("");
 std::unique_ptr<nq::Crossbar> xbar =
     (cfg_loaded) ? std::make_unique<nq::Crossbar>() : nullptr;
+std::string adc_profile_cache = "";
 
 /********************** Helper functions **********************/
 const void check_pointer(const size_t *const size) {
@@ -122,7 +125,7 @@ extern "C" EXPORT_API int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
                   << std::endl;
         return -1;
     }
-    xbar->mvm(res, vec, mat, m_matrix, n_matrix);
+    xbar->mvm(res, vec, mat, m_matrix, n_matrix, l_name);
 #ifdef DEBUG_MODE
 // Find max and min values in the result vector
 #include <cstdint>
@@ -466,6 +469,20 @@ EXPORT_API const std::vector<std::vector<uint64_t>> &get_consecutive_reads_p() {
 
 EXPORT_API const std::vector<std::vector<uint64_t>> &get_consecutive_reads_m() {
     return xbar->get_consecutive_reads_m();
+}
+
+EXPORT_API const std::string get_adc_profile() {
+    return nq::ADCHistograms::get_instance().to_json().dump();
+}
+
+EXPORT_API const void dump_adc_profile(const char *filename) {
+    std::ofstream file_stream(filename);
+    if (!file_stream.is_open()) {
+        std::cerr << "Could not open ADC profile dump file!";
+        std::exit(EXIT_FAILURE);
+    }
+    file_stream << nq::ADCHistograms::get_instance().to_json().dump();
+    file_stream.close();
 }
 
 /********************* Pybind definitions *********************/

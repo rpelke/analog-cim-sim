@@ -56,7 +56,8 @@ void MapperTnnII::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 }
 
 void MapperTnnII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                        int32_t m_matrix, int32_t n_matrix) {
+                        int32_t m_matrix, int32_t n_matrix,
+                        const char *l_name) {
     // Threat the input as two bit two's complement number.
 
     // Input bit 0
@@ -74,9 +75,10 @@ void MapperTnnII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         par_solver_->compute_currents(vd_p_, tmp_out_, m_matrix, n_matrix);
     }
 
+    adc_->convert(tmp_out_, tmp_out_, 1 / i_mm_, 0.0, l_name);
+
     for (size_t m = 0; m < m_matrix; ++m) {
-        res[m] += static_cast<int32_t>(
-            round(adc_->analog_digital_conversion(tmp_out_[m]) / i_mm_));
+        res[m] += tmp_out_[m];
     }
 
     // Input bit 1
@@ -94,9 +96,10 @@ void MapperTnnII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         par_solver_->compute_currents(vd_p_, tmp_out_, m_matrix, n_matrix);
     }
 
+    adc_->convert(tmp_out_, tmp_out_, 2 / i_mm_, 0.0, l_name);
+
     for (size_t m = 0; m < m_matrix; ++m) {
-        res[m] -= static_cast<int32_t>(
-            round(adc_->analog_digital_conversion(tmp_out_[m]) * 2 / i_mm_));
+        res[m] -= tmp_out_[m];
     }
 }
 

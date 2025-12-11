@@ -84,7 +84,7 @@ void MapperIntI::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 }
 
 void MapperIntI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                       int32_t m_matrix, int32_t n_matrix) {
+                       int32_t m_matrix, int32_t n_matrix, const char *l_name) {
     // The splitted matrix is of size CFG.SPLITsize*M x N (CFG.SPLITsize values
     // per original matrix value) Two matrices exist: ia+ (ia_p_) and ia-
     // (ia_m_).
@@ -124,11 +124,10 @@ void MapperIntI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         // Addition of the partial results caused by splitted weights
         for (size_t m = 0; m < m_matrix; ++m) {
             for (size_t s = 0; s < split.size(); ++s) {
-                res[m] += static_cast<int32_t>(
-                    round(adc_->analog_digital_conversion(
-                              tmp_out_fp_[m * split.size() + s]) /
-                          i_step_size_[s] * std::pow(2, shift_[s]) *
-                          std::pow(2, i_bit)));
+                res[m] += adc_->convert(
+                    tmp_out_fp_[m * split.size() + s],
+                    (std::pow(2, shift_[s]) * std::pow(2, i_bit)) /
+                        i_step_size_[s]);
             }
         }
 
@@ -157,11 +156,10 @@ void MapperIntI::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         // Addition of the partial results caused by splitted weights
         for (size_t m = 0; m < m_matrix; ++m) {
             for (size_t s = 0; s < split.size(); ++s) {
-                res[m] += static_cast<int32_t>(
-                    round(adc_->analog_digital_conversion(
-                              tmp_out_fp_[m * split.size() + s]) /
-                          -i_step_size_[s] * std::pow(2, shift_[s]) *
-                          std::pow(2, i_bit)));
+                res[m] += adc_->convert(
+                    tmp_out_fp_[m * split.size() + s],
+                    (std::pow(2, shift_[s]) * std::pow(2, i_bit)) /
+                        -i_step_size_[s]);
             }
         }
 

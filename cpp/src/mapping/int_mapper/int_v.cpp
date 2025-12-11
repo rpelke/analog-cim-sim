@@ -81,7 +81,7 @@ void MapperIntV::d_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 }
 
 void MapperIntV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                       int32_t m_matrix, int32_t n_matrix) {
+                       int32_t m_matrix, int32_t n_matrix, const char *l_name) {
     // The splitted matrix is of size CFG.SPLITsize*M x N (CFG.SPLITsize values
     // per original matrix value) Only one matrix exist: ia+ (ia_p_) The input
     // is already positive only
@@ -117,11 +117,10 @@ void MapperIntV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
             for (size_t s = 0; s < split.size(); ++s) {
                 // No rounding is done here, so multiply instead of shift
                 // tmp_out / i_step_size_[s] is a floating-point value
-                res_fp_[m] += static_cast<int32_t>(
-                    round(adc_->analog_digital_conversion(
-                              tmp_out_fp_[m * split.size() + s]) /
-                          i_step_size_[s] * std::pow(2, shift_[s]) *
-                          std::pow(2, i_bit)));
+                res_fp_[m] += adc_->convert(
+                    tmp_out_fp_[m * split.size() + s],
+                    (std::pow(2, shift_[s]) * std::pow(2, i_bit)) /
+                        i_step_size_[s]);
             }
         }
 

@@ -32,7 +32,6 @@ class TestADC(unittest.TestCase):
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
 
-        cfg["alpha"] = 1.0
         cfg["SPLIT"] = [cfg["W_BIT"]]
         cfg["m_mode"] = "I_DIFF_W_DIFF_1XB"
         cfg["I_BIT"] = 1
@@ -60,8 +59,6 @@ class TestADC(unittest.TestCase):
             for c_idx, c in enumerate(correct_result):
                 self.assertTrue(round(c - max_error) <= res[c_idx] <= round(c + max_error))
 
-            self.assertTrue(round(max_error + correct_result[0]) == res[0])
-
     def test_sym_adc_i_offs_w_diff(self):
         m_matrix = 3
         n_matrix = 5
@@ -76,7 +73,6 @@ class TestADC(unittest.TestCase):
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
 
-        cfg["alpha"] = 1.0
         cfg["SPLIT"] = [cfg["W_BIT"]]
         cfg["m_mode"] = "I_OFFS_W_DIFF"
         cfg["I_BIT"] = 1
@@ -104,8 +100,6 @@ class TestADC(unittest.TestCase):
             for c_idx, c in enumerate(correct_result):
                 self.assertTrue(round(c - max_error) <= res[c_idx] <= round(c + max_error))
 
-            self.assertTrue(round(correct_result[0] - max_error) == res[0])
-
     def test_sym_adc_i_tc_w_diff(self):
         m_matrix = 3
         n_matrix = 5
@@ -120,7 +114,6 @@ class TestADC(unittest.TestCase):
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
 
-        cfg["alpha"] = 1.0
         cfg["SPLIT"] = [cfg["W_BIT"]]
         cfg["m_mode"] = "I_TC_W_DIFF"
         cfg["I_BIT"] = 1
@@ -148,8 +141,6 @@ class TestADC(unittest.TestCase):
             for c_idx, c in enumerate(correct_result):
                 self.assertTrue(round(c - max_error) <= res[c_idx] <= round(c + max_error))
 
-            self.assertTrue(round(correct_result[0] + max_error) == res[0])
-
     def test_sym_adc_i_uint_w_diff(self):
         m_matrix = 3
         n_matrix = 5
@@ -164,7 +155,6 @@ class TestADC(unittest.TestCase):
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
 
-        cfg["alpha"] = 1.0
         cfg["SPLIT"] = [cfg["W_BIT"]]
         cfg["m_mode"] = "I_UINT_W_DIFF"
         cfg["I_BIT"] = 1
@@ -192,8 +182,6 @@ class TestADC(unittest.TestCase):
             for c_idx, c in enumerate(correct_result):
                 self.assertTrue(round(c - max_error) <= res[c_idx] <= round(c + max_error))
 
-            self.assertTrue(round(correct_result[0] - max_error) == res[0])
-
     def test_pos_adc_i_uint_w_offs(self):
         m_matrix = 3
         n_matrix = 5
@@ -208,7 +196,6 @@ class TestADC(unittest.TestCase):
         with open(cfg_file, "r") as file:
             cfg = json.load(file)
 
-        cfg["alpha"] = 1.0
         cfg["SPLIT"] = [cfg["W_BIT"]]
         cfg["m_mode"] = "I_UINT_W_OFFS"
         cfg["I_BIT"] = 1
@@ -235,8 +222,6 @@ class TestADC(unittest.TestCase):
 
             for c_idx, c in enumerate(correct_result):
                 self.assertTrue(round(c - max_error) <= res[c_idx] <= round(c + max_error))
-
-            self.assertTrue(res[0] == correct_result[0])
 
 
 if __name__ == "__main__":
