@@ -7,6 +7,7 @@
  ******************************************************************************/
 
 #include <algorithm>
+#include <execution>
 #include <stdexcept>
 
 #include "helper/config.h"
@@ -102,21 +103,19 @@ void ParasiticSolver::compute_currents(std::vector<int32_t> &vd_p,
 
     // Lambdas to accumulate column conductances. Each row is parallel to
     // the previous columns and parasitic wires are in series to the the
-    // columns.
+    // columns. Result is stored in vector a.
     auto reduce_par_g = [](std::vector<float> &a, std::vector<float> &b,
                            size_t len) {
-#pragma omp parallel for
-        for (size_t n = 0; n < len; n++) {
-            a[n] = a[n] + b[n];
-        }
+        std::transform(std::execution::par_unseq, a.begin(), a.begin() + len,
+                       b.begin(), a.begin(),
+                       [](const float &a, const float &b) { return a + b; });
     };
-
     auto reduce_ser_g = [](std::vector<float> &a, std::vector<float> &b,
                            size_t len) {
-#pragma omp parallel for
-        for (size_t n = 0; n < len; n++) {
-            a[n] = (a[n] * b[n]) / (a[n] + b[n]);
-        }
+        std::transform(
+            std::execution::par_unseq, a.begin(), a.begin() + len, b.begin(),
+            a.begin(),
+            [](const float &a, const float &b) { return (a * b) / (a + b); });
     };
 
     for (auto ga_row : ga_mat_gated_) {

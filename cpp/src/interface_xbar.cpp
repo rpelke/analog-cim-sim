@@ -475,16 +475,19 @@ EXPORT_API const std::string get_adc_profile() {
     return nq::ADCHistograms::get_instance().to_json().dump();
 }
 
-EXPORT_API const void dump_adc_profile(const char *filename) {
+EXPORT_API const void dump_adc_profile(const std::string filename) {
     std::ofstream file_stream(filename);
     if (!file_stream.is_open()) {
         std::cerr << "Could not open ADC profile dump file!";
         std::exit(EXIT_FAILURE);
     }
-    file_stream << nq::ADCHistograms::get_instance().to_json().dump();
+    file_stream << nq::ADCHistograms::get_instance().to_json().dump(2);
     file_stream.close();
 }
 
+void dump_adc_profile_pb(const std::string filename) {
+    dump_adc_profile(filename);
+}
 /********************* Pybind definitions *********************/
 PYBIND11_MODULE(acs_int, m) {
     m.def("cpy", &cpy_mtrx_pb, "Copy matrix to crossbar.");
