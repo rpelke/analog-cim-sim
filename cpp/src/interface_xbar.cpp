@@ -485,9 +485,6 @@ EXPORT_API const void dump_adc_profile(const std::string filename) {
     file_stream.close();
 }
 
-void dump_adc_profile_pb(const std::string filename) {
-    dump_adc_profile(filename);
-}
 /********************* Pybind definitions *********************/
 PYBIND11_MODULE(acs_int, m) {
     m.def("cpy", &cpy_mtrx_pb, "Copy matrix to crossbar.");
@@ -525,4 +522,5 @@ PYBIND11_MODULE(acs_int, m) {
           "Get the number of refresh operations on the cells.");
     m.def("rd_run_out_of_bounds", &get_rd_run_out_of_bounds,
           "Check if the read disturb model ran out of bounds.");
+    m.def("dump_adc_profile", &dump_adc_profile, "Dump ADC profile JSON file.");
 }
