@@ -113,7 +113,7 @@ if(BUILD_LIB_ACS_INT)
         target_link_libraries(acs_int PRIVATE gcov)
     endif()
 
-    find_package(TBB)
+    find_package(TBB REQUIRED)
     if(TBB_FOUND)
         message(STATUS "TBB found, linking acs_int against TBB (Parallel STL backend).")
         target_link_libraries(acs_int PRIVATE TBB::tbb)
