@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke & Joel Klein                              *
+ * Copyright (C) 2025 Rebecca Pelke, Joel Klein, Arunkumar Vaidyanathan       *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This is work is licensed under the terms described in the LICENSE file     *
@@ -26,7 +26,7 @@ bool cfg_loaded = nq::Config::get_cfg().load_cfg("");
 std::unique_ptr<nq::Crossbar> xbar =
     (cfg_loaded) ? std::make_unique<nq::Crossbar>() : nullptr;
 std::string adc_profile_cache = "";
-std::unique_ptr<tbb::global_control> gc;
+std::unique_ptr<tbb::global_control> gc; /** TBB Global Control */
 
 /********************** Helper functions **********************/
 const void check_pointer(const size_t *const size) {

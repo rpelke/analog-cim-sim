@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (C) 2025 Rebecca Pelke                                           #
+# Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   #
 # All Rights Reserved                                                        #
 #                                                                            #
 # This is work is licensed under the terms described in the LICENSE file     #
@@ -108,16 +108,16 @@ if(BUILD_LIB_ACS_INT)
     include_directories(inc extern/json/include)
     target_link_libraries(acs_int PRIVATE nlohmann_json::nlohmann_json pybind11::module)
 
+    # Build with test coverage
     if (COVERAGE)
         target_compile_options(acs_int PRIVATE -fprofile-arcs -ftest-coverage)
         target_link_libraries(acs_int PRIVATE gcov)
     endif()
 
+    # Link with oneTBB (Thread Building Blocks)
     find_package(TBB REQUIRED)
-    if(TBB_FOUND)
-        message(STATUS "TBB found, linking acs_int against TBB (Parallel STL backend).")
-        target_link_libraries(acs_int PRIVATE TBB::tbb)
-    endif()
+    message(STATUS "Found TBB: (found version \"${TBB_VERSION}\"), linking acs_int against TBB (Parallel STL backend).")
+    target_link_libraries(acs_int PRIVATE TBB::tbb)
 
     set_target_properties(acs_int PROPERTIES POSITION_INDEPENDENT_CODE ON)
     install(TARGETS acs_int DESTINATION ${PY_INSTALL_PATH})

@@ -21,20 +21,28 @@ If you use the code of this repository, please consider citing the corresponding
 This simulator is used by [CIM-E](https://github.com/rpelke/CIM-E), a design space exploration tool for neural networks.
 
 ## Build instructions
-To build the project, you need cmake and a *dev version* of python.
-If you don't have python3-dev, pybind won't compile.
 
+### Requirements
+To build the project, you will require:
+- `cmake` >= 3.15
+- `python3` (*dev version* for pybind11)
+- oneAPI Threading Building Blocks (`oneTBB`). On Debian-based distributions, `sudo apt install libtbb-dev`. For more details see [here](https://uxlfoundation.github.io/oneTBB/index.html).
+
+### Building
 Clone the repository including submodules:
 ```bash
 git clone --recursive git@github.com:rpelke/analog-cim-sim.git
 ```
 
-Execute the following steps (replace the placeholders):
+Create a virtual environment:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip3 install -r requirements.txt
+```
 
+Build and install the project (replace the placeholders):
+```bash
 export PY_PACKAGE_DIR=<path to 'site-packages'> # can be found in .venv/lib/<python-version>
 
 mkdir -p build/release/build && cd build/release/build
