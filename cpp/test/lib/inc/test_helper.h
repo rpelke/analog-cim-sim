@@ -20,8 +20,8 @@ extern "C" {
 int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat, int32_t m_matrix,
                 int32_t n_matrix, const char *l_name = "Unknown");
 int32_t cpy_mtrx(int32_t *mat, int32_t m_matrix, int32_t n_matrix,
-                 const char *l_name = "Unkown");
-void set_config(const char *cfg_file);
+                 const char *l_name = "Unknown");
+void set_config(const char *cfg_file, const int n_threads = 1);
 int32_t update_config(const char *json_config, const char *l_name = "Unknown");
 const void *get_ia_p(size_t *size);
 const void *get_ia_m(size_t *size);

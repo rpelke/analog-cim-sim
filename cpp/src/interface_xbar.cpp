@@ -1,10 +1,11 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke & Joel Klein                              *
+ * Copyright (C) 2025 Rebecca Pelke, Joel Klein, Arunkumar Vaidyanathan       *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This is work is licensed under the terms described in the LICENSE file     *
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
+#include "oneapi/tbb.h"
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -25,6 +26,7 @@ bool cfg_loaded = nq::Config::get_cfg().load_cfg("");
 std::unique_ptr<nq::Crossbar> xbar =
     (cfg_loaded) ? std::make_unique<nq::Crossbar>() : nullptr;
 std::string adc_profile_cache = "";
+std::unique_ptr<tbb::global_control> gc; /** TBB Global Control */
 
 /********************** Helper functions **********************/
 const void check_pointer(const size_t *const size) {
@@ -51,10 +53,15 @@ const uint32_t num_matrix_elems(const std::vector<std::vector<T>> &mat) {
 }
 
 /************************ C interface ************************/
-extern "C" EXPORT_API void set_config(const char *cfg_file) {
+extern "C" EXPORT_API void set_config(const char *cfg_file,
+                                      const int num_threads = 1) {
     xbar = nullptr;
     nq::Config::get_cfg().load_cfg(cfg_file);
     xbar = std::make_unique<nq::Crossbar>();
+
+    // Set maximum number of threads
+    gc = std::make_unique<tbb::global_control>(
+        tbb::global_control::max_allowed_parallelism, num_threads);
 }
 
 extern "C" EXPORT_API int32_t update_config(const char *json_config,
@@ -475,13 +482,13 @@ EXPORT_API const std::string get_adc_profile() {
     return nq::ADCHistograms::get_instance().to_json().dump();
 }
 
-EXPORT_API const void dump_adc_profile(const char *filename) {
+EXPORT_API const void dump_adc_profile(const std::string filename) {
     std::ofstream file_stream(filename);
     if (!file_stream.is_open()) {
         std::cerr << "Could not open ADC profile dump file!";
         std::exit(EXIT_FAILURE);
     }
-    file_stream << nq::ADCHistograms::get_instance().to_json().dump();
+    file_stream << nq::ADCHistograms::get_instance().to_json().dump(2);
     file_stream.close();
 }
 
@@ -489,7 +496,8 @@ EXPORT_API const void dump_adc_profile(const char *filename) {
 PYBIND11_MODULE(acs_int, m) {
     m.def("cpy", &cpy_mtrx_pb, "Copy matrix to crossbar.");
     m.def("mvm", &exe_mvm_pb, "Execute matrix-vector multiplication.");
-    m.def("set_config", &set_config, "Set a config for the crossbar.");
+    m.def("set_config", &set_config, "Set a config for the crossbar.",
+          pybind11::arg("cfg_file"), pybind11::arg("num_threads") = 1);
     m.def("update_config", &update_config_pb,
           "Update configuration from JSON string.");
     m.def("gd_p", &get_gd_p_pb,
@@ -522,4 +530,5 @@ PYBIND11_MODULE(acs_int, m) {
           "Get the number of refresh operations on the cells.");
     m.def("rd_run_out_of_bounds", &get_rd_run_out_of_bounds,
           "Check if the read disturb model ran out of bounds.");
+    m.def("dump_adc_profile", &dump_adc_profile, "Dump ADC profile JSON file.");
 }
