@@ -156,6 +156,12 @@ bool Config::apply_config() {
                     std::cerr << "Unknown ADC calibration mode." << std::endl;
                     std::exit(EXIT_FAILURE);
                 }
+                adc_profile =
+                    getConfigValue<bool>(cfg_data_, "adc_profile", false);
+                if (adc_profile) {
+                    adc_profile_bin_size = getConfigValue<int>(
+                        cfg_data_, "adc_profile_bin_size", 10);
+                }
             }
 
             if ((m_mode == MappingMode::I_UINT_W_OFFS) ||
@@ -195,7 +201,6 @@ bool Config::apply_config() {
                 std::cerr << "Unkown MappingMode." << std::endl;
                 std::exit(EXIT_FAILURE);
             }
-            adc_profile = getConfigValue<bool>(cfg_data_, "adc_profile", false);
 
             // Noise of a state is modeled as a Gaussian noise with mean 0
             // The standard deviation is HRS_NOISE for HRS and LRS_NOISE for LRS

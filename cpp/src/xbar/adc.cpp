@@ -62,7 +62,8 @@ void ADC::profile_inputs(const std::vector<float> &in, const char *l_name) {
     // Check if a histogram already exists for the given layer, otherwise
     // create one.
     if (!hists_.get().has_histogram(l_name)) {
-        hists_.get().add_histogram(l_name, min_curr_, max_curr_);
+        hists_.get().add_histogram(l_name, min_curr_, max_curr_,
+                                   CFG.adc_profile_bin_size);
     }
 
     // Update values in layer histogram

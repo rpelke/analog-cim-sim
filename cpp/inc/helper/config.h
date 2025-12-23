@@ -80,12 +80,14 @@ class Config {
     // adc_type: Type of ADC
     // resolution: ADC resolution
     // adc_profile: Whether ADC inputs need to be profiled
+    // adc_profile_bin_size: Binning size for ADC profile histogram
     // adc_calib_mode: Calibration mode for ADC
     // adc_calib_max_curr: Maximum calibrated ADC input current (in uA)
     // adc_calib_min_curr: Minimum calibrated ADC input current (in uA)
     ADCType adc_type;
     int32_t resolution;
     bool adc_profile;
+    int adc_profile_bin_size;
     ADCCalibMode adc_calib_mode;
     float adc_calib_max_curr;
     float adc_calib_min_curr;
