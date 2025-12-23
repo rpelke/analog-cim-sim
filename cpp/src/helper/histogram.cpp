@@ -78,7 +78,7 @@ BinnedHistogram::BinnedHistogram(float min, float max, float bin_size) :
     min_(min),
     max_(max),
     bin_size_(bin_size),
-    num_bins_(round((max - min + 1) / bin_size_)),
+    num_bins_(round((max - min) / bin_size_)),
     data_(std::vector<int32_t>(num_bins_, 0)),
     values_(std::vector<float>(num_bins_, 0)) {
     // Generate values present in histogram
@@ -125,7 +125,7 @@ float BinnedHistogram::get_variance() {
 }
 
 json BinnedHistogram::to_json() {
-    std::unordered_map<float, int32_t> hist_map;
+    std::map<float, int32_t> hist_map;
     std::transform(this->data_.begin(), this->data_.end(),
                    this->values_.begin(),
                    std::inserter(hist_map, hist_map.end()),
