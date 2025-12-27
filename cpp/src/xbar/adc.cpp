@@ -22,17 +22,19 @@ ADC::ADC() :
     hists_(ADCHistograms::get_instance()) {}
 
 void ADC::convert(const std::vector<float> &in, std::vector<float> &out,
-                  float scale, float offset, const char *l_name) {
+                  const int32_t len, float scale, float offset,
+                  const char *l_name) {
+    // TODO: Check if len is less than input vector length.
     if (CFG.adc_profile) {
-        profile_inputs(in, l_name);
+        profile_inputs(in, len, l_name);
     }
 
     // Resize output vector
     out.resize(in.size(), 0.0);
 
     // Apply offset and scale
-    std::transform(std::execution::par, in.begin(), in.end(), out.begin(),
-                   [this, scale, offset](float current) {
+    std::transform(std::execution::par, in.begin(), in.begin() + len,
+                   out.begin(), [this, scale, offset](float current) {
                        return convert(current, scale, offset);
                    });
 }
@@ -58,7 +60,8 @@ float ADC::clip(float current) {
     return std::min(std::max(current, min_curr_), max_curr_);
 }
 
-void ADC::profile_inputs(const std::vector<float> &in, const char *l_name) {
+void ADC::profile_inputs(const std::vector<float> &in, const int32_t len,
+                         const char *l_name) {
     // Check if a histogram already exists for the given layer, otherwise
     // create one.
     if (!hists_.get().has_histogram(l_name)) {
@@ -69,7 +72,7 @@ void ADC::profile_inputs(const std::vector<float> &in, const char *l_name) {
     // Update values in layer histogram
     std::reference_wrapper<BinnedHistogram> l_hist(
         hists_.get().get_histogram(l_name).value());
-    l_hist.get().update(in);
+    l_hist.get().update(std::vector<float>(in.begin(), in.begin() + len));
 }
 
 ADCInfinite::ADCInfinite() : ADC() { calibrate_currents(); }

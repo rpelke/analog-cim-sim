@@ -38,8 +38,8 @@ class ADC {
 
     /** Convert a vector of analog input currents to digital outputs. */
     virtual void convert(const std::vector<float> &in, std::vector<float> &out,
-                         float scale = 1.0, float offset = 0.0,
-                         const char *l_name = "Unknown");
+                         const int32_t len, float scale = 1.0,
+                         float offset = 0.0, const char *l_name = "Unknown");
 
     /** Convert an analog input current to digital output. */
     virtual float convert(const float current, float scale = 1.0,
@@ -53,7 +53,8 @@ class ADC {
     float clip(float current);
 
     /** Profile ADC inputs using histograms. */
-    void profile_inputs(const std::vector<float> &in, const char *l_name);
+    void profile_inputs(const std::vector<float> &in, const int32_t len,
+                        const char *l_name);
 
     /** Get maximum possible current to ADC */
     virtual float maximum_max_current() = 0;

@@ -102,9 +102,9 @@ void MapperBnnIII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
         par_solver_->compute_currents(vd_m_, tmp_out_m_, m_matrix, n_matrix);
     }
 
-    adc_->convert(tmp_out_p_, tmp_out_p_, 2 / i_mm_, -vec_sum * CFG.HRS,
-                  l_name);
-    adc_->convert(tmp_out_m_, tmp_out_m_, 2 / i_mm_, 0.0, l_name);
+    adc_->convert(tmp_out_p_, tmp_out_p_, m_matrix, 2 / i_mm_,
+                  -vec_sum * CFG.HRS, l_name);
+    adc_->convert(tmp_out_m_, tmp_out_m_, m_matrix, 2 / i_mm_, 0.0, l_name);
 
     for (size_t m = 0; m < m_matrix; ++m) {
         res[m] += tmp_out_p_[m] - tmp_out_m_[m] - vec_sum;
