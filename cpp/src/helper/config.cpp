@@ -142,13 +142,11 @@ bool Config::apply_config() {
                     adc_calib_mode = ADCCalibMode::MAX;
                 } else if (adc_calib_mode_name == "CALIB") {
                     adc_calib_mode = ADCCalibMode::CALIB;
-                    adc_calib_max_curr =
-                        getConfigValue<float>(cfg_data_, "adc_calib_max_curr");
-                    adc_calib_min_curr =
-                        getConfigValue<float>(cfg_data_, "adc_calib_min_curr");
-                    if (adc_calib_max_curr < adc_calib_min_curr) {
-                        std::cerr << "Maximum ADC current must be greater than "
-                                     "minimum ADC current!"
+                    adc_calib_dict = getConfigValue<
+                        std::map<std::string, std::pair<float, float>>>(
+                        cfg_data_, "adc_calib_dict");
+                    if (adc_calib_dict.empty()) {
+                        std::cerr << "ADC calibration dict is empty!"
                                   << std::endl;
                         std::exit(EXIT_FAILURE);
                     }

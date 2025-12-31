@@ -56,15 +56,14 @@ TEST(ADCTests, SymADCCalibrationTest) {
     update_config(R"(
       {
          "adc_calib_mode": "CALIB",
-         "adc_calib_max_curr": 30.0,
-         "adc_calib_min_curr": -30.0
+         "adc_calib_dict": {"test_layer": [-30.0, 30.0]}
       }
     )");
 
     int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
     ASSERT_EQ(status, 0) << "Matrix write operation failed.";
 
-    status = exe_mvm(res, vec, mat, m_matrix, n_matrix);
+    status = exe_mvm(res, vec, mat, m_matrix, n_matrix, "test_layer");
     ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
     ASSERT_THAT(res, ::testing::ElementsAre(1, -7, -6));
 }

@@ -154,7 +154,7 @@ extern "C" EXPORT_API int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
 
 extern "C" EXPORT_API int32_t cpy_mtrx(int32_t *mat, int32_t m_matrix,
                                        int32_t n_matrix,
-                                       const char *l_name = "Unkown") {
+                                       const char *l_name = "Unknown") {
 #ifdef DEBUG_MODE
     std::cout << "Matrix copy" << std::endl;
     std::cout << "Layer: " << l_name << std::endl;

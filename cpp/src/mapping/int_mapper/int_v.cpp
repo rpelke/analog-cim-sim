@@ -120,7 +120,8 @@ void MapperIntV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                 res_fp_[m] += adc_->convert(
                     tmp_out_fp_[m * split.size() + s],
                     (std::pow(2, shift_[s]) * std::pow(2, i_bit)) /
-                        i_step_size_[s]);
+                        i_step_size_[s],
+                    0.0, l_name);
             }
         }
 

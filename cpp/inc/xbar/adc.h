@@ -43,14 +43,15 @@ class ADC {
 
     /** Convert an analog input current to digital output. */
     virtual float convert(const float current, float scale = 1.0,
-                          float offset = 0.0) = 0;
+                          float offset = 0.0,
+                          const char *l_name = "Unknown") = 0;
 
   protected:
-    /** Set maximum and minimum currents to the ADC. */
-    void calibrate_currents();
+    /** Get maximum and minimum currents to the ADC. */
+    std::pair<float, float> get_currents(const char *l_name = "Unknown");
 
-    /** Clip input currents vector for ADC ranges. */
-    float clip(float current);
+    /** Clip input current for given ADC ranges. */
+    float clip(float current, float min_curr, float max_curr);
 
     /** Profile ADC inputs using histograms. */
     void profile_inputs(const std::vector<float> &in, const int32_t len,
@@ -63,9 +64,6 @@ class ADC {
     virtual float maximum_min_current() = 0;
 
     int32_t resolution_; /**< ADC resolution (number of bits) */
-    float max_curr_;     /**< Maximum current to ADC */
-    float min_curr_;     /**< Minimum current to ADC */
-    float curr_range_;   /**< Current range sensed by ADC */
     int32_t steps_;      /**< Number of quantization steps */
     std::reference_wrapper<ADCHistograms>
         hists_; /**< Reference to singleton ADC input histograms */
@@ -81,7 +79,8 @@ class ADCInfinite : public ADC {
 
     /** Convert an analog input current to digital output. */
     virtual float convert(const float current, float scale = 1.0,
-                          float offset = 0.0) override;
+                          float offset = 0.0,
+                          const char *l_name = "Unknown") override;
 
   protected:
     /** Get maximum possible current to ADC */
@@ -101,7 +100,8 @@ class ADCUnsigned : public ADC {
 
     /** Convert an analog input current to digital output. */
     virtual float convert(const float current, float scale = 1.0,
-                          float offset = 0.0) override;
+                          float offset = 0.0,
+                          const char *l_name = "Unknown") override;
 
   protected:
     /** Get maximum possible current to ADC */
