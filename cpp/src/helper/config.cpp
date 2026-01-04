@@ -281,6 +281,9 @@ bool Config::apply_config() {
             if (parasitics) {
                 // Parameters for parasitics modelling
                 w_res = getConfigValue<float>(cfg_data_, "w_res");
+                // Turn off parasitics if resistance is zero
+                if (w_res == 0)
+                    parasitics = false;
             }
         }
 

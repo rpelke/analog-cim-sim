@@ -98,7 +98,6 @@ ADCUnsigned::ADCUnsigned() : ADC() {}
 
 float ADCUnsigned::convert(const float current, float scale, float offset,
                            const char *l_name) {
-    std::cout << l_name << std::endl;
     float tmp;
     // Get current ranges
     std::pair<float, float> currs = get_currents(l_name);
