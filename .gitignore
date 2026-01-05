@@ -2,6 +2,7 @@
 build/
 .vscode/
 .venv/*
+.cache
 
 # Config files
 *.json
