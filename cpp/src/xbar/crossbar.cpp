@@ -258,20 +258,40 @@ const std::vector<std::vector<float>> &Crossbar::get_ia_m() const {
 }
 
 const std::vector<std::vector<uint64_t>> &Crossbar::get_cycles_p() const {
+    if (!rd_model_) {
+        std::cerr << "Read disturb is disabled; " << __func__
+                  << " returns empty/default values." << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
     return rd_model_->get_cycles_p();
 }
 
 const std::vector<std::vector<uint64_t>> &Crossbar::get_cycles_m() const {
+    if (!rd_model_) {
+        std::cerr << "Read disturb is disabled; " << __func__
+                  << " returns empty/default values." << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
     return rd_model_->get_cycles_m();
 }
 
 const std::vector<std::vector<uint64_t>> &
 Crossbar::get_consecutive_reads_p() const {
+    if (!rd_model_) {
+        std::cerr << "Read disturb is disabled; " << __func__
+                  << " returns empty/default values." << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
     return rd_model_->get_consecutive_reads_p();
 }
 
 const std::vector<std::vector<uint64_t>> &
 Crossbar::get_consecutive_reads_m() const {
+    if (!rd_model_) {
+        std::cerr << "Read disturb is disabled; " << __func__
+                  << " returns empty/default values." << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
     return rd_model_->get_consecutive_reads_m();
 }
 
@@ -294,6 +314,11 @@ const uint64_t Crossbar::get_refresh_cell_counter() const {
 }
 
 const bool Crossbar::get_rd_run_out_of_bounds() const {
+    if (!rd_model_) {
+        std::cerr << "Read disturb is disabled; " << __func__
+                  << " returns empty/default values." << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
     return rd_model_->get_run_out_of_bounds();
 }
 

@@ -110,7 +110,7 @@ void ReadDisturb::update_cycle_m(int m, int n, uint64_t cycles) {
 }
 
 void ReadDisturb::update_consecutive_reads(int32_t m_matrix, int32_t n_matrix) {
-    for (size_t m = 0; m < m_matrix; ++m) {
+    for (size_t m = 0; m < m_matrix * CFG.SPLIT.size(); ++m) {
         for (size_t n = 0; n < n_matrix; ++n) {
             consecutive_reads_p_[m][n]++;
             consecutive_reads_m_[m][n]++;
