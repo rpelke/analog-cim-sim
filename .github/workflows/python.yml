@@ -30,13 +30,13 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.8'
-      
+
       - name: Create virtual environment
         run: |
           python -m venv .venv
           source .venv/bin/activate
           pip install -r requirements.txt
-      
+
       - name: CMake configure
         run: |
           source .venv/bin/activate
@@ -50,12 +50,12 @@ jobs:
             -DLIB_TESTS=OFF \
             -DBUILD_LIB_ACS_INT=ON \
             ../cpp
-      
+
       - name: Build lib
         run: |
           cmake --build ${{github.workspace}}/build -j $(nproc)
           cmake --build ${{github.workspace}}/build --target install
-      
+
       - name: Execute tests
         run: |
           source .venv/bin/activate

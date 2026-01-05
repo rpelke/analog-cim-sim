@@ -41,20 +41,17 @@ T getConfigValue(const nlohmann::json &cfg, const std::string &key,
 }
 
 bool Config::load_cfg(const char *cfg_file = "") {
-    if (strcmp(cfg_file, "") == 0) {
-        const char *cfg_file = std::getenv("CFG_FILE");
-        if (cfg_file == nullptr) {
-            return false;
-        }
+    const char *path =
+        cfg_file && cfg_file[0] ? cfg_file : std::getenv("CFG_FILE");
+    if (!path) {
+        return false;
     }
-    std::ifstream file_stream(cfg_file);
+    std::ifstream file_stream(path);
     if (!file_stream.is_open()) {
         std::cerr << "Could not open config file!";
         std::exit(EXIT_FAILURE);
     }
     file_stream >> cfg_data_;
-    file_stream.close();
-
     return apply_config();
 }
 
