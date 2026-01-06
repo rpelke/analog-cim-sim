@@ -38,6 +38,8 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
     sum_w_(CFG.M, 0),
     ia_p_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
     ia_m_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
+    ia_p_orig_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
+    ia_m_orig_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
     i_step_size_(CFG.SPLIT.size(), 0.0),
     adc_(ADCFactory::createADC(CFG.adc_type)) {
 
@@ -250,8 +252,13 @@ void Mapper::a_write_p_m_bnn_tnn(int32_t m_matrix, int32_t n_matrix) {
     float step = CFG.LRS - hrs;
     for (size_t m = 0; m < m_matrix; ++m) {
         for (size_t n = 0; n < n_matrix; ++n) {
-            ia_p_[m][n] = add_gaussian_noise(gd_p_[m][n] * step + hrs);
-            ia_m_[m][n] = add_gaussian_noise(gd_m_[m][n] * step + hrs);
+            ia_p_[m][n] =
+                add_gaussian_noise(gd_p_[m][n] * step + hrs, gd_p_[m][n]);
+            ia_p_orig_[m][n] = ia_p_[m][n];
+
+            ia_m_[m][n] =
+                add_gaussian_noise(gd_m_[m][n] * step + hrs, gd_m_[m][n]);
+            ia_m_orig_[m][n] = ia_m_[m][n];
         }
     }
 }
@@ -271,7 +278,9 @@ void Mapper::a_write_p_bnn(int32_t m_matrix, int32_t n_matrix) {
     float step = CFG.LRS - hrs;
     for (size_t m = 0; m < m_matrix; ++m) {
         for (size_t n = 0; n < n_matrix; ++n) {
-            ia_p_[m][n] = add_gaussian_noise(gd_p_[m][n] * step + hrs);
+            ia_p_[m][n] =
+                add_gaussian_noise(gd_p_[m][n] * step + hrs, gd_p_[m][n]);
+            ia_p_orig_[m][n] = ia_p_[m][n];
         }
     }
 }
@@ -280,15 +289,15 @@ void Mapper::a_write_p_bnn(int32_t m_matrix, int32_t n_matrix) {
 // Gaussian noise has mean of 0 and standard deviation of stddev
 // Current cannot be negative.
 // For BNN and TNN only
-float Mapper::add_gaussian_noise(float state) {
+float Mapper::add_gaussian_noise(float state, int32_t mask) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    if (state == CFG.HRS) {
+    if (mask == 0) {
         return std::max(state + hrs_var_(gen), 0.0f);
-    } else if (state == CFG.LRS) {
+    } else if (mask == 1) {
         return std::max(state + lrs_var_(gen), 0.0f);
     } else {
-        std::cerr << "Unexpected crossbar state: " << state << std::endl;
+        std::cerr << "Unexpected crossbar value: " << mask << std::endl;
         std::exit(EXIT_FAILURE);
     }
 }
@@ -414,7 +423,7 @@ int Mapper::rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model) {
                 if ((ia_p_[m][n] < (1 - tolerance) * lrs) ||
                     (ia_p_[m][n] > (1 + tolerance) * lrs)) {
                     // Refresh needed
-                    ia_p_[m][n] = add_gaussian_noise(lrs);
+                    ia_p_[m][n] = add_gaussian_noise(lrs, 1);
                     // Update cycle count
                     rd_model->update_cycle_p(m, n, 1);
                     // Reset consecutive reads
@@ -438,7 +447,7 @@ int Mapper::rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model) {
                 if ((ia_m_[m][n] < (1 - tolerance) * lrs) ||
                     (ia_m_[m][n] > (1 + tolerance) * lrs)) {
                     // Refresh needed
-                    ia_m_[m][n] = add_gaussian_noise(lrs);
+                    ia_m_[m][n] = add_gaussian_noise(lrs, 1);
                     // Update cycle count
                     rd_model->update_cycle_m(m, n, 1);
                     // Reset consecutive reads
@@ -459,6 +468,24 @@ void Mapper::slice_vd(std::vector<int32_t> &vd, std::vector<int32_t> &vd_slice,
     std::transform(std::execution::par, vd.begin(), vd.begin() + n,
                    vd_slice.begin(),
                    [i_bit](int32_t v) { return (v >> i_bit) & 1; });
+}
+
+void Mapper::a_add_c2c_var(int32_t m_matrix, int32_t n_matrix) {
+    for (size_t m = 0; m < m_matrix; ++m) {
+        for (size_t n = 0; n < n_matrix; ++n) {
+            ia_p_[m][n] = add_gaussian_noise(ia_p_orig_[m][n], gd_p_[m][n]);
+            ia_m_[m][n] = add_gaussian_noise(ia_m_orig_[m][n], gd_m_[m][n]);
+        }
+    }
+}
+
+void Mapper::a_remove_c2c_var(int32_t m_matrix, int32_t n_matrix) {
+    for (size_t m = 0; m < m_matrix; ++m) {
+        for (size_t n = 0; n < n_matrix; ++n) {
+            ia_p_[m][n] = ia_p_orig_[m][n];
+            ia_m_[m][n] = ia_m_orig_[m][n];
+        }
+    }
 }
 
 } // namespace nq

@@ -80,7 +80,13 @@ void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
     if (CFG.digital_only) {
         mapper_->d_mvm(res, vec, mat, m_matrix, n_matrix);
     } else {
+        if (CFG.c2c_var) {
+            mapper_->a_add_c2c_var(m_matrix, n_matrix);
+        }
         mapper_->a_mvm(res, vec, mat, m_matrix, n_matrix, l_name);
+        if (CFG.c2c_var) {
+            mapper_->a_remove_c2c_var(m_matrix, n_matrix);
+        }
 
         if (CFG.read_disturb) {
             switch (CFG.read_disturb_mitigation_strategy) {

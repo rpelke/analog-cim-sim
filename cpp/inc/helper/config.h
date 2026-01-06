@@ -98,6 +98,8 @@ class Config {
     // State variability: standard deviation of a gaussian distribution (in uA)
     float HRS_NOISE;
     float LRS_NOISE;
+    bool d2d_var; // Model device-to-device variation
+    bool c2c_var; // Model cycle-to-cycle variation
 
     // Read disturb parameters
     // t_read: time of a read pulse (in s)
