@@ -48,15 +48,18 @@ float SimpleHistogram::get_mean() {
     return std::transform_reduce(std::execution::par, this->data_.begin(),
                                  this->data_.end(), this->values_.begin(), 0.0,
                                  std::plus<float>(), std::multiplies<float>()) /
-           this->get_samples();
+           get_samples();
 }
 
 float SimpleHistogram::get_variance() {
     float mean = get_mean();
-    return std::transform_reduce(
-        std::execution::par, this->data_.begin(), this->data_.end(),
-        this->values_.begin(), 0.0, std::plus<float>(),
-        [mean](int32_t d, int32_t v) { return (v * std::pow(d - mean, 2)); });
+    return std::transform_reduce(std::execution::par, this->data_.begin(),
+                                 this->data_.end(), this->values_.begin(), 0.0,
+                                 std::plus<float>(),
+                                 [mean](int32_t d, int32_t v) {
+                                     return (d * std::pow(v - mean, 2));
+                                 }) /
+           get_samples();
 }
 
 json SimpleHistogram::to_json() {
@@ -113,15 +116,18 @@ float BinnedHistogram::get_mean() {
     return std::transform_reduce(std::execution::par, this->data_.begin(),
                                  this->data_.end(), this->values_.begin(), 0.0,
                                  std::plus<float>(), std::multiplies<float>()) /
-           this->get_samples();
+           get_samples();
 }
 
 float BinnedHistogram::get_variance() {
     float mean = get_mean();
-    return std::transform_reduce(
-        std::execution::par, this->data_.begin(), this->data_.end(),
-        this->values_.begin(), 0.0, std::plus<float>(),
-        [mean](int32_t d, int32_t v) { return (v * std::pow(d - mean, 2)); });
+    return std::transform_reduce(std::execution::par, this->data_.begin(),
+                                 this->data_.end(), this->values_.begin(), 0.0,
+                                 std::plus<float>(),
+                                 [mean](int32_t d, int32_t v) {
+                                     return (d * std::pow(v - mean, 2));
+                                 }) /
+           get_samples();
 }
 
 json BinnedHistogram::to_json() {
