@@ -2,7 +2,7 @@
  * Copyright (C) 2025 Rebecca Pelke & Joel Klein                              *
  * All Rights Reserved                                                        *
  *                                                                            *
- * This is work is licensed under the terms described in the LICENSE file     *
+ * This work is licensed under the terms described in the LICENSE file        *
  * found in the root directory of this source tree.                           *
  ******************************************************************************/
 #include "stdio.h"
