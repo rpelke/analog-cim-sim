@@ -204,8 +204,8 @@ bool Config::apply_config() {
             // The standard deviation is HRS_NOISE for HRS and LRS_NOISE for LRS
             HRS_NOISE = getConfigValue<float>(cfg_data_, "HRS_NOISE");
             LRS_NOISE = getConfigValue<float>(cfg_data_, "LRS_NOISE");
-            d2d_var = getConfigValue<float>(cfg_data_, "d2d_var", true);
-            c2c_var = getConfigValue<float>(cfg_data_, "c2c_var", false);
+            d2d_var = getConfigValue<bool>(cfg_data_, "d2d_var", true);
+            c2c_var = getConfigValue<bool>(cfg_data_, "c2c_var", false);
 
             // Read disturb simulation
             read_disturb =
