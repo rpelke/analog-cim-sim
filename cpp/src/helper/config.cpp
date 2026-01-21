@@ -142,19 +142,23 @@ bool Config::apply_config() {
                     adc_calib_mode = ADCCalibMode::MAX;
                 } else if (adc_calib_mode_name == "CALIB") {
                     adc_calib_mode = ADCCalibMode::CALIB;
-                    adc_calib_max_curr =
-                        getConfigValue<float>(cfg_data_, "adc_calib_max_curr");
-                    adc_calib_min_curr =
-                        getConfigValue<float>(cfg_data_, "adc_calib_min_curr");
-                    if (adc_calib_max_curr < adc_calib_min_curr) {
-                        std::cerr << "Maximum ADC current must be greater than "
-                                     "minimum ADC current!"
+                    adc_calib_dict = getConfigValue<
+                        std::map<std::string, std::pair<float, float>>>(
+                        cfg_data_, "adc_calib_dict");
+                    if (adc_calib_dict.empty()) {
+                        std::cerr << "ADC calibration dict is empty!"
                                   << std::endl;
                         std::exit(EXIT_FAILURE);
                     }
                 } else {
                     std::cerr << "Unknown ADC calibration mode." << std::endl;
                     std::exit(EXIT_FAILURE);
+                }
+                adc_profile =
+                    getConfigValue<bool>(cfg_data_, "adc_profile", false);
+                if (adc_profile) {
+                    adc_profile_bin_size = getConfigValue<int>(
+                        cfg_data_, "adc_profile_bin_size", 10);
                 }
             }
 
@@ -195,12 +199,21 @@ bool Config::apply_config() {
                 std::cerr << "Unkown MappingMode." << std::endl;
                 std::exit(EXIT_FAILURE);
             }
-            adc_profile = getConfigValue<bool>(cfg_data_, "adc_profile", false);
 
             // Noise of a state is modeled as a Gaussian noise with mean 0
             // The standard deviation is HRS_NOISE for HRS and LRS_NOISE for LRS
             HRS_NOISE = getConfigValue<float>(cfg_data_, "HRS_NOISE");
             LRS_NOISE = getConfigValue<float>(cfg_data_, "LRS_NOISE");
+            d2d_var = getConfigValue<bool>(cfg_data_, "d2d_var", true);
+            c2c_var = getConfigValue<bool>(cfg_data_, "c2c_var", false);
+
+            if (is_int_mapping(m_mode) & (d2d_var & c2c_var)) {
+                std::cerr
+                    << "Device variability modeling is only supported for "
+                       "BNN/TNN mappings!"
+                    << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
 
             // Read disturb simulation
             read_disturb =
@@ -278,6 +291,9 @@ bool Config::apply_config() {
             if (parasitics) {
                 // Parameters for parasitics modelling
                 w_res = getConfigValue<float>(cfg_data_, "w_res");
+                // Turn off parasitics if resistance is zero
+                if (w_res == 0)
+                    parasitics = false;
             }
         }
 

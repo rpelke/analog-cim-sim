@@ -50,6 +50,9 @@ class Mapper {
     int rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model);
     bool is_diff_weight_mapping() const;
 
+    void a_add_c2c_var(int32_t m_matrix, int32_t n_matrix);
+    void a_remove_c2c_var(int32_t m_matrix, int32_t n_matrix);
+
   protected:
     void d_write_diff(const int32_t *mat, int32_t m_matrix, int32_t n_matrix);
     void d_write_diff_bnn(const int32_t *mat, int32_t m_matrix,
@@ -79,6 +82,8 @@ class Mapper {
     // Parameters for the analog crossbar
     std::vector<std::vector<float>> ia_p_;
     std::vector<std::vector<float>> ia_m_;
+    std::vector<std::vector<float>> ia_p_orig_;
+    std::vector<std::vector<float>> ia_m_orig_;
     std::vector<float> i_step_size_;
     int num_segments_;
     float i_mm_;
@@ -87,7 +92,7 @@ class Mapper {
 
   private:
     // State variability
-    float add_gaussian_noise(float mean);
+    float add_gaussian_noise(float mean, int32_t mask);
     std::normal_distribution<float> hrs_var_;
     std::normal_distribution<float> lrs_var_;
 };

@@ -116,7 +116,8 @@ void MapperTnnIV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                 tmp_out_[m] += ia_p_[m][n] * vd_p_[n];
             }
         }
-        adc_->convert(tmp_out_, tmp_out_, 1 / i_mm_, analog_correction, l_name);
+        adc_->convert(tmp_out_, tmp_out_, m_matrix, 1 / i_mm_,
+                      analog_correction / 2, l_name);
         for (size_t m = 0; m < m_matrix; ++m) {
             tmp_out_fp_[m] += tmp_out_[m];
         }
@@ -128,7 +129,8 @@ void MapperTnnIV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                 tmp_out_[m] += ia_p_[m][n] * vd_m_[n];
             }
         }
-        adc_->convert(tmp_out_, tmp_out_, 1 / i_mm_, 0.0, l_name);
+        adc_->convert(tmp_out_, tmp_out_, m_matrix, 1 / i_mm_,
+                      -analog_correction / 2, l_name);
         for (size_t m = 0; m < m_matrix; ++m) {
             tmp_out_fp_[m] -= tmp_out_[m];
         }
@@ -140,7 +142,7 @@ void MapperTnnIV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                 tmp_out_[m] += ia_m_[m][n] * vd_p_[n];
             }
         }
-        adc_->convert(tmp_out_, tmp_out_, 2 / i_mm_, 0.0, l_name);
+        adc_->convert(tmp_out_, tmp_out_, m_matrix, 2 / i_mm_, 0.0, l_name);
         for (size_t m = 0; m < m_matrix; ++m) {
             tmp_out_fp_[m] -= tmp_out_[m];
         }
@@ -152,20 +154,22 @@ void MapperTnnIV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                 tmp_out_[m] += ia_m_[m][n] * vd_m_[n];
             }
         }
-        adc_->convert(tmp_out_, tmp_out_, 2 / i_mm_, 0.0, l_name);
+        adc_->convert(tmp_out_, tmp_out_, m_matrix, 2 / i_mm_, 0.0, l_name);
         for (size_t m = 0; m < m_matrix; ++m) {
             tmp_out_fp_[m] += tmp_out_[m];
         }
     } else {
         // Positive input
+        tmp_out_.resize(2 * m_matrix, 0);
         par_solver_->compute_currents(vd_p_, tmp_out_, 2 * m_matrix, n_matrix);
         for (size_t m = 0; m < m_matrix; m++) {
             tmp_out_lsb_[m] = tmp_out_[2 * m];
             tmp_out_msb_[m] = tmp_out_[2 * m + 1];
         }
-        adc_->convert(tmp_out_lsb_, tmp_out_lsb_, 1 / i_mm_, analog_correction,
+        adc_->convert(tmp_out_lsb_, tmp_out_lsb_, m_matrix, 1 / i_mm_,
+                      analog_correction / 2, l_name);
+        adc_->convert(tmp_out_msb_, tmp_out_msb_, m_matrix, 2 / i_mm_, 0.0,
                       l_name);
-        adc_->convert(tmp_out_msb_, tmp_out_msb_, 2 / i_mm_, 0.0, l_name);
         for (size_t m = 0; m < m_matrix; m++) {
             tmp_out_fp_[m] += tmp_out_lsb_[m];
             tmp_out_fp_[m] -= tmp_out_msb_[m];
@@ -177,8 +181,10 @@ void MapperTnnIV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
             tmp_out_lsb_[m] = tmp_out_[2 * m];
             tmp_out_msb_[m] = tmp_out_[2 * m + 1];
         }
-        adc_->convert(tmp_out_lsb_, tmp_out_lsb_, 1 / i_mm_, 0.0, l_name);
-        adc_->convert(tmp_out_msb_, tmp_out_msb_, 2 / i_mm_, 0.0, l_name);
+        adc_->convert(tmp_out_lsb_, tmp_out_lsb_, m_matrix, 1 / i_mm_,
+                      -analog_correction / 2, l_name);
+        adc_->convert(tmp_out_msb_, tmp_out_msb_, m_matrix, 2 / i_mm_, 0.0,
+                      l_name);
         for (size_t m = 0; m < m_matrix; m++) {
             tmp_out_fp_[m] -= tmp_out_lsb_[m];
             tmp_out_fp_[m] += tmp_out_msb_[m];

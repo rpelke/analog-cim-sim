@@ -48,15 +48,18 @@ float SimpleHistogram::get_mean() {
     return std::transform_reduce(std::execution::par, this->data_.begin(),
                                  this->data_.end(), this->values_.begin(), 0.0,
                                  std::plus<float>(), std::multiplies<float>()) /
-           this->get_samples();
+           get_samples();
 }
 
 float SimpleHistogram::get_variance() {
     float mean = get_mean();
-    return std::transform_reduce(
-        std::execution::par, this->data_.begin(), this->data_.end(),
-        this->values_.begin(), 0.0, std::plus<float>(),
-        [mean](int32_t d, int32_t v) { return (v * std::pow(d - mean, 2)); });
+    return std::transform_reduce(std::execution::par, this->data_.begin(),
+                                 this->data_.end(), this->values_.begin(), 0.0,
+                                 std::plus<float>(),
+                                 [mean](int32_t d, int32_t v) {
+                                     return (d * std::pow(v - mean, 2));
+                                 }) /
+           get_samples();
 }
 
 json SimpleHistogram::to_json() {
@@ -78,7 +81,7 @@ BinnedHistogram::BinnedHistogram(float min, float max, float bin_size) :
     min_(min),
     max_(max),
     bin_size_(bin_size),
-    num_bins_(round((max - min + 1) / bin_size_)),
+    num_bins_(round((max - min) / bin_size_)),
     data_(std::vector<int32_t>(num_bins_, 0)),
     values_(std::vector<float>(num_bins_, 0)) {
     // Generate values present in histogram
@@ -113,19 +116,22 @@ float BinnedHistogram::get_mean() {
     return std::transform_reduce(std::execution::par, this->data_.begin(),
                                  this->data_.end(), this->values_.begin(), 0.0,
                                  std::plus<float>(), std::multiplies<float>()) /
-           this->get_samples();
+           get_samples();
 }
 
 float BinnedHistogram::get_variance() {
     float mean = get_mean();
-    return std::transform_reduce(
-        std::execution::par, this->data_.begin(), this->data_.end(),
-        this->values_.begin(), 0.0, std::plus<float>(),
-        [mean](int32_t d, int32_t v) { return (v * std::pow(d - mean, 2)); });
+    return std::transform_reduce(std::execution::par, this->data_.begin(),
+                                 this->data_.end(), this->values_.begin(), 0.0,
+                                 std::plus<float>(),
+                                 [mean](int32_t d, int32_t v) {
+                                     return (d * std::pow(v - mean, 2));
+                                 }) /
+           get_samples();
 }
 
 json BinnedHistogram::to_json() {
-    std::unordered_map<float, int32_t> hist_map;
+    std::map<float, int32_t> hist_map;
     std::transform(this->data_.begin(), this->data_.end(),
                    this->values_.begin(),
                    std::inserter(hist_map, hist_map.end()),
