@@ -24,13 +24,20 @@ ADC::ADC() :
 void ADC::convert(const std::vector<float> &in, std::vector<float> &out,
                   const int32_t len, float scale, float offset,
                   const char *l_name) {
-    // TODO: Check if len is less than input vector length.
+    // Check if len is less than input vector length.
+    if (in.size() < len) {
+        std::cerr << "Requested ADC conversion length is greater than input "
+                     "vector length!"
+                  << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+
     if (CFG.adc_profile) {
         profile_inputs(in, len, l_name);
     }
 
     // Resize output vector
-    out.resize(in.size(), 0.0);
+    out.resize(len, 0.0);
 
     // Apply offset and scale
     std::transform(std::execution::par, in.begin(), in.begin() + len,
