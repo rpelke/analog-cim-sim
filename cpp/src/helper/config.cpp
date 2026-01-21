@@ -207,6 +207,14 @@ bool Config::apply_config() {
             d2d_var = getConfigValue<bool>(cfg_data_, "d2d_var", true);
             c2c_var = getConfigValue<bool>(cfg_data_, "c2c_var", false);
 
+            if (is_int_mapping(m_mode) & (d2d_var & c2c_var)) {
+                std::cerr
+                    << "Device variability modeling is only supported for "
+                       "BNN/TNN mappings!"
+                    << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
+
             // Read disturb simulation
             read_disturb =
                 getConfigValue<bool>(cfg_data_, "read_disturb", false);
