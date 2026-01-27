@@ -26,9 +26,9 @@ void ADC::convert(const std::vector<float> &in, std::vector<float> &out,
                   const char *l_name) {
     // Check if len is less than input vector length.
     if (in.size() < len) {
-        std::cerr << "Requested ADC conversion length is greater than input "
-                     "vector length!"
-                  << std::endl;
+        std::cerr << "Requested ADC conversion length: " << len
+                  << ", is greater than input "
+                  << "vector length: " << in.size() << "!" << std::endl;
         std::exit(EXIT_FAILURE);
     }
 
@@ -37,7 +37,9 @@ void ADC::convert(const std::vector<float> &in, std::vector<float> &out,
     }
 
     // Resize output vector
-    out.resize(len, 0.0);
+    if (out.size() < len) {
+        out.resize(len, 0.0);
+    }
 
     // Apply offset and scale
     std::transform(std::execution::par, in.begin(), in.begin() + len,
