@@ -66,14 +66,8 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
         }
         num_segments_ = CFG.SPLIT.size();
 
-        if (is_diff_weight_mapping_) {
-            for (size_t s = 0; s < num_segments_; ++s) {
-                i_step_size_[s] = i_mm_ / ((1 << (CFG.SPLIT[s] - 1)));
-            }
-        } else {
-            for (size_t s = 0; s < num_segments_; ++s) {
-                i_step_size_[s] = i_mm_ / ((1 << CFG.SPLIT[s]) - 1);
-            }
+        for (size_t s = 0; s < num_segments_; ++s) {
+            i_step_size_[s] = i_mm_ / ((1 << CFG.SPLIT[s]) - 1);
         }
     }
 }
