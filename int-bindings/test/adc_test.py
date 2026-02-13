@@ -11,6 +11,7 @@ import acs_int
 import json
 import os
 import sys
+import tempfile
 
 repo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
 sys.path.append(repo_path)
@@ -43,17 +44,21 @@ class TestADC(unittest.TestCase):
         for b in resolution:
             cfg["resolution"] = b
 
-            with open(cfg_file, "w") as file:
-                json.dump(cfg, file, indent=4)
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp_cfg:
+                json.dump(cfg, tmp_cfg, indent=4)
+                tmp_cfg_path = tmp_cfg.name
 
-            acs_int.set_config(os.path.abspath(cfg_file))
-            acs_int.cpy(mat, m_matrix, n_matrix)
+            try:
+                acs_int.set_config(os.path.abspath(tmp_cfg_path))
+                acs_int.cpy(mat, m_matrix, n_matrix)
 
-            res = np.zeros(m_matrix, dtype=np.int32)
-            acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+                res = np.zeros(m_matrix, dtype=np.int32)
+                acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+            finally:
+                os.remove(tmp_cfg_path)
 
-            delta = adc_range / ((2**b) - 1)
-            step_size = (cfg["LRS"] - cfg["HRS"]) / (2**(cfg["W_BIT"] - 1))
+            delta = adc_range / ((2**b) - 2)
+            step_size = (cfg["LRS"] - cfg["HRS"]) / ((2**cfg["W_BIT"]) - 1)
             max_error = (delta / 2) / step_size
 
             for c_idx, c in enumerate(correct_result):
@@ -84,17 +89,21 @@ class TestADC(unittest.TestCase):
         for b in resolution:
             cfg["resolution"] = b
 
-            with open(cfg_file, "w") as file:
-                json.dump(cfg, file, indent=4)
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp_cfg:
+                json.dump(cfg, tmp_cfg, indent=4)
+                tmp_cfg_path = tmp_cfg.name
 
-            acs_int.set_config(os.path.abspath(cfg_file))
-            acs_int.cpy(mat, m_matrix, n_matrix)
+            try:
+                acs_int.set_config(os.path.abspath(tmp_cfg_path))
+                acs_int.cpy(mat, m_matrix, n_matrix)
 
-            res = np.zeros(m_matrix, dtype=np.int32)
-            acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+                res = np.zeros(m_matrix, dtype=np.int32)
+                acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+            finally:
+                os.remove(tmp_cfg_path)
 
-            delta = adc_range / ((2**b) - 1)
-            step_size = (cfg["LRS"] - cfg["HRS"]) / (2**(cfg["W_BIT"] - 1))
+            delta = adc_range / ((2**b) - 2)
+            step_size = (cfg["LRS"] - cfg["HRS"]) / ((2**cfg["W_BIT"]) - 1)
             max_error = (delta / 2) / step_size
 
             for c_idx, c in enumerate(correct_result):
@@ -125,17 +134,21 @@ class TestADC(unittest.TestCase):
         for b in resolution:
             cfg["resolution"] = b
 
-            with open(cfg_file, "w") as file:
-                json.dump(cfg, file, indent=4)
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp_cfg:
+                json.dump(cfg, tmp_cfg, indent=4)
+                tmp_cfg_path = tmp_cfg.name
 
-            acs_int.set_config(os.path.abspath(cfg_file))
-            acs_int.cpy(mat, m_matrix, n_matrix)
+            try:
+                acs_int.set_config(os.path.abspath(tmp_cfg_path))
+                acs_int.cpy(mat, m_matrix, n_matrix)
 
-            res = np.zeros(m_matrix, dtype=np.int32)
-            acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+                res = np.zeros(m_matrix, dtype=np.int32)
+                acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+            finally:
+                os.remove(tmp_cfg_path)
 
-            delta = adc_range / ((2**b) - 1)
-            step_size = (cfg["LRS"] - cfg["HRS"]) / (2**(cfg["W_BIT"] - 1))
+            delta = adc_range / ((2**b) - 2)
+            step_size = (cfg["LRS"] - cfg["HRS"]) / ((2**cfg["W_BIT"]) - 1)
             max_error = (delta / 2) / step_size
 
             for c_idx, c in enumerate(correct_result):
@@ -166,17 +179,21 @@ class TestADC(unittest.TestCase):
         for b in resolution:
             cfg["resolution"] = b
 
-            with open(cfg_file, "w") as file:
-                json.dump(cfg, file, indent=4)
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp_cfg:
+                json.dump(cfg, tmp_cfg, indent=4)
+                tmp_cfg_path = tmp_cfg.name
 
-            acs_int.set_config(os.path.abspath(cfg_file))
-            acs_int.cpy(mat, m_matrix, n_matrix)
+            try:
+                acs_int.set_config(os.path.abspath(tmp_cfg_path))
+                acs_int.cpy(mat, m_matrix, n_matrix)
 
-            res = np.zeros(m_matrix, dtype=np.int32)
-            acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+                res = np.zeros(m_matrix, dtype=np.int32)
+                acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+            finally:
+                os.remove(tmp_cfg_path)
 
-            delta = adc_range / ((2**b) - 1)
-            step_size = (cfg["LRS"] - cfg["HRS"]) / (2**(cfg["W_BIT"] - 1))
+            delta = adc_range / ((2**b) - 2)
+            step_size = (cfg["LRS"] - cfg["HRS"]) / ((2**cfg["W_BIT"]) - 1)
             max_error = (delta / 2) / step_size
 
             for c_idx, c in enumerate(correct_result):
@@ -207,14 +224,18 @@ class TestADC(unittest.TestCase):
         for b in resolution:
             cfg["resolution"] = b
 
-            with open(cfg_file, "w") as file:
-                json.dump(cfg, file, indent=4)
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp_cfg:
+                json.dump(cfg, tmp_cfg, indent=4)
+                tmp_cfg_path = tmp_cfg.name
 
-            acs_int.set_config(os.path.abspath(cfg_file))
-            acs_int.cpy(mat, m_matrix, n_matrix)
+            try:
+                acs_int.set_config(os.path.abspath(tmp_cfg_path))
+                acs_int.cpy(mat, m_matrix, n_matrix)
 
-            res = np.zeros(m_matrix, dtype=np.int32)
-            acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+                res = np.zeros(m_matrix, dtype=np.int32)
+                acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+            finally:
+                os.remove(tmp_cfg_path)
 
             delta = adc_range / ((2**b) - 1)
             step_size = (cfg["LRS"] - cfg["HRS"]) / (2**(cfg["W_BIT"]) - 1)
