@@ -17,6 +17,10 @@
 #include "helper/config.h"
 #include "xbar/crossbar.h"
 
+#ifdef DEBUG_MODE
+#include <cstdint>
+#endif
+
 #ifndef EXPORT_API
 #define EXPORT_API __attribute__((visibility("default")))
 #endif
@@ -106,8 +110,7 @@ extern "C" EXPORT_API int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
 #ifdef DEBUG_MODE
     std::cout << "Matrix-vector multiplication" << std::endl;
     std::cout << "Layer: " << l_name << std::endl;
-// Find max and min values in the input vector
-#include <cstdint>
+    // Find max and min values in the input vector
     int32_t max_val = INT32_MIN;
     int32_t min_val = INT32_MAX;
     for (int i = 0; i < n_matrix; ++i) {
@@ -134,8 +137,7 @@ extern "C" EXPORT_API int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
     }
     xbar->mvm(res, vec, mat, m_matrix, n_matrix, l_name);
 #ifdef DEBUG_MODE
-// Find max and min values in the result vector
-#include <cstdint>
+    // Find max and min values in the result vector
     max_val = INT32_MIN;
     min_val = INT32_MAX;
     for (int i = 0; i < m_matrix; ++i) {
@@ -158,8 +160,7 @@ extern "C" EXPORT_API int32_t cpy_mtrx(int32_t *mat, int32_t m_matrix,
 #ifdef DEBUG_MODE
     std::cout << "Matrix copy" << std::endl;
     std::cout << "Layer: " << l_name << std::endl;
-// Find max and min values in the matrix
-#include <cstdint>
+    // Find max and min values in the matrix
     int32_t max_val = INT32_MIN;
     int32_t min_val = INT32_MAX;
     for (int i = 0; i < m_matrix; ++i) {
