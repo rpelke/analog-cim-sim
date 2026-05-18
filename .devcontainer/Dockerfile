@@ -1,0 +1,18 @@
+# Use Ubuntu Noble as the base image
+FROM ubuntu:noble
+
+# Install system dependencies including CMake >= 3.15, Python3 development tools, and TBB
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    git \
+    ssh \
+    g++ \
+    gdb \
+    cmake \
+    python3 \
+    python3-dev \
+    libtbb-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set the default command to bash
+SHELL ["/bin/bash", "-c"]
