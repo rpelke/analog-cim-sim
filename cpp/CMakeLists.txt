@@ -14,10 +14,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(COVERAGE "Enable code coverage." OFF)
 message(STATUS "Coverage: ${COVERAGE}")
 
-# Install path for python package
-if(NOT DEFINED PY_INSTALL_PATH)
-message(FATAL_ERROR "PY_INSTALL_PATH is not set! Please define it with -DPY_INSTALL_PATH=<...>")
-endif()
 
 # Use gcc for coverage
 if (COVERAGE)
@@ -44,37 +40,43 @@ option(BUILD_LIB_ACS_INT "Build int lib." OFF)
 option(BUILD_LIB_ACS_CPP "Build cpp lib." OFF)
 
 if (COVERAGE)
-    if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-        message(FATAL_ERROR "Error: The build type must be 'Debug'!")
-    endif()
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+message(FATAL_ERROR "Error: The build type must be 'Debug'!")
+endif()
 endif()
 
 ### Build emulater/callback interface ###
 if(BUILD_LIB_CB_EMU)
     message(STATUS "Build emulater/callback interface.")
-
+    
     set(SOURCES_CB
-        src/interface_cb.cpp
+    src/interface_cb.cpp
     )
     add_library(acs_cb_emu SHARED ${SOURCES_CB})
     if (COVERAGE)
-        target_compile_options(acs_cb_emu PRIVATE -fprofile-arcs -ftest-coverage)
-        target_link_libraries(acs_cb_emu PRIVATE gcov)
+    target_compile_options(acs_cb_emu PRIVATE -fprofile-arcs -ftest-coverage)
+    target_link_libraries(acs_cb_emu PRIVATE gcov)
     endif()
     set_target_properties(acs_cb_emu PROPERTIES POSITION_INDEPENDENT_CODE ON)
     install(TARGETS acs_cb_emu DESTINATION lib)
-endif()
+    endif()
+    
+    
+    ### Build Int library ###
+    if(BUILD_LIB_ACS_INT)
 
+    # Install path for python package
+    if(NOT DEFINED PY_INSTALL_PATH)
+    message(FATAL_ERROR "PY_INSTALL_PATH is not set! Please define it with -DPY_INSTALL_PATH=<...>")
+    endif()
 
-### Build Int library ###
-if(BUILD_LIB_ACS_INT)
     message(STATUS "Build LIB_ACS_INT.")
     find_package(Python3 COMPONENTS Interpreter Development)
     execute_process(
         COMMAND ${Python3_EXECUTABLE} -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"
         OUTPUT_VARIABLE PYTHON_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
+        )
     message(STATUS "Use Python: ${PYTHON_VERSION}")
     find_package(pybind11 CONFIG REQUIRED PATHS ${CMAKE_CURRENT_LIST_DIR}/../.venv/lib/python${PYTHON_VERSION}/site-packages/pybind11/share/cmake/pybind11)
 
@@ -199,10 +201,10 @@ if(BUILD_LIB_ACS_CPP)
 
     # Link with oneTBB (Thread Building Blocks)
     find_package(TBB REQUIRED)
-    message(STATUS "Found TBB: (found version \"${TBB_VERSION}\"), linking acs_int against TBB (Parallel STL backend).")
-    target_link_libraries(acs_int PRIVATE TBB::tbb)
+    message(STATUS "Found TBB: (found version \"${TBB_VERSION}\"), linking acs_cpp against TBB (Parallel STL backend).")
+    target_link_libraries(acs_cpp PRIVATE TBB::tbb)
 
-    set_target_properties(acs_int PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    set_target_properties(acs_cpp PROPERTIES POSITION_INDEPENDENT_CODE ON)
     set_target_properties(acs_cpp PROPERTIES PUBLIC_HEADER inc/interface_xbar.h)
     install(TARGETS acs_cpp
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

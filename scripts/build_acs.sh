@@ -18,5 +18,5 @@ cmake \
     -DDEBUG_MODE=OFF \
     ../../../cpp
 
-make -j `nproc`
+make -j "$(nproc)"
 make install
