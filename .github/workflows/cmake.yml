@@ -47,6 +47,7 @@ jobs:
           cd build
           cmake \
             -DCMAKE_BUILD_TYPE=${{matrix.BUILD_TYPE}} \
+            -DDEBUG_MODE=$([[ "${{matrix.BUILD_TYPE}}" == "Debug" ]] && echo "ON" || echo "OFF") \
             -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
             -DPY_INSTALL_PATH=${{github.workspace}}/.venv/lib/python3.8/site-packages \
             -DLIB_TESTS=ON \

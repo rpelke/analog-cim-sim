@@ -8,6 +8,10 @@
 #include "stdio.h"
 #include <iostream>
 
+#ifdef DEBUG_MODE
+#include <cstdint>
+#endif
+
 // Typedef for the function pointer for the C - Python conversion
 typedef int32_t (*mvm_c_to_py_funcptr)(int32_t *res, int32_t *vec, int32_t *mat,
                                        int32_t m_matrix, int32_t n_matrix,
@@ -71,8 +75,7 @@ extern "C" int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
 #ifdef DEBUG_MODE
     std::cout << "Matrix-vector multiplication" << std::endl;
     std::cout << "Layer: " << l_name << std::endl;
-// Find max and min values in the input vector
-#include <cstdint>
+    // Find max and min values in the input vector
     int32_t max_val = INT32_MIN;
     int32_t min_val = INT32_MAX;
     for (int i = 0; i < n_matrix; ++i) {
@@ -103,8 +106,7 @@ extern "C" int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
     }
     (*mvm_c_to_py)(res, vec, mat, m_matrix, n_matrix, l_name);
 #ifdef DEBUG_MODE
-// Find max and min values in the result vector
-#include <cstdint>
+    // Find max and min values in the result vector
     max_val = INT32_MIN;
     min_val = INT32_MAX;
     for (int i = 0; i < m_matrix; ++i) {
@@ -126,8 +128,7 @@ extern "C" int32_t cpy_mtrx(int32_t *mat, int32_t m_matrix, int32_t n_matrix,
 #ifdef DEBUG_MODE
     std::cout << "Matrix copy" << std::endl;
     std::cout << "Layer: " << l_name << std::endl;
-// Find max and min values in the matrix
-#include <cstdint>
+    // Find max and min values in the matrix
     int32_t max_val = INT32_MIN;
     int32_t min_val = INT32_MAX;
     for (int i = 0; i < m_matrix; ++i) {
