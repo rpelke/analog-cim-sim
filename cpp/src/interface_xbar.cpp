@@ -9,6 +9,7 @@
 #include "oneapi/tbb.h"
 
 #include "helper/config.h"
+#include "helper/functions.h"
 #include "xbar/crossbar.h"
 
 #ifdef DEBUG_MODE
@@ -51,7 +52,6 @@ const uint32_t num_matrix_elems(const std::vector<std::vector<T>> &mat) {
     }
     return size;
 }
-
 /************************ C interface ************************/
 extern "C" EXPORT_API void set_config(const char *cfg_file,
                                       const int num_threads) {
@@ -239,32 +239,32 @@ extern "C" EXPORT_API const void *get_ia_m(size_t *size) {
     return ptr;
 }
 
-extern "C" EXPORT_API const uint64_t get_write_xbar_counter() {
+extern "C" EXPORT_API uint64_t get_write_xbar_counter() {
     check_xbar();
     return xbar->get_write_xbar_counter();
 }
 
-extern "C" EXPORT_API const uint64_t get_mvm_counter() {
+extern "C" EXPORT_API uint64_t get_mvm_counter() {
     check_xbar();
     return xbar->get_mvm_counter();
 }
 
-extern "C" EXPORT_API const uint64_t get_read_num() {
+extern "C" EXPORT_API uint64_t get_read_num() {
     check_xbar();
     return xbar->get_read_num();
 }
 
-extern "C" EXPORT_API const uint64_t get_refresh_xbar_counter() {
+extern "C" EXPORT_API uint64_t get_refresh_xbar_counter() {
     check_xbar();
     return xbar->get_refresh_xbar_counter();
 }
 
-extern "C" EXPORT_API const uint64_t get_refresh_cell_counter() {
+extern "C" EXPORT_API uint64_t get_refresh_cell_counter() {
     check_xbar();
     return xbar->get_refresh_cell_counter();
 }
 
-extern "C" EXPORT_API const bool get_rd_run_out_of_bounds() {
+extern "C" EXPORT_API bool get_rd_run_out_of_bounds() {
     check_xbar();
     return xbar->get_rd_run_out_of_bounds();
 }
@@ -306,7 +306,7 @@ EXPORT_API const std::string get_adc_profile() {
     return nq::ADCHistograms::get_instance().to_json().dump();
 }
 
-EXPORT_API const void dump_adc_profile(const std::string filename) {
+EXPORT_API void dump_adc_profile(const std::string filename) {
     std::ofstream file_stream(filename);
     if (!file_stream.is_open()) {
         std::cerr << "Could not open ADC profile dump file!";

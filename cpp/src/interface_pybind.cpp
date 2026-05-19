@@ -11,8 +11,9 @@
 
 #include "oneapi/tbb.h"
 
-#include "../inc/global_vars.h"
-#include "../inc/interface_xbar.h"
+#include "global_vars.h"
+#include "helper/functions.h"
+#include "interface_xbar.h"
 
 /********************* Python interface *********************/
 int32_t exe_mvm_pb(pybind11::array_t<int32_t> res,

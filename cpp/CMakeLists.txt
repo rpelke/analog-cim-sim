@@ -17,12 +17,13 @@ message(STATUS "Coverage: ${COVERAGE}")
 
 # Use gcc for coverage
 if (COVERAGE)
-set(CMAKE_C_COMPILER gcc)
-set(CMAKE_CXX_COMPILER g++)
+    set(CMAKE_C_COMPILER gcc)
+    set(CMAKE_CXX_COMPILER g++)
 endif()
 
 project(analog-cim-sim)
 
+# Include for standardized install directories
 include(GNUInstallDirs)
 # Include json
 set(JSON_BuildTests OFF CACHE INTERNAL "")
@@ -45,6 +46,34 @@ message(FATAL_ERROR "Error: The build type must be 'Debug'!")
 endif()
 endif()
 
+# Set sources shared by acs_int and acs_cpp
+set(SOURCES_SHARED
+    src/interface_xbar.cpp
+    src/helper/config.cpp
+    src/helper/histogram.cpp
+    src/mapping/mapper.cpp
+    src/mapping/int_mapper/int_i.cpp
+    src/mapping/int_mapper/int_ii.cpp
+    src/mapping/int_mapper/int_iii.cpp
+    src/mapping/int_mapper/int_iv.cpp
+    src/mapping/int_mapper/int_v.cpp
+    src/mapping/bnn_mapper/bnn_i.cpp
+    src/mapping/bnn_mapper/bnn_ii.cpp
+    src/mapping/bnn_mapper/bnn_iii.cpp
+    src/mapping/bnn_mapper/bnn_iv.cpp
+    src/mapping/bnn_mapper/bnn_v.cpp
+    src/mapping/bnn_mapper/bnn_vi.cpp
+    src/mapping/tnn_mapper/tnn_i.cpp
+    src/mapping/tnn_mapper/tnn_ii.cpp
+    src/mapping/tnn_mapper/tnn_iii.cpp
+    src/mapping/tnn_mapper/tnn_iv.cpp
+    src/mapping/tnn_mapper/tnn_v.cpp
+    src/xbar/crossbar.cpp
+    src/xbar/read_disturb.cpp
+    src/xbar/parasitics.cpp
+    src/xbar/adc.cpp
+)
+
 ### Build emulater/callback interface ###
 if(BUILD_LIB_CB_EMU)
     message(STATUS "Build emulater/callback interface.")
@@ -59,17 +88,17 @@ if(BUILD_LIB_CB_EMU)
     endif()
     set_target_properties(acs_cb_emu PROPERTIES POSITION_INDEPENDENT_CODE ON)
     install(TARGETS acs_cb_emu DESTINATION lib)
-    endif()
-    
-    
-    ### Build Int library ###
-    if(BUILD_LIB_ACS_INT)
 
+endif()
+
+### Build Int library ###
+if(BUILD_LIB_ACS_INT)
+    
     # Install path for python package
     if(NOT DEFINED PY_INSTALL_PATH)
-    message(FATAL_ERROR "PY_INSTALL_PATH is not set! Please define it with -DPY_INSTALL_PATH=<...>")
+        message(FATAL_ERROR "PY_INSTALL_PATH is not set! Please define it with -DPY_INSTALL_PATH=<...>")
     endif()
-
+    
     message(STATUS "Build LIB_ACS_INT.")
     find_package(Python3 COMPONENTS Interpreter Development)
     execute_process(
@@ -77,40 +106,16 @@ if(BUILD_LIB_CB_EMU)
         OUTPUT_VARIABLE PYTHON_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE
         )
-    message(STATUS "Use Python: ${PYTHON_VERSION}")
-    find_package(pybind11 CONFIG REQUIRED PATHS ${CMAKE_CURRENT_LIST_DIR}/../.venv/lib/python${PYTHON_VERSION}/site-packages/pybind11/share/cmake/pybind11)
-
+        message(STATUS "Use Python: ${PYTHON_VERSION}")
+        find_package(pybind11 CONFIG REQUIRED PATHS ${CMAKE_CURRENT_LIST_DIR}/../.venv/lib/python${PYTHON_VERSION}/site-packages/pybind11/share/cmake/pybind11)
+    
+    # Set sources required by acs_int additionally
     set(SOURCES_INT
-        src/interface_xbar.cpp
         src/interface_pybind.cpp
-        src/helper/config.cpp
-        src/helper/histogram.cpp
-        src/mapping/mapper.cpp
-        src/mapping/int_mapper/int_i.cpp
-        src/mapping/int_mapper/int_ii.cpp
-        src/mapping/int_mapper/int_iii.cpp
-        src/mapping/int_mapper/int_iv.cpp
-        src/mapping/int_mapper/int_v.cpp
-        src/mapping/bnn_mapper/bnn_i.cpp
-        src/mapping/bnn_mapper/bnn_ii.cpp
-        src/mapping/bnn_mapper/bnn_iii.cpp
-        src/mapping/bnn_mapper/bnn_iv.cpp
-        src/mapping/bnn_mapper/bnn_v.cpp
-        src/mapping/bnn_mapper/bnn_vi.cpp
-        src/mapping/tnn_mapper/tnn_i.cpp
-        src/mapping/tnn_mapper/tnn_ii.cpp
-        src/mapping/tnn_mapper/tnn_iii.cpp
-        src/mapping/tnn_mapper/tnn_iv.cpp
-        src/mapping/tnn_mapper/tnn_v.cpp
-        src/xbar/crossbar.cpp
-        src/xbar/read_disturb.cpp
-        src/xbar/parasitics.cpp
-        src/xbar/adc.cpp
     )
-
     
     # Build pybind module
-    pybind11_add_module(acs_int SHARED ${SOURCES_INT})
+    pybind11_add_module(acs_int SHARED ${SOURCES_SHARED} ${SOURCES_INT})
     include_directories(inc extern/json/include)
     target_link_libraries(acs_int PRIVATE nlohmann_json::nlohmann_json pybind11::module)
 
@@ -127,68 +132,15 @@ if(BUILD_LIB_CB_EMU)
 
     set_target_properties(acs_int PROPERTIES POSITION_INDEPENDENT_CODE ON)
     install(TARGETS acs_int DESTINATION ${PY_INSTALL_PATH})
+
 endif()
 
+### Build cpp library ###
 if(BUILD_LIB_ACS_CPP)
+
     message(STATUS "Build LIB_ACS_CPP.")
 
-    set(SOURCES_CPP
-        src/interface_xbar.cpp
-        src/helper/config.cpp
-        src/helper/histogram.cpp
-        src/mapping/mapper.cpp
-        src/mapping/int_mapper/int_i.cpp
-        src/mapping/int_mapper/int_ii.cpp
-        src/mapping/int_mapper/int_iii.cpp
-        src/mapping/int_mapper/int_iv.cpp
-        src/mapping/int_mapper/int_v.cpp
-        src/mapping/bnn_mapper/bnn_i.cpp
-        src/mapping/bnn_mapper/bnn_ii.cpp
-        src/mapping/bnn_mapper/bnn_iii.cpp
-        src/mapping/bnn_mapper/bnn_iv.cpp
-        src/mapping/bnn_mapper/bnn_v.cpp
-        src/mapping/bnn_mapper/bnn_vi.cpp
-        src/mapping/tnn_mapper/tnn_i.cpp
-        src/mapping/tnn_mapper/tnn_ii.cpp
-        src/mapping/tnn_mapper/tnn_iii.cpp
-        src/mapping/tnn_mapper/tnn_iv.cpp
-        src/mapping/tnn_mapper/tnn_v.cpp
-        src/xbar/crossbar.cpp
-        src/xbar/read_disturb.cpp
-        src/xbar/parasitics.cpp
-        src/xbar/adc.cpp
-    )
-
-    set(HEADERS
-        inc/helper/definitions.h
-        inc/helper/config.h
-        inc/helper/histogram.h
-        inc/xbar/parasitics.h
-        inc/xbar/adc.h
-        inc/xbar/crossbar.h
-        inc/xbar/read_disturb.h
-        inc/interface_xbar.h
-        inc/global_vars.h
-        inc/mapping/tnn_mapper/tnn_iv.h
-        inc/mapping/tnn_mapper/tnn_v.h
-        inc/mapping/tnn_mapper/tnn_ii.h
-        inc/mapping/tnn_mapper/tnn_iii.h
-        inc/mapping/tnn_mapper/tnn_i.h
-        inc/mapping/int_mapper/int_iii.h
-        inc/mapping/int_mapper/int_iv.h
-        inc/mapping/int_mapper/int_v.h
-        inc/mapping/int_mapper/int_ii.h
-        inc/mapping/int_mapper/int_i.h
-        inc/mapping/mapper.h
-        inc/mapping/bnn_mapper/bnn_vi.h
-        inc/mapping/bnn_mapper/bnn_ii.h
-        inc/mapping/bnn_mapper/bnn_v.h
-        inc/mapping/bnn_mapper/bnn_iii.h
-        inc/mapping/bnn_mapper/bnn_i.h
-        inc/mapping/bnn_mapper/bnn_iv.h
-    )
-
-    add_library(acs_cpp SHARED ${SOURCES_CPP} ${HEADERS})
+    add_library(acs_cpp SHARED ${SOURCES_SHARED})
     # Build json library
     include_directories(inc extern/json/include)
     target_link_libraries(acs_cpp PRIVATE nlohmann_json::nlohmann_json)
@@ -204,14 +156,22 @@ if(BUILD_LIB_ACS_CPP)
     message(STATUS "Found TBB: (found version \"${TBB_VERSION}\"), linking acs_cpp against TBB (Parallel STL backend).")
     target_link_libraries(acs_cpp PRIVATE TBB::tbb)
 
+    # Build with test coverage
+    if (COVERAGE)
+        target_compile_options(acs_int PRIVATE -fprofile-arcs -ftest-coverage)
+        target_link_libraries(acs_int PRIVATE gcov)
+    endif()
+
     set_target_properties(acs_cpp PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    # Expose public header which can be used by other projects
     set_target_properties(acs_cpp PROPERTIES PUBLIC_HEADER inc/interface_xbar.h)
+    # Install into standard directories. Results in lib/ for library and include/ for header
     install(TARGETS acs_cpp
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+	    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        )
 
 endif()
-
 
 if(LIB_TESTS)
     message(STATUS "Enabling cpp tests.")

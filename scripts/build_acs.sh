@@ -16,6 +16,7 @@ cmake \
     -DBUILD_LIB_ACS_INT=ON \
     -DBUILD_LIB_ACS_CPP=ON \
     -DDEBUG_MODE=OFF \
+    -DCOVERAGE=OFF \
     ../../../cpp
 
 make -j "$(nproc)"

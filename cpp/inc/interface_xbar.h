@@ -14,12 +14,6 @@
 #define EXPORT_API __attribute__((visibility("default")))
 #endif
 
-// C interface functions
-const void check_pointer(const size_t *const size);
-const void check_xbar();
-template <typename T>
-const uint32_t num_matrix_elems(const std::vector<std::vector<T>> &mat);
-
 extern "C" {
 
 EXPORT_API void set_config(const char *cfg_file, const int num_threads = 1);
@@ -34,12 +28,12 @@ EXPORT_API const void *get_gd_p(size_t *size);
 EXPORT_API const void *get_gd_m(size_t *size);
 EXPORT_API const void *get_ia_p(size_t *size);
 EXPORT_API const void *get_ia_m(size_t *size);
-EXPORT_API const uint64_t get_write_xbar_counter();
-EXPORT_API const uint64_t get_mvm_counter();
-EXPORT_API const uint64_t get_read_num();
-EXPORT_API const uint64_t get_refresh_xbar_counter();
-EXPORT_API const uint64_t get_refresh_cell_counter();
-EXPORT_API const bool get_rd_run_out_of_bounds();
+EXPORT_API uint64_t get_write_xbar_counter();
+EXPORT_API uint64_t get_mvm_counter();
+EXPORT_API uint64_t get_read_num();
+EXPORT_API uint64_t get_refresh_xbar_counter();
+EXPORT_API uint64_t get_refresh_cell_counter();
+EXPORT_API bool get_rd_run_out_of_bounds();
 }
 
 // C++ interface functions
@@ -52,4 +46,4 @@ EXPORT_API const std::vector<std::vector<uint64_t>> &get_cycles_m();
 EXPORT_API const std::vector<std::vector<uint64_t>> &get_consecutive_reads_p();
 EXPORT_API const std::vector<std::vector<uint64_t>> &get_consecutive_reads_m();
 EXPORT_API const std::string get_adc_profile();
-EXPORT_API const void dump_adc_profile(const std::string filename);
+EXPORT_API void dump_adc_profile(const std::string filename);
