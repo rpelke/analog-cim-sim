@@ -2,8 +2,8 @@
 FROM ubuntu:noble
 
 # Install system dependencies including CMake >= 3.15, Python3 development tools, and TBB
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apt-get update -qq \
+    && apt-get install -y --no-install-recommends \
     git \
     ssh \
     g++ \
@@ -11,8 +11,9 @@ RUN apt-get update && \
     cmake \
     python3 \
     python3-dev \
-    libtbb-dev && \
-    rm -rf /var/lib/apt/lists/*
+    libtbb-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set the default command to bash
 SHELL ["/bin/bash", "-c"]
