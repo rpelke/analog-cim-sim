@@ -78,7 +78,7 @@ set(SOURCES_SHARED
 ### Build emulater/callback interface ###
 if(BUILD_LIB_CB_EMU)
     message(STATUS "Build emulater/callback interface.")
-    
+
     set(SOURCES_CB
     src/interface_cb.cpp
     )
@@ -94,12 +94,12 @@ endif()
 
 ### Build Int library ###
 if(BUILD_LIB_ACS_INT)
-    
+
     # Install path for python package
     if(NOT DEFINED PY_INSTALL_PATH)
         message(FATAL_ERROR "PY_INSTALL_PATH is not set! Please define it with -DPY_INSTALL_PATH=<...>")
     endif()
-    
+
     message(STATUS "Build LIB_ACS_INT.")
     find_package(Python3 COMPONENTS Interpreter Development)
     execute_process(
@@ -109,12 +109,12 @@ if(BUILD_LIB_ACS_INT)
         )
         message(STATUS "Use Python: ${PYTHON_VERSION}")
         find_package(pybind11 CONFIG REQUIRED PATHS ${CMAKE_CURRENT_LIST_DIR}/../.venv/lib/python${PYTHON_VERSION}/site-packages/pybind11/share/cmake/pybind11)
-    
+
     # Set sources required by acs_int additionally
     set(SOURCES_INT
         src/interface_pybind.cpp
     )
-    
+
     # Build pybind module
     pybind11_add_module(acs_int SHARED ${SOURCES_SHARED} ${SOURCES_INT})
     include_directories(inc extern/json/include)

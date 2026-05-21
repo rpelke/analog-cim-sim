@@ -12,6 +12,7 @@ RUN apt-get update -qq \
     python3 \
     python3-dev \
     libtbb-dev \
+    lcov \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
