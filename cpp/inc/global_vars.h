@@ -1,6 +1,7 @@
 #pragma once
 
 #include "helper/config.h"
+#include "oneapi/tbb.h"
 #include "xbar/crossbar.h"
 
 #include "interface_xbar.h"

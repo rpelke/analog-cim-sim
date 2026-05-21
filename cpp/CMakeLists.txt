@@ -41,14 +41,15 @@ option(BUILD_LIB_ACS_INT "Build int lib." OFF)
 option(BUILD_LIB_ACS_CPP "Build cpp lib." OFF)
 
 if (COVERAGE)
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-message(FATAL_ERROR "Error: The build type must be 'Debug'!")
-endif()
+    if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(FATAL_ERROR "Error: The build type must be 'Debug'!")
+    endif()
 endif()
 
 # Set sources shared by acs_int and acs_cpp
 set(SOURCES_SHARED
     src/interface_xbar.cpp
+    src/helper/functions.cpp
     src/helper/config.cpp
     src/helper/histogram.cpp
     src/mapping/mapper.cpp

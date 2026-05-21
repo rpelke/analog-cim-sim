@@ -19,8 +19,9 @@
 #ifndef EXPORT_API
 #define EXPORT_API __attribute__((visibility("default")))
 #endif
-#include "../inc/global_vars.h"
-#include "../inc/interface_xbar.h"
+#include "global_vars.h"
+#include "helper/functions.h"
+#include "interface_xbar.h"
 
 /********************** Global variables **********************/
 bool cfg_loaded = nq::Config::get_cfg().load_cfg("");
@@ -29,29 +30,6 @@ std::unique_ptr<nq::Crossbar> xbar =
 std::string adc_profile_cache = "";
 std::unique_ptr<tbb::global_control> gc; /** TBB Global Control */
 
-/********************** Helper functions **********************/
-const void check_pointer(const size_t *const size) {
-    if (size == nullptr) {
-        std::cerr << "size is nullptr." << std::endl;
-        std::exit(EXIT_FAILURE);
-    }
-}
-
-const void check_xbar() {
-    if (xbar == nullptr) {
-        std::cerr << "Config missing. xbar not initialized." << std::endl;
-        std::exit(EXIT_FAILURE);
-    }
-}
-
-template <typename T>
-const uint32_t num_matrix_elems(const std::vector<std::vector<T>> &mat) {
-    uint32_t size = 0;
-    for (const auto &inner_vector : mat) {
-        size += inner_vector.size();
-    }
-    return size;
-}
 /************************ C interface ************************/
 extern "C" EXPORT_API void set_config(const char *cfg_file,
                                       const int num_threads) {

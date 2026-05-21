@@ -10,6 +10,7 @@
 
 #include "global_vars.h"
 #include "xbar/crossbar.h"
+
 #include <cstdint>
 #include <vector>
 
@@ -17,6 +18,14 @@
 const void check_pointer(const size_t *const size);
 const void check_xbar();
 template <typename T>
-const uint32_t num_matrix_elems(const std::vector<std::vector<T>> &mat);
+uint32_t num_matrix_elems(const std::vector<std::vector<T>> &mat) {
+    uint32_t size = 0;
+
+    for (const auto &inner_vector : mat) {
+        size += inner_vector.size();
+    }
+
+    return size;
+}
 
 #endif

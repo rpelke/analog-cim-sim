@@ -92,6 +92,7 @@ add_library_test(parasitics_tests lib/parasitics_tests.cpp ${CMAKE_CURRENT_SOURC
 set(CORE_CPP_FILES
     ../src/helper/config.cpp
     ../src/helper/histogram.cpp
+    ../src/helper/functions.cpp
     ../src/xbar/adc.cpp
 )
 add_core_test(config_tests lib/config_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs ${CORE_CPP_FILES})
