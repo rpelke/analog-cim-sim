@@ -60,7 +60,7 @@ jobs:
           ctest -C . --output-on-failure
           lcov --capture --directory . --output-file coverage_int.info --include '*cpp*' --exclude '*extern*'
           COVERAGE_LINES=$(genhtml coverage_int.info --output-directory coverage_int_html | grep 'lines' | awk '{print $2}')
-          COVERAGE_FUNC=$(genhtml coverage_int.info --output-directory coverage_int_html | grep 'functions' | awk '{print $2}')
+          COVERAGE_FUNC=$(genhtml coverage_int.info --output-directory coverage_int_html | grep -E '^[[:space:]]*functions\.*:' | awk '{print $2}')
           echo "Coverage lines: $COVERAGE_LINES"
           echo "Coverage functions: $COVERAGE_FUNC"
           echo "COVERAGE_LINES=$COVERAGE_LINES" >> $GITHUB_ENV
