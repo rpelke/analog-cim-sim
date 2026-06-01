@@ -1,5 +1,5 @@
 # Use Ubuntu Noble as the base image
-FROM ubuntu:noble
+FROM ubuntu:22.04
 
 # Install system dependencies including CMake >= 3.15, Python3 development tools, and TBB
 RUN apt-get update -qq \
