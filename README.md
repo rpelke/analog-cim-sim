@@ -28,7 +28,35 @@ To build the project, you will require:
 - `python3` (*dev version* for pybind11)
 - oneAPI Threading Building Blocks (`oneTBB`). On Debian-based distributions, `sudo apt install libtbb-dev`. For more details see [here](https://uxlfoundation.github.io/oneTBB/index.html).
 
-### Building
+If you are using the devcontainer, the requirements are already installed.
+
+### Building in the devcontainer
+Clone the repository including submodules:
+```bash
+git clone --recursive git@github.com:rpelke/analog-cim-sim.git
+```
+Reopen the folder in the devcontainer, the devcontainer.json will automatically build the container.
+
+Build and install the project (replace the placeholders):
+```bash
+export PY_PACKAGE_DIR=<path to 'site-packages'> # can be found in .venv/lib/<python-version>
+
+mkdir -p build/release/build && cd build/release/build
+cmake \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DPY_INSTALL_PATH=${PY_PACKAGE_DIR}/site-packages \
+    -DCMAKE_PREFIX_PATH=${PY_PACKAGE_DIR}/pybind11/share/cmake/pybind11 \
+    -DCMAKE_INSTALL_PREFIX=../ \
+    -DLIB_TESTS=ON \
+    -DBUILD_LIB_CB_EMU=ON \
+    -DBUILD_LIB_ACS_INT=ON \
+    ../../../cpp
+
+make -j `nproc`
+make install
+```
+
+### Native Building
 Clone the repository including submodules:
 ```bash
 git clone --recursive git@github.com:rpelke/analog-cim-sim.git
