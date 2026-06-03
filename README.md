@@ -22,57 +22,35 @@ This simulator is used by [CIM-E](https://github.com/rpelke/CIM-E), a design spa
 
 ## Build instructions
 
-### Requirements
-To build the project, you will require:
-- `cmake` >= 3.15
-- `python3` (*dev version* for pybind11)
-- oneAPI Threading Building Blocks (`oneTBB`). On Debian-based distributions, `sudo apt install libtbb-dev`. For more details see [here](https://uxlfoundation.github.io/oneTBB/index.html).
-
-If you are using the devcontainer, the requirements are already installed.
-
-### Building in the devcontainer
 Clone the repository including submodules:
 ```bash
 git clone --recursive git@github.com:rpelke/analog-cim-sim.git
 ```
+
+### Building in the devcontainer
 Reopen the folder in the devcontainer, the devcontainer.json will automatically build the container.
 
-Build and install the project (replace the placeholders):
+Run the build script provided in `scripts/build_acs.sh`:
 ```bash
-export PY_PACKAGE_DIR=<path to 'site-packages'> # can be found in .venv/lib/<python-version>
-
-mkdir -p build/release/build && cd build/release/build
-cmake \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DPY_INSTALL_PATH=${PY_PACKAGE_DIR}/site-packages \
-    -DCMAKE_PREFIX_PATH=${PY_PACKAGE_DIR}/pybind11/share/cmake/pybind11 \
-    -DCMAKE_INSTALL_PREFIX=../ \
-    -DLIB_TESTS=ON \
-    -DBUILD_LIB_CB_EMU=ON \
-    -DBUILD_LIB_ACS_INT=ON \
-    ../../../cpp
-
-make -j `nproc`
-make install
+./scripts/build_acs.sh
 ```
 
 ### Native Building
-Clone the repository including submodules:
-```bash
-git clone --recursive git@github.com:rpelke/analog-cim-sim.git
-```
+Install the requirements listed under [Requirements](#Requirements)
 
-Create a virtual environment:
+If you are not using the devcontainer, create a virtual environment:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip3 install -r requirements.txt
 ```
-
-Build and install the project (replace the placeholders):
+Run the build script provided in `scripts/build_acs.sh`:
+```bash
+./scripts/build_acs.sh
+```
+**Or** build and install the project without the script (replace the placeholders):
 ```bash
 export PY_PACKAGE_DIR=<path to 'site-packages'> # can be found in .venv/lib/<python-version>
-
 
 mkdir -p build/release/build && cd build/release/build
 cmake \
@@ -89,7 +67,15 @@ cmake \
 make -j `nproc`
 make install
 ```
-This will build all available targets in debug mode with support for unittests and coverage
+This will build all available targets in release mode with support for unittests.
+
+### Requirements
+To build the project, you will require:
+- `cmake` >= 3.15
+- `python3` (*dev version* for pybind11)
+- oneAPI Threading Building Blocks (`oneTBB`). On Debian-based distributions, `sudo apt install libtbb-dev`. For more details see [here](https://uxlfoundation.github.io/oneTBB/index.html).
+
+If you are using the devcontainer, the requirements are already installed.
 
 ### Available building targets
 
@@ -107,7 +93,7 @@ cmake -DDEBUG_MODE=ON ...
 
 Build the project with support for coverage:
 ```bash
-cmake -DLIB_TESTS=ON -DCOVERAGE=ON ...
+cmake -DCMAKE_BUILD_TYPE=Debug -DLIB_TESTS=ON -DCOVERAGE=ON ...
 ```
 
 Use C++17 `filesystem` features for the [unittests](cpp/test/lib/inc/test_helper.h) with old gcc versions (<9.1):
