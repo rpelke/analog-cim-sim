@@ -53,6 +53,7 @@ jobs:
             -DLIB_TESTS=ON \
             -DBUILD_LIB_CB_EMU=ON \
             -DBUILD_LIB_ACS_INT=ON \
+            -DBUILD_LIB_ACS_CPP=ON \
             ../cpp
 
       - name: Build libs and tests

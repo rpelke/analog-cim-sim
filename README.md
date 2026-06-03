@@ -73,6 +73,7 @@ Build and install the project (replace the placeholders):
 ```bash
 export PY_PACKAGE_DIR=<path to 'site-packages'> # can be found in .venv/lib/<python-version>
 
+
 mkdir -p build/release/build && cd build/release/build
 cmake \
     -DCMAKE_BUILD_TYPE=Release \
@@ -82,16 +83,31 @@ cmake \
     -DLIB_TESTS=ON \
     -DBUILD_LIB_CB_EMU=ON \
     -DBUILD_LIB_ACS_INT=ON \
+    -DBUILD_LIB_ACS_CPP=ON \
     ../../../cpp
 
 make -j `nproc`
 make install
 ```
+This will build all available targets in debug mode with support for unittests and coverage
+
+### Available building targets
+
+| Target Name | Description | Enabled By | Installed To |
+|-------------|-------------|------------|--------------|
+| `acs_cb_emu` | Emulator/callback interface library | `BUILD_LIB_CB_EMU=ON` | `lib/` |
+| `acs_int` | Python binding module for the C++ library | `BUILD_LIB_ACS_INT=ON` | `${PY_INSTALL_PATH}` |
+| `acs_cpp` | Core C++ library, no interface | `BUILD_LIB_ACS_CPP=ON` | `lib/` (library) + `include/` (headers) |
 
 ### Some useful cmake options
 Build project with additional debug output:
 ```bash
 cmake -DDEBUG_MODE=ON ...
+```
+
+Build the project with support for coverage:
+```bash
+cmake -DLIB_TESTS=ON -DCOVERAGE=ON ...
 ```
 
 Use C++17 `filesystem` features for the [unittests](cpp/test/lib/inc/test_helper.h) with old gcc versions (<9.1):
@@ -109,3 +125,12 @@ To detect segmentation faults in the C++ part, you can also run:
 ```bash
 gdb --batch --ex="run" --ex="bt" --ex="quit" --args python3 -m unittest discover -s int-bindings/test -p '*_test.py'
 ```
+To manually test the coverage (library was built with -DCOVERAGE=ON set):
+```bash
+cd build/debug/build
+ctest -C . --output-on-failure
+lcov --capture --directory . --output-file coverage_int.info --include '*cpp*' --exclude '*extern*'
+genhtml coverage_int.info --output-directory coverage_int_html
+```
+The line and function coverage should be displayed at the end of the `genhtml` command.
+

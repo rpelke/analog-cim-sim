@@ -14,11 +14,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(COVERAGE "Enable code coverage." OFF)
 message(STATUS "Coverage: ${COVERAGE}")
 
-# Install path for python package
-if(NOT DEFINED PY_INSTALL_PATH)
-    message(FATAL_ERROR "PY_INSTALL_PATH is not set! Please define it with -DPY_INSTALL_PATH=<...>")
-endif()
-
 # Use gcc for coverage
 if (COVERAGE)
     set(CMAKE_C_COMPILER gcc)
@@ -26,6 +21,9 @@ if (COVERAGE)
 endif()
 
 project(analog-cim-sim)
+
+# Include for standardized install directories
+include(GNUInstallDirs)
 
 # Include json
 set(JSON_BuildTests OFF CACHE INTERNAL "")
@@ -40,6 +38,7 @@ option(DEBUG_MODE "Enable debug output for matrix operations" OFF)
 # Build lib options
 option(BUILD_LIB_CB_EMU "Build emulater/callback interface." OFF)
 option(BUILD_LIB_ACS_INT "Build int lib." OFF)
+option(BUILD_LIB_ACS_CPP "Build cpp lib." OFF)
 
 if (COVERAGE)
     if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -47,6 +46,32 @@ if (COVERAGE)
     endif()
 endif()
 
+# Set sources shared by acs_int and acs_cpp
+set(SOURCES_SHARED
+    src/helper/config.cpp
+    src/helper/histogram.cpp
+    src/mapping/mapper.cpp
+    src/mapping/int_mapper/int_i.cpp
+    src/mapping/int_mapper/int_ii.cpp
+    src/mapping/int_mapper/int_iii.cpp
+    src/mapping/int_mapper/int_iv.cpp
+    src/mapping/int_mapper/int_v.cpp
+    src/mapping/bnn_mapper/bnn_i.cpp
+    src/mapping/bnn_mapper/bnn_ii.cpp
+    src/mapping/bnn_mapper/bnn_iii.cpp
+    src/mapping/bnn_mapper/bnn_iv.cpp
+    src/mapping/bnn_mapper/bnn_v.cpp
+    src/mapping/bnn_mapper/bnn_vi.cpp
+    src/mapping/tnn_mapper/tnn_i.cpp
+    src/mapping/tnn_mapper/tnn_ii.cpp
+    src/mapping/tnn_mapper/tnn_iii.cpp
+    src/mapping/tnn_mapper/tnn_iv.cpp
+    src/mapping/tnn_mapper/tnn_v.cpp
+    src/xbar/crossbar.cpp
+    src/xbar/read_disturb.cpp
+    src/xbar/parasitics.cpp
+    src/xbar/adc.cpp
+)
 ### Build emulater/callback interface ###
 if(BUILD_LIB_CB_EMU)
     message(STATUS "Build emulater/callback interface.")
@@ -67,6 +92,10 @@ endif()
 ### Build Int library ###
 if(BUILD_LIB_ACS_INT)
     message(STATUS "Build LIB_ACS_INT.")
+    # Install path for python package
+    if(NOT DEFINED PY_INSTALL_PATH)
+        message(FATAL_ERROR "PY_INSTALL_PATH is not set! Please define it with -DPY_INSTALL_PATH=<...>")
+    endif()
     find_package(Python3 COMPONENTS Interpreter Development)
     execute_process(
         COMMAND ${Python3_EXECUTABLE} -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"
@@ -76,35 +105,10 @@ if(BUILD_LIB_ACS_INT)
     message(STATUS "Use Python: ${PYTHON_VERSION}")
     find_package(pybind11 CONFIG REQUIRED PATHS ${CMAKE_CURRENT_LIST_DIR}/../.venv/lib/python${PYTHON_VERSION}/site-packages/pybind11/share/cmake/pybind11)
 
-    set(SOURCES_INT
-        src/interface_xbar.cpp
-        src/helper/config.cpp
-        src/helper/histogram.cpp
-        src/mapping/mapper.cpp
-        src/mapping/int_mapper/int_i.cpp
-        src/mapping/int_mapper/int_ii.cpp
-        src/mapping/int_mapper/int_iii.cpp
-        src/mapping/int_mapper/int_iv.cpp
-        src/mapping/int_mapper/int_v.cpp
-        src/mapping/bnn_mapper/bnn_i.cpp
-        src/mapping/bnn_mapper/bnn_ii.cpp
-        src/mapping/bnn_mapper/bnn_iii.cpp
-        src/mapping/bnn_mapper/bnn_iv.cpp
-        src/mapping/bnn_mapper/bnn_v.cpp
-        src/mapping/bnn_mapper/bnn_vi.cpp
-        src/mapping/tnn_mapper/tnn_i.cpp
-        src/mapping/tnn_mapper/tnn_ii.cpp
-        src/mapping/tnn_mapper/tnn_iii.cpp
-        src/mapping/tnn_mapper/tnn_iv.cpp
-        src/mapping/tnn_mapper/tnn_v.cpp
-        src/xbar/crossbar.cpp
-        src/xbar/read_disturb.cpp
-        src/xbar/parasitics.cpp
-        src/xbar/adc.cpp
-    )
+    set(SOURCES_INT src/interface_xbar.cpp)
 
     # Build pybind module
-    pybind11_add_module(acs_int SHARED ${SOURCES_INT})
+    pybind11_add_module(acs_int SHARED ${SOURCES_SHARED} ${SOURCES_INT})
     include_directories(inc extern/json/include)
     target_link_libraries(acs_int PRIVATE nlohmann_json::nlohmann_json pybind11::module)
 
@@ -123,6 +127,33 @@ if(BUILD_LIB_ACS_INT)
     install(TARGETS acs_int DESTINATION ${PY_INSTALL_PATH})
 endif()
 
+### Build cpp library ###
+if(BUILD_LIB_ACS_CPP)
+
+    message(STATUS "Build LIB_ACS_CPP.")
+
+    add_library(acs_cpp SHARED ${SOURCES_SHARED})
+    # Link json library
+    include_directories(inc extern/json/include)
+    target_link_libraries(acs_cpp PRIVATE nlohmann_json::nlohmann_json)
+
+    # Build with test coverage
+    if (COVERAGE)
+        target_compile_options(acs_cpp PRIVATE -fprofile-arcs -ftest-coverage)
+        target_link_libraries(acs_cpp PRIVATE gcov)
+    endif()
+
+    # Link with oneTBB (Thread Building Blocks)
+    find_package(TBB REQUIRED)
+    message(STATUS "Found TBB: (found version \"${TBB_VERSION}\"), linking acs_cpp against TBB (Parallel STL backend).")
+    target_link_libraries(acs_cpp PRIVATE TBB::tbb)
+
+    set_target_properties(acs_cpp PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    # Install into standard directories -> results in lib/ for library and include/ for header
+    install(TARGETS acs_cpp LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    install(DIRECTORY inc/ extern/json/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+endif()
 
 if(LIB_TESTS)
     message(STATUS "Enabling cpp tests.")
