@@ -40,10 +40,16 @@ option(BUILD_LIB_CB_EMU "Build emulater/callback interface." OFF)
 option(BUILD_LIB_ACS_INT "Build int lib." OFF)
 option(BUILD_LIB_ACS_CPP "Build cpp lib." OFF)
 
+# Coverage can only be enabled if the debug build type is used
 if (COVERAGE)
     if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
         message(FATAL_ERROR "Error: The build type must be 'Debug'!")
     endif()
+endif()
+
+# The tests require the acs_int library
+if (LIB_TESTS AND NOT BUILD_LIB_ACS_INT)
+    message(FATAL_ERROR "Error: LIB_TESTS option requires BUILD_LIB_ACS_INT to be ON!")
 endif()
 
 # Set sources shared by acs_int and acs_cpp
@@ -72,27 +78,14 @@ set(SOURCES_SHARED
     src/xbar/parasitics.cpp
     src/xbar/adc.cpp
 )
+
 ### Build emulater/callback interface ###
 if(BUILD_LIB_CB_EMU)
-    message(STATUS "Build emulater/callback interface.")
-
-    set(SOURCES_CB
-        src/interface_cb.cpp
-    )
-    add_library(acs_cb_emu SHARED ${SOURCES_CB})
-    if (COVERAGE)
-        target_compile_options(acs_cb_emu PRIVATE -fprofile-arcs -ftest-coverage)
-        target_link_libraries(acs_cb_emu PRIVATE gcov)
-    endif()
-    set_target_properties(acs_cb_emu PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    install(TARGETS acs_cb_emu DESTINATION lib)
+    add_library(acs_cb_emu SHARED src/interface_cb.cpp)
 endif()
-
 
 ### Build Int library ###
 if(BUILD_LIB_ACS_INT)
-    message(STATUS "Build LIB_ACS_INT.")
-    # Install path for python package
     if(NOT DEFINED PY_INSTALL_PATH)
         message(FATAL_ERROR "PY_INSTALL_PATH is not set! Please define it with -DPY_INSTALL_PATH=<...>")
     endif()
@@ -104,55 +97,65 @@ if(BUILD_LIB_ACS_INT)
     )
     message(STATUS "Use Python: ${PYTHON_VERSION}")
     find_package(pybind11 CONFIG REQUIRED PATHS ${CMAKE_CURRENT_LIST_DIR}/../.venv/lib/python${PYTHON_VERSION}/site-packages/pybind11/share/cmake/pybind11)
-
-    set(SOURCES_INT src/interface_xbar.cpp)
-
-    # Build pybind module
-    pybind11_add_module(acs_int SHARED ${SOURCES_SHARED} ${SOURCES_INT})
-    include_directories(inc extern/json/include)
-    target_link_libraries(acs_int PRIVATE nlohmann_json::nlohmann_json pybind11::module)
-
-    # Build with test coverage
-    if (COVERAGE)
-        target_compile_options(acs_int PRIVATE -fprofile-arcs -ftest-coverage)
-        target_link_libraries(acs_int PRIVATE gcov)
-    endif()
-
-    # Link with oneTBB (Thread Building Blocks)
-    find_package(TBB REQUIRED)
-    message(STATUS "Found TBB: (found version \"${TBB_VERSION}\"), linking acs_int against TBB (Parallel STL backend).")
-    target_link_libraries(acs_int PRIVATE TBB::tbb)
-
-    set_target_properties(acs_int PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    install(TARGETS acs_int DESTINATION ${PY_INSTALL_PATH})
+    pybind11_add_module(acs_int SHARED src/interface_xbar.cpp ${SOURCES_SHARED})
+    target_link_libraries(acs_int PRIVATE pybind11::module)
 endif()
 
-### Build cpp library ###
+### Build CPP library ###
 if(BUILD_LIB_ACS_CPP)
-
-    message(STATUS "Build LIB_ACS_CPP.")
-
     add_library(acs_cpp SHARED ${SOURCES_SHARED})
-    # Link json library
-    include_directories(inc extern/json/include)
-    target_link_libraries(acs_cpp PRIVATE nlohmann_json::nlohmann_json)
+endif()
 
-    # Build with test coverage
-    if (COVERAGE)
-        target_compile_options(acs_cpp PRIVATE -fprofile-arcs -ftest-coverage)
-        target_link_libraries(acs_cpp PRIVATE gcov)
+# Apply core compiler flags & properties to ALL enabled targets
+foreach(tgt acs_cb_emu acs_int acs_cpp)
+    if(TARGET ${tgt})
+        target_include_directories(${tgt} PRIVATE inc extern/json/include)
+        # Ensure Position Independent Code is set for all shared modules
+        set_target_properties(${tgt} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+        # Apply test coverage flags dynamically if requested
+        if(COVERAGE)
+            target_compile_options(${tgt} PRIVATE -fprofile-arcs -ftest-coverage)
+            target_link_libraries(${tgt} PRIVATE gcov)
+        endif()
     endif()
+endforeach()
 
-    # Link with oneTBB (Thread Building Blocks)
+# Apply shared dependencies specific to acs_int and acs_cpp
+if(TARGET acs_int OR TARGET acs_cpp)
+    # Locate TBB
     find_package(TBB REQUIRED)
-    message(STATUS "Found TBB: (found version \"${TBB_VERSION}\"), linking acs_cpp against TBB (Parallel STL backend).")
-    target_link_libraries(acs_cpp PRIVATE TBB::tbb)
+    message(STATUS "Found TBB: (version \"${TBB_VERSION}\"). Linking libraries against TBB (Parallel STL backend).")
 
-    set_target_properties(acs_cpp PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    # Install into standard directories -> results in lib/ for library and include/ for header
-    install(TARGETS acs_cpp LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    foreach(tgt acs_int acs_cpp)
+        if(TARGET ${tgt})
+            # Include headers for both acs_int and acs_cpp
+            target_include_directories(${tgt} PRIVATE inc extern/json/include)
+            
+            # Link external dependencies for both acs_int and acs_cpp
+            target_link_libraries(${tgt} PRIVATE 
+                nlohmann_json::nlohmann_json 
+                TBB::tbb
+            )
+        endif()
+    endforeach()
+endif()
+
+# Install options for acs_cb_emu and acs_cpp libraries
+foreach(tgt acs_cb_emu acs_cpp)
+    if(TARGET ${tgt})
+        install(TARGETS ${tgt} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    endif()
+endforeach()
+    
+# Install options for acs_cpp headers
+if(TARGET acs_cpp)
     install(DIRECTORY inc/ extern/json/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif()
 
+# Install options for acs_int library
+if(TARGET acs_int)
+    install(TARGETS acs_int LIBRARY DESTINATION ${PY_INSTALL_PATH})
 endif()
 
 if(LIB_TESTS)

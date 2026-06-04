@@ -18,8 +18,8 @@ option(USE_STDCXXFS "Use stdc++fs for older GCC versions" OFF)
 # This function adds tests that link against the acs_int library
 # It can only use functions exposed in the public interface
 function(add_library_test TEST_NAME SOURCE_FILE CFG_DIR)
-    include_directories(inc)
     add_executable(${TEST_NAME} ${SOURCE_FILE})
+    target_include_directories(${TEST_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../inc)
     add_dependencies(${TEST_NAME} acs_int)
     target_link_libraries(${TEST_NAME} PRIVATE
         acs_int
@@ -49,6 +49,11 @@ function(add_core_test TEST_NAME TEST_SOURCE_FILE CFG_DIR CORE_SOURCES)
     add_executable(${TEST_NAME}
         ${TEST_SOURCE_FILE}
         ${CORE_SOURCES}
+    )
+
+    target_include_directories(${TEST_NAME} PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/../inc
+        ${CMAKE_CURRENT_SOURCE_DIR}/../extern/json/include
     )
 
     target_link_libraries(${TEST_NAME} PRIVATE
