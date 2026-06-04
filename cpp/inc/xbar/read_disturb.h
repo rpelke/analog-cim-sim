@@ -39,7 +39,7 @@ class ReadDisturb {
     void reset_all_consecutive_reads();
     void reset_consecutive_reads_p(int m, int n);
     void reset_consecutive_reads_m(int m, int n);
-    const bool get_run_out_of_bounds() const;
+    bool get_run_out_of_bounds() const;
 
   private:
     float calc_exp_tt(const float V_read) const;

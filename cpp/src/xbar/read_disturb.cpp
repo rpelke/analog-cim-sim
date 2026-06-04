@@ -135,8 +135,6 @@ void ReadDisturb::reset_consecutive_reads_m(int m, int n) {
     consecutive_reads_m_[m][n] = 0;
 }
 
-const bool ReadDisturb::get_run_out_of_bounds() const {
-    return run_out_of_bounds_;
-}
+bool ReadDisturb::get_run_out_of_bounds() const { return run_out_of_bounds_; }
 
 } // namespace nq

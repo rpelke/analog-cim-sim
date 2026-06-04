@@ -301,25 +301,23 @@ Crossbar::get_consecutive_reads_m() const {
     return rd_model_->get_consecutive_reads_m();
 }
 
-const uint64_t Crossbar::get_write_xbar_counter() const {
+uint64_t Crossbar::get_write_xbar_counter() const {
     return write_xbar_counter_;
 }
 
-const uint64_t Crossbar::get_mvm_counter() const { return mvm_counter_; }
+uint64_t Crossbar::get_mvm_counter() const { return mvm_counter_; }
 
-const uint64_t Crossbar::get_read_num() const {
-    return consecutive_mvm_counter_;
-}
+uint64_t Crossbar::get_read_num() const { return consecutive_mvm_counter_; }
 
-const uint64_t Crossbar::get_refresh_xbar_counter() const {
+uint64_t Crossbar::get_refresh_xbar_counter() const {
     return refresh_xbar_counter_;
 }
 
-const uint64_t Crossbar::get_refresh_cell_counter() const {
+uint64_t Crossbar::get_refresh_cell_counter() const {
     return refresh_cell_counter_;
 }
 
-const bool Crossbar::get_rd_run_out_of_bounds() const {
+bool Crossbar::get_rd_run_out_of_bounds() const {
     if (!rd_model_) {
         std::cerr << "Read disturb is disabled; " << __func__
                   << " returns empty/default values." << std::endl;
