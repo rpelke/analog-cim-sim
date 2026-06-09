@@ -44,6 +44,8 @@ Run the build script provided in `scripts/build_acs.sh`:
 
 ### Native Building
 
+The follwing steps have been tested with Python versions `>=3.11` and `<=3.14`.
+
 If you are not using the devcontainer, create a virtual environment:
 
 ```bash
@@ -52,7 +54,9 @@ source .venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
-Run the build script provided in `scripts/build_acs.sh`:
+Run the build script provided in `scripts/build_acs.sh`.
+Make sure that `libtbb-dev` is installed (it may be called `tbb-devel` on other Linux distributions).
+You can also change the `CMAKE_BUILD_TYPE` in this script (it is currently set to `Debug`).
 
 ```bash
 ./scripts/build_acs.sh
@@ -100,26 +104,6 @@ If you are using the devcontainer, the requirements are already installed.
 | `acs_int` | Python binding module for the C++ library | `BUILD_LIB_ACS_INT=ON` | `${PY_INSTALL_PATH}` |
 | `acs_cpp` | Core C++ library, no interface | `BUILD_LIB_ACS_CPP=ON` | `lib/` (library) + `include/` (headers) |
 
-### Some useful cmake options
-
-Build project with additional debug output:
-
-```bash
-cmake -DDEBUG_MODE=ON ...
-```
-
-Build the project with support for coverage:
-
-```bash
-cmake -DCMAKE_BUILD_TYPE=Debug -DLIB_TESTS=ON -DCOVERAGE=ON ...
-```
-
-Use C++17 `filesystem` features for the [unittests](cpp/test/lib/inc/test_helper.h) with old gcc versions (<9.1):
-
-```bash
-cmake -DUSE_STDCXXFS=ON ...
-```
-
 ## Testing and debugging
 
 Execute the tests:
@@ -144,3 +128,43 @@ genhtml coverage_int.info --output-directory coverage_int_html
 ```
 
 The line and function coverage should be displayed at the end of the `genhtml` command.
+
+## Linting (Style)
+
+To test the linting locally, you need `clang-format-18`.
+
+Install the required Python packages:
+
+```bash
+pip install -r util/requirements_style.txt
+```
+
+If the files are correctly formatted, the commands below will not produce any output.
+
+Run:
+
+```bash
+./util/format_cpp.py
+./util/format_py.py
+pymarkdown scan README.md
+```
+
+### Some useful cmake options
+
+Build project with additional debug output:
+
+```bash
+cmake -DDEBUG_MODE=ON ...
+```
+
+Build the project with support for coverage:
+
+```bash
+cmake -DCMAKE_BUILD_TYPE=Debug -DLIB_TESTS=ON -DCOVERAGE=ON ...
+```
+
+Use C++17 `filesystem` features for the [unittests](cpp/test/lib/inc/test_helper.h) with old gcc versions (<9.1):
+
+```bash
+cmake -DUSE_STDCXXFS=ON ...
+```
