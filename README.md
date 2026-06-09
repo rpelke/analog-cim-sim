@@ -1,4 +1,5 @@
 # Analog-CIM-Sim
+
 [![CMake](https://github.com/rpelke/analog-cim-sim/actions/workflows/cmake.yml/badge.svg)](https://github.com/rpelke/analog-cim-sim/actions/workflows/cmake.yml)
 [![Style](https://github.com/rpelke/analog-cim-sim/actions/workflows/style.yml/badge.svg)](https://github.com/rpelke/analog-cim-sim/actions/workflows/style.yml)
 [![Python](https://github.com/rpelke/analog-cim-sim/actions/workflows/python.yml/badge.svg)](https://github.com/rpelke/analog-cim-sim/actions/workflows/python.yml)
@@ -7,10 +8,12 @@
 Yet another simulator for executing matrix-vector multiplications on analog computing-in-memory crossbars.
 
 If you use the code of this repository, please consider citing the corresponding [paper](https://arxiv.org/abs/2505.14303):
-```
+
+```bash
 @misc{pelke2025optimizingbinaryternaryneural,
     title={{Optimizing Binary and Ternary Neural Network Inference on RRAM Crossbars using CIM-Explorer}},
-    author={Rebecca Pelke and José Cubero-Cascante and Nils Bosbach and Niklas Degener and Florian Idrizi and Lennart M. Reimann and Jan Moritz Joseph and Rainer Leupers},
+    author={Rebecca Pelke and José Cubero-Cascante and Nils Bosbach and Niklas Degener and Florian Idrizi
+    and Lennart M. Reimann and Jan Moritz Joseph and Rainer Leupers},
     year={2025},
     eprint={2505.14303},
     archivePrefix={arXiv},
@@ -18,37 +21,45 @@ If you use the code of this repository, please consider citing the corresponding
     url={https://arxiv.org/abs/2505.14303},
 }
 ```
+
 This simulator is used by [CIM-E](https://github.com/rpelke/CIM-E), a design space exploration tool for neural networks.
 
 ## Build instructions
 
 Clone the repository including submodules:
+
 ```bash
 git clone --recursive git@github.com:rpelke/analog-cim-sim.git
 ```
 
 ### Building in the devcontainer
+
 Reopen the folder in the devcontainer, the devcontainer.json will automatically build the container.
 
 Run the build script provided in `scripts/build_acs.sh`:
+
 ```bash
 ./scripts/build_acs.sh
 ```
 
 ### Native Building
-Install the requirements listed under [Requirements](#Requirements)
 
 If you are not using the devcontainer, create a virtual environment:
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip3 install -r requirements.txt
 ```
+
 Run the build script provided in `scripts/build_acs.sh`:
+
 ```bash
 ./scripts/build_acs.sh
 ```
+
 **Or** build and install the project without the script (replace the placeholders):
+
 ```bash
 export PY_PACKAGE_DIR=<path to 'site-packages'> # can be found in .venv/lib/<python-version>
 
@@ -67,56 +78,69 @@ cmake \
 make -j `nproc`
 make install
 ```
+
 This will build all available targets in release mode with support for unittests.
 
 ### Requirements
+
 To build the project, you will require:
+
 - `cmake` >= 3.15
 - `python3` (*dev version* for pybind11)
-- oneAPI Threading Building Blocks (`oneTBB`). On Debian-based distributions, `sudo apt install libtbb-dev`. For more details see [here](https://uxlfoundation.github.io/oneTBB/index.html).
+- oneAPI Threading Building Blocks (`oneTBB`). On Debian-based distributions,
+  `sudo apt install libtbb-dev`. For more details see this [website](https://uxlfoundation.github.io/oneTBB/index.html).
 
 If you are using the devcontainer, the requirements are already installed.
 
 ### Available building targets
 
 | Target Name | Description | Enabled By | Installed To |
-|-------------|-------------|------------|--------------|
+| ----------- | ----------- | ---------- | ------------ |
 | `acs_cb_emu` | Emulator/callback interface library | `BUILD_LIB_CB_EMU=ON` | `lib/` |
 | `acs_int` | Python binding module for the C++ library | `BUILD_LIB_ACS_INT=ON` | `${PY_INSTALL_PATH}` |
 | `acs_cpp` | Core C++ library, no interface | `BUILD_LIB_ACS_CPP=ON` | `lib/` (library) + `include/` (headers) |
 
 ### Some useful cmake options
+
 Build project with additional debug output:
+
 ```bash
 cmake -DDEBUG_MODE=ON ...
 ```
 
 Build the project with support for coverage:
+
 ```bash
 cmake -DCMAKE_BUILD_TYPE=Debug -DLIB_TESTS=ON -DCOVERAGE=ON ...
 ```
 
 Use C++17 `filesystem` features for the [unittests](cpp/test/lib/inc/test_helper.h) with old gcc versions (<9.1):
+
 ```bash
 cmake -DUSE_STDCXXFS=ON ...
 ```
 
 ## Testing and debugging
+
 Execute the tests:
+
 ```bash
 python3 -m unittest discover -s int-bindings/test -p '*_test.py'
 ```
 
 To detect segmentation faults in the C++ part, you can also run:
+
 ```bash
 gdb --batch --ex="run" --ex="bt" --ex="quit" --args python3 -m unittest discover -s int-bindings/test -p '*_test.py'
 ```
+
 To manually test the coverage (library was built with -DCOVERAGE=ON set):
+
 ```bash
 cd build/debug/build
 ctest -C . --output-on-failure
 lcov --capture --directory . --output-file coverage_int.info --include '*cpp*' --exclude '*extern*'
 genhtml coverage_int.info --output-directory coverage_int_html
 ```
-The line and function coverage should be displayed at the end of the `genhtml` command.
 
+The line and function coverage should be displayed at the end of the `genhtml` command.

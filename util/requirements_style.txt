@@ -1,2 +1,5 @@
 # Python formatting
 yapf
+
+# Markdown formatting
+pymarkdownlnt==0.9.37
