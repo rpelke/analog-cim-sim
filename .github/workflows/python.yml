@@ -25,12 +25,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake python3.8-dev gdb libtbb-dev
+          sudo apt-get install -y cmake python3.11-dev gdb libtbb-dev
 
       - name: Setup python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.11'
 
       - name: Create virtual environment
         run: |
@@ -47,7 +47,7 @@ jobs:
           cmake \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
-            -DPY_INSTALL_PATH=${{github.workspace}}/.venv/lib/python3.8/site-packages \
+            -DPY_INSTALL_PATH=${{github.workspace}}/.venv/lib/python3.11/site-packages \
             -DLIB_TESTS=OFF \
             -DBUILD_LIB_ACS_INT=ON \
             ../cpp
