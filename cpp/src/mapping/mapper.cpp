@@ -49,8 +49,12 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
         std::random_device lrs_rd;
         std::mt19937 hrs_gen(hrs_rd());
         std::mt19937 lrs_gen(lrs_rd());
-        hrs_var_ = std::normal_distribution<float>(0.0f, CFG.HRS_NOISE);
-        lrs_var_ = std::normal_distribution<float>(0.0f, CFG.LRS_NOISE);
+        if (CFG.HRS_NOISE > 0.0f) {
+            hrs_var_ = std::normal_distribution<float>(0.0f, CFG.HRS_NOISE);
+        }
+        if (CFG.LRS_NOISE > 0.0f) {
+            lrs_var_ = std::normal_distribution<float>(0.0f, CFG.LRS_NOISE);
+        }
 
         if (CFG.parasitics) {
             par_solver_ =
@@ -287,8 +291,14 @@ float Mapper::add_gaussian_noise(float state, int32_t mask) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
     if (mask == 0) {
+        if (CFG.HRS_NOISE <= 0.0f) {
+            return state;
+        }
         return std::max(state + hrs_var_(gen), 0.0f);
     } else if (mask == 1) {
+        if (CFG.LRS_NOISE <= 0.0f) {
+            return state;
+        }
         return std::max(state + lrs_var_(gen), 0.0f);
     } else {
         std::cerr << "Unexpected crossbar value: " << mask << std::endl;
