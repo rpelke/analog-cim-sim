@@ -31,7 +31,7 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.11'
 
       - name: Create virtual environment
         run: |
@@ -40,3 +40,4 @@ jobs:
           pip install -r util/requirements_style.txt
           ./util/format_cpp.py
           ./util/format_py.py
+          pymarkdown scan README.md
