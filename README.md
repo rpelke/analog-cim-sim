@@ -24,6 +24,32 @@ If you use the code of this repository, please consider citing the corresponding
 
 This simulator is used by [CIM-E](https://github.com/rpelke/CIM-E), a design space exploration tool for neural networks.
 
+## Support matrix
+
+The simulator implements several crossbar non-idealities.
+Not every non-ideality is available for every mapping.
+The table below tracks which simulation detail is implemented for which crossbar configuration.
+
+Setting `digital_only: true` bypasses the analog crossbar model completely, so none of the effects below are applied.
+
+| Non-ideality | Config keys | INT | BNN | TNN |
+| --- | --- | --- | --- | --- |
+| ADC quantization + clipping | `adc_type`, `resolution` | ✅ | ✅ | ✅ |
+| ADC calibration (`MAX` / `CALIB`) | `adc_calib_mode`, `adc_calib_dict` | ✅ | ✅ | ✅ |
+| ADC input profiling (histograms) | `adc_profile`, `adc_profile_bin_size` | ❌ | ✅ | ✅ |
+| Device-to-device (D2D) variability | `HRS_NOISE`, `LRS_NOISE`, `d2d_var` | ❌ | ✅ | ✅ |
+| Cycle-to-cycle (C2C) variability | `c2c_var`, `HRS_NOISE`, `LRS_NOISE` | ❌ | ✅ | ✅ |
+| Read disturb | `read_disturb`, `t_read`, `V_read` | ❌ | ✅ | ✅ |
+| Read disturb mitigation (`SOFTWARE` / `CELL_BASED`) | `read_disturb_mitigation_strategy` | ❌ | ✅ | ✅ |
+| Parasitic wire resistance (IR drop) | `parasitics`, `w_res`, `V_read` | ✅ (except `I_TC_W_DIFF`) | ✅ | ✅ |
+
+All three ADC models are implemented for every mapping type.
+Which one is valid for a given mapping mode follows from the mapping itself and is checked when the config is loaded,
+i.e. an invalid combination aborts with an error message:
+mappings that accumulate a signed column current (the differential ones) require `SYM_RANGE_ADC`,
+mappings whose column current is positive-only (`I_UINT_W_OFFS`, `BNN_III`, `BNN_IV`, `BNN_V`, `TNN_IV`, `TNN_V`)
+require `POS_RANGE_ONLY_ADC`. `INF_ADC` models an ideal ADC without quantization and clipping and is always allowed.
+
 ## Build instructions
 
 Clone the repository including submodules:
