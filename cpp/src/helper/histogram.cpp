@@ -39,19 +39,19 @@ void SimpleHistogram::update(const std::vector<int32_t> &values) {
                   [this](int32_t i) -> void { this->data_[i]++; });
 }
 
-int64_t SimpleHistogram::get_samples() {
+int64_t SimpleHistogram::get_samples() const {
     return std::reduce(std::execution::par, this->data_.begin(),
                        this->data_.end(), int64_t(0), std::plus<int64_t>());
 }
 
-float SimpleHistogram::get_mean() {
+float SimpleHistogram::get_mean() const {
     return std::transform_reduce(std::execution::par, this->data_.begin(),
                                  this->data_.end(), this->values_.begin(), 0.0,
                                  std::plus<float>(), std::multiplies<float>()) /
            get_samples();
 }
 
-float SimpleHistogram::get_variance() {
+float SimpleHistogram::get_variance() const {
     float mean = get_mean();
     return std::transform_reduce(std::execution::par, this->data_.begin(),
                                  this->data_.end(), this->values_.begin(), 0.0,
@@ -62,7 +62,7 @@ float SimpleHistogram::get_variance() {
            get_samples();
 }
 
-json SimpleHistogram::to_json() {
+json SimpleHistogram::to_json() const {
     std::unordered_map<int32_t, int32_t> hist_map;
     std::transform(this->data_.begin(), this->data_.end(),
                    this->values_.begin(),
@@ -107,19 +107,19 @@ void BinnedHistogram::update(const std::vector<float> &values) {
                   [this](int32_t i) -> void { this->data_[i]++; });
 }
 
-int64_t BinnedHistogram::get_samples() {
+int64_t BinnedHistogram::get_samples() const {
     return std::reduce(std::execution::par, this->data_.begin(),
                        this->data_.end(), int64_t(0), std::plus<int64_t>());
 }
 
-float BinnedHistogram::get_mean() {
+float BinnedHistogram::get_mean() const {
     return std::transform_reduce(std::execution::par, this->data_.begin(),
                                  this->data_.end(), this->values_.begin(), 0.0,
                                  std::plus<float>(), std::multiplies<float>()) /
            get_samples();
 }
 
-float BinnedHistogram::get_variance() {
+float BinnedHistogram::get_variance() const {
     float mean = get_mean();
     return std::transform_reduce(std::execution::par, this->data_.begin(),
                                  this->data_.end(), this->values_.begin(), 0.0,
@@ -130,7 +130,7 @@ float BinnedHistogram::get_variance() {
            get_samples();
 }
 
-json BinnedHistogram::to_json() {
+json BinnedHistogram::to_json() const {
     std::map<float, int32_t> hist_map;
     std::transform(this->data_.begin(), this->data_.end(),
                    this->values_.begin(),
@@ -143,11 +143,82 @@ json BinnedHistogram::to_json() {
                 {"var", get_variance()}};
 }
 
+StratumFactory::StratumFactory(std::map<std::string, float> bin_sizes) :
+    bin_sizes_(bin_sizes) {}
+
+std::unique_ptr<Stratum>
+StratumFactory::get_stratum(std::map<std::string, float> values) const {
+    std::map<std::string, float> quantized_values;
+    std::transform(
+        values.begin(), values.end(),
+        std::inserter(quantized_values, quantized_values.end()),
+        [this](const std::pair<const std::string, float> &kv) {
+            auto it = bin_sizes_.find(kv.first);
+            float bin_size = (it != bin_sizes_.end()) ? it->second : 1.0f;
+            return std::make_pair(kv.first,
+                                  std::round(kv.second / bin_size) * bin_size);
+        });
+
+    return std::unique_ptr<Stratum>(new Stratum(std::move(quantized_values)));
+}
+
+StratifiedHistogram::StratifiedHistogram(float min, float max, float bin_size) :
+    min_(min),
+    max_(max),
+    bin_size_(bin_size) {}
+
+void StratifiedHistogram::update(std::unique_ptr<Stratum> stratum,
+                                 std::vector<float> &values) {
+    auto it = hists_.find(*stratum);
+    if (it == hists_.end()) {
+        it = hists_
+                 .emplace(std::move(*stratum),
+                          BinnedHistogram(min_, max_, bin_size_))
+                 .first;
+    }
+    it->second.update(values);
+}
+
+std::vector<Stratum> StratifiedHistogram::get_strata() const {
+    std::vector<Stratum> strata;
+    strata.reserve(hists_.size());
+
+    std::transform(
+        hists_.begin(), hists_.end(), std::back_inserter(strata),
+        [](const std::pair<Stratum, BinnedHistogram> &kv) { return kv.first; });
+
+    return strata;
+}
+
+int64_t StratifiedHistogram::get_samples(Stratum &stratum) const {
+    return hists_.at(stratum).get_samples();
+}
+
+float StratifiedHistogram::get_mean(Stratum &stratum) const {
+    return hists_.at(stratum).get_mean();
+}
+
+float StratifiedHistogram::get_variance(Stratum &stratum) const {
+    return hists_.at(stratum).get_variance();
+}
+
+json StratifiedHistogram::to_json() const {
+    std::vector<json> strata;
+    strata.reserve(hists_.size());
+    std::transform(hists_.cbegin(), hists_.cend(), std::back_inserter(strata),
+                   [](std::pair<const Stratum, BinnedHistogram> &kv) {
+                       return json{{"stratum", kv.first.values()},
+                                   {"histogram", kv.second.to_json()}};
+                   });
+
+    return json{{"strata", strata}};
+}
+
 WorkloadHistograms::WorkloadHistograms() {}
 
 WorkloadHistograms::~WorkloadHistograms() {}
 
-bool WorkloadHistograms::has_histogram(std::string l_name) {
+bool WorkloadHistograms::has_histogram(std::string l_name) const {
     auto val = hists_.find(l_name);
     return val != hists_.end();
 }
@@ -166,7 +237,7 @@ WorkloadHistograms::get_histogram(std::string l_name) {
     return std::optional<std::reference_wrapper<BinnedHistogram>>();
 }
 
-json WorkloadHistograms::to_json() {
+json WorkloadHistograms::to_json() const {
     struct JSONConstructor {
         void operator()(std::pair<std::string, BinnedHistogram> hist) {
             json_obj.emplace(hist.first, hist.second.to_json());
