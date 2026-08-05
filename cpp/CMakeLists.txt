@@ -33,7 +33,7 @@ add_subdirectory(extern/json EXCLUDE_FROM_ALL)
 option(LIB_TESTS "Build lib tests." OFF)
 
 # Debug mode for matrix operations
-option(DEBUG_MODE "Enable debug output for matrix operations" OFF)
+option(DEBUG_MODE "Enable debug output for matrix operations." OFF)
 
 # Build lib options
 option(BUILD_LIB_CB_EMU "Build emulater/callback interface." OFF)
@@ -52,36 +52,62 @@ if (LIB_TESTS AND NOT BUILD_LIB_ACS_INT)
     message(FATAL_ERROR "Error: LIB_TESTS option requires BUILD_LIB_ACS_INT to be ON!")
 endif()
 
-# Set sources shared by acs_int and acs_cpp
-set(SOURCES_SHARED
-    src/helper/config.cpp
-    src/helper/histogram.cpp
-    src/mapping/mapper.cpp
-    src/mapping/int_mapper/int_i.cpp
-    src/mapping/int_mapper/int_ii.cpp
-    src/mapping/int_mapper/int_iii.cpp
-    src/mapping/int_mapper/int_iv.cpp
-    src/mapping/int_mapper/int_v.cpp
-    src/mapping/bnn_mapper/bnn_i.cpp
-    src/mapping/bnn_mapper/bnn_ii.cpp
-    src/mapping/bnn_mapper/bnn_iii.cpp
-    src/mapping/bnn_mapper/bnn_iv.cpp
-    src/mapping/bnn_mapper/bnn_v.cpp
-    src/mapping/bnn_mapper/bnn_vi.cpp
-    src/mapping/tnn_mapper/tnn_i.cpp
-    src/mapping/tnn_mapper/tnn_ii.cpp
-    src/mapping/tnn_mapper/tnn_iii.cpp
-    src/mapping/tnn_mapper/tnn_iv.cpp
-    src/mapping/tnn_mapper/tnn_v.cpp
-    src/xbar/crossbar.cpp
-    src/xbar/read_disturb.cpp
-    src/xbar/parasitics.cpp
-    src/xbar/adc.cpp
+# acs_int depends on acs_cpp, so ensure it gets built too
+if (BUILD_LIB_ACS_INT AND NOT BUILD_LIB_ACS_CPP)
+    set(BUILD_LIB_ACS_CPP ON)
+endif()
+
+# Set sources
+set(ACS_EMU_SRC
+  src/interface_cb.cpp
+)
+
+set(ACS_CPP_SRC
+  src/helper/config.cpp
+  src/helper/histogram.cpp
+  src/mapping/mapper.cpp
+  src/mapping/int_mapper/int_i.cpp
+  src/mapping/int_mapper/int_ii.cpp
+  src/mapping/int_mapper/int_iii.cpp
+  src/mapping/int_mapper/int_iv.cpp
+  src/mapping/int_mapper/int_v.cpp
+  src/mapping/bnn_mapper/bnn_i.cpp
+  src/mapping/bnn_mapper/bnn_ii.cpp
+  src/mapping/bnn_mapper/bnn_iii.cpp
+  src/mapping/bnn_mapper/bnn_iv.cpp
+  src/mapping/bnn_mapper/bnn_v.cpp
+  src/mapping/bnn_mapper/bnn_vi.cpp
+  src/mapping/tnn_mapper/tnn_i.cpp
+  src/mapping/tnn_mapper/tnn_ii.cpp
+  src/mapping/tnn_mapper/tnn_iii.cpp
+  src/mapping/tnn_mapper/tnn_iv.cpp
+  src/mapping/tnn_mapper/tnn_v.cpp
+  src/xbar/crossbar.cpp
+  src/xbar/read_disturb.cpp
+  src/xbar/parasitics.cpp
+  src/xbar/adc.cpp
+)
+
+set(ACS_INT_SRC
+  src/interface_xbar.cpp
 )
 
 ### Build emulater/callback interface ###
 if(BUILD_LIB_CB_EMU)
-    add_library(acs_cb_emu SHARED src/interface_cb.cpp)
+    add_library(acs_cb_emu SHARED ${ACS_EMU_SRC})
+endif()
+
+### Build CPP library ###
+if(BUILD_LIB_ACS_CPP)
+    add_library(acs_cpp SHARED ${ACS_CPP_SRC})
+    target_include_directories(acs_cpp PUBLIC inc extern/json/include)
+
+    find_package(TBB REQUIRED)
+    message(STATUS "Found TBB: (version \"${TBB_VERSION}\"). Linking libraries against TBB (Parallel STL backend).")
+    target_link_libraries(acs_cpp PRIVATE
+        nlohmann_json::nlohmann_json
+        TBB::tbb
+    )
 endif()
 
 ### Build Int library ###
@@ -97,19 +123,13 @@ if(BUILD_LIB_ACS_INT)
     )
     message(STATUS "Use Python: ${PYTHON_VERSION}")
     find_package(pybind11 CONFIG REQUIRED PATHS ${CMAKE_CURRENT_LIST_DIR}/../.venv/lib/python${PYTHON_VERSION}/site-packages/pybind11/share/cmake/pybind11)
-    pybind11_add_module(acs_int SHARED src/interface_xbar.cpp ${SOURCES_SHARED})
-    target_link_libraries(acs_int PRIVATE pybind11::module)
-endif()
-
-### Build CPP library ###
-if(BUILD_LIB_ACS_CPP)
-    add_library(acs_cpp SHARED ${SOURCES_SHARED})
+    pybind11_add_module(acs_int SHARED ${ACS_INT_SRC})
+    target_link_libraries(acs_int PRIVATE pybind11::module acs_cpp)
 endif()
 
 # Apply core compiler flags & properties to ALL enabled targets
 foreach(tgt acs_cb_emu acs_int acs_cpp)
     if(TARGET ${tgt})
-        target_include_directories(${tgt} PRIVATE inc extern/json/include)
         # Ensure Position Independent Code is set for all shared modules
         set_target_properties(${tgt} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -120,26 +140,6 @@ foreach(tgt acs_cb_emu acs_int acs_cpp)
         endif()
     endif()
 endforeach()
-
-# Apply shared dependencies specific to acs_int and acs_cpp
-if(TARGET acs_int OR TARGET acs_cpp)
-    # Locate TBB
-    find_package(TBB REQUIRED)
-    message(STATUS "Found TBB: (version \"${TBB_VERSION}\"). Linking libraries against TBB (Parallel STL backend).")
-
-    foreach(tgt acs_int acs_cpp)
-        if(TARGET ${tgt})
-            # Include headers for both acs_int and acs_cpp
-            target_include_directories(${tgt} PRIVATE inc extern/json/include)
-            
-            # Link external dependencies for both acs_int and acs_cpp
-            target_link_libraries(${tgt} PRIVATE 
-                nlohmann_json::nlohmann_json 
-                TBB::tbb
-            )
-        endif()
-    endforeach()
-endif()
 
 # Install options for acs_cb_emu and acs_cpp libraries
 foreach(tgt acs_cb_emu acs_cpp)
@@ -166,5 +166,5 @@ endif()
 
 if(DEBUG_MODE)
     add_definitions(-DDEBUG_MODE)
-    message(STATUS "Debug mode enabled - will print matrix operation details")
+    message(STATUS "Debug mode enabled - will print matrix operation details.")
 endif()

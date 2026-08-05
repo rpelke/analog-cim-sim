@@ -60,4 +60,5 @@ jobs:
       - name: Execute tests
         run: |
           source .venv/bin/activate
+          export LD_LIBRARY_PATH=${{github.workspace}}/install/lib:$LD_LIBRARY_PATH
           python3 -m unittest discover -s int-bindings/test -p '*_test.py'
