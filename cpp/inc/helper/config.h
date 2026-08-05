@@ -100,6 +100,13 @@ class Config {
     ADCCalibMode adc_calib_mode;
     std::map<std::string, std::pair<float, float>> adc_calib_dict;
 
+    // Profile MVMs
+    // mvm_profile: Whether MVMs should be profiled
+    // mvm_profile_bin_size: Binning size for average weight/input values
+    // (between 0 & 1)
+    bool mvm_profile;
+    float mvm_profile_bin_size;
+
     // Mapping strategy
     MappingMode m_mode;
 
