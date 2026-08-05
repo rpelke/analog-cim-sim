@@ -46,7 +46,7 @@ jobs:
             -DPY_INSTALL_PATH=${{github.workspace}}/.venv/lib/python3.11/site-packages \
             -DLIB_TESTS=ON \
             -DBUILD_LIB_CB_EMU=ON \
-            -DBUILD_LIB_ACS_INT=ON \
+            -DBUILD_LIB_ACS_PY=ON \
             -DCOVERAGE=ON \
             ../cpp
 

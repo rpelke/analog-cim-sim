@@ -22,8 +22,8 @@ cmake \
     -DLIB_TESTS=ON \
     -DCOVERAGE=ON \
     -DBUILD_LIB_CB_EMU=ON \
-    -DBUILD_LIB_ACS_INT=ON \
-    -DBUILD_LIB_ACS_CPP=ON \
+    -DBUILD_LIB_ACS_PY=ON \
+    -DBUILD_LIB_ACS_CORE=ON \
     -DDEBUG_MODE=OFF \
     ../../../cpp
 
