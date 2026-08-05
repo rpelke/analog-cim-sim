@@ -7,7 +7,7 @@
 ##############################################################################
 import unittest
 import numpy as np
-import acs_int
+import acs_py
 import json
 import os
 import sys
@@ -49,11 +49,11 @@ class TestADC(unittest.TestCase):
                 tmp_cfg_path = tmp_cfg.name
 
             try:
-                acs_int.set_config(os.path.abspath(tmp_cfg_path))
-                acs_int.cpy(mat, m_matrix, n_matrix)
+                acs_py.set_config(os.path.abspath(tmp_cfg_path))
+                acs_py.cpy(mat, m_matrix, n_matrix)
 
                 res = np.zeros(m_matrix, dtype=np.int32)
-                acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+                acs_py.mvm(res, vec, mat, m_matrix, n_matrix)
             finally:
                 os.remove(tmp_cfg_path)
 
@@ -94,11 +94,11 @@ class TestADC(unittest.TestCase):
                 tmp_cfg_path = tmp_cfg.name
 
             try:
-                acs_int.set_config(os.path.abspath(tmp_cfg_path))
-                acs_int.cpy(mat, m_matrix, n_matrix)
+                acs_py.set_config(os.path.abspath(tmp_cfg_path))
+                acs_py.cpy(mat, m_matrix, n_matrix)
 
                 res = np.zeros(m_matrix, dtype=np.int32)
-                acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+                acs_py.mvm(res, vec, mat, m_matrix, n_matrix)
             finally:
                 os.remove(tmp_cfg_path)
 
@@ -139,11 +139,11 @@ class TestADC(unittest.TestCase):
                 tmp_cfg_path = tmp_cfg.name
 
             try:
-                acs_int.set_config(os.path.abspath(tmp_cfg_path))
-                acs_int.cpy(mat, m_matrix, n_matrix)
+                acs_py.set_config(os.path.abspath(tmp_cfg_path))
+                acs_py.cpy(mat, m_matrix, n_matrix)
 
                 res = np.zeros(m_matrix, dtype=np.int32)
-                acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+                acs_py.mvm(res, vec, mat, m_matrix, n_matrix)
             finally:
                 os.remove(tmp_cfg_path)
 
@@ -184,11 +184,11 @@ class TestADC(unittest.TestCase):
                 tmp_cfg_path = tmp_cfg.name
 
             try:
-                acs_int.set_config(os.path.abspath(tmp_cfg_path))
-                acs_int.cpy(mat, m_matrix, n_matrix)
+                acs_py.set_config(os.path.abspath(tmp_cfg_path))
+                acs_py.cpy(mat, m_matrix, n_matrix)
 
                 res = np.zeros(m_matrix, dtype=np.int32)
-                acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+                acs_py.mvm(res, vec, mat, m_matrix, n_matrix)
             finally:
                 os.remove(tmp_cfg_path)
 
@@ -229,11 +229,11 @@ class TestADC(unittest.TestCase):
                 tmp_cfg_path = tmp_cfg.name
 
             try:
-                acs_int.set_config(os.path.abspath(tmp_cfg_path))
-                acs_int.cpy(mat, m_matrix, n_matrix)
+                acs_py.set_config(os.path.abspath(tmp_cfg_path))
+                acs_py.cpy(mat, m_matrix, n_matrix)
 
                 res = np.zeros(m_matrix, dtype=np.int32)
-                acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+                acs_py.mvm(res, vec, mat, m_matrix, n_matrix)
             finally:
                 os.remove(tmp_cfg_path)
 

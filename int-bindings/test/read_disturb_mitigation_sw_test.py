@@ -7,7 +7,7 @@
 ##############################################################################
 import unittest
 import numpy as np
-import acs_int
+import acs_py
 import os
 import sys
 
@@ -30,12 +30,12 @@ class TestReadDisturbModel(unittest.TestCase):
         vec = np.array([1], dtype=np.int32)
         res = np.array([0], dtype=np.int32)
 
-        acs_int.set_config(
+        acs_py.set_config(
             os.path.abspath(
                 f"{repo_path}/cpp/test/lib/configs/analog/READ_DISTURB_MITIGATION_SW.json"))
-        assert acs_int.write_ops() == 0
-        assert acs_int.mvm_ops() == 0
-        assert acs_int.read_ops() == 0
+        assert acs_py.write_ops() == 0
+        assert acs_py.mvm_ops() == 0
+        assert acs_py.read_ops() == 0
 
         total_mvm_ops = 0
 
@@ -48,25 +48,25 @@ class TestReadDisturbModel(unittest.TestCase):
         for N_idx, N in enumerate(N_cycles):
             for n in range(mvms_to_execute[N_idx]):
                 mat[0] = +1
-                acs_int.cpy(mat, m_matrix, n_matrix)
+                acs_py.cpy(mat, m_matrix, n_matrix)
                 mat[0] = -1
-                acs_int.cpy(mat, m_matrix, n_matrix)
+                acs_py.cpy(mat, m_matrix, n_matrix)
 
-            assert acs_int.write_ops() == 2 * N
-            assert acs_int.read_ops() == 0
-            assert acs_int.ia_p()[0][0] == I_HRS
-            assert acs_int.ia_m()[0][0] == I_LRS
+            assert acs_py.write_ops() == 2 * N
+            assert acs_py.read_ops() == 0
+            assert acs_py.ia_p()[0][0] == I_HRS
+            assert acs_py.ia_m()[0][0] == I_LRS
 
             for t_idx in range(len(t)):
                 num_reads = int(round(t_to_stress[t_idx] / rd_gm.t_read))
 
                 for r in range(num_reads):
-                    acs_int.mvm(res, vec, mat, m_matrix, n_matrix)
+                    acs_py.mvm(res, vec, mat, m_matrix, n_matrix)
                     total_mvm_ops += 1
-                assert acs_int.mvm_ops() == total_mvm_ops
+                assert acs_py.mvm_ops() == total_mvm_ops
 
-                ia_p = acs_int.ia_p()[0][0]
-                ia_m = acs_int.ia_m()[0][0]
+                ia_p = acs_py.ia_p()[0][0]
+                ia_m = acs_py.ia_m()[0][0]
 
                 # Values should not change because conductance is refreshed
                 np.testing.assert_allclose(ia_m, I_LRS, atol=0)

@@ -494,7 +494,7 @@ EXPORT_API const void dump_adc_profile(const std::string filename) {
 }
 
 /********************* Pybind definitions *********************/
-PYBIND11_MODULE(acs_int, m) {
+PYBIND11_MODULE(acs_py, m) {
     m.def("cpy", &cpy_mtrx_pb, "Copy matrix to crossbar.");
     m.def("mvm", &exe_mvm_pb, "Execute matrix-vector multiplication.");
     m.def("set_config", &set_config, "Set a config for the crossbar.",

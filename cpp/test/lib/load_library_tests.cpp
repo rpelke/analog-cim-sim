@@ -15,9 +15,9 @@ TEST(LibraryTests, LoadTest) {
     ASSERT_NE(handle_lbnntnn, nullptr);
     dlclose(handle_lbnntnn);
 
-    std::string lib_path = get_lib("LD_LIBRARY_PATH", "acs_int");
+    std::string lib_path = get_lib("LD_LIBRARY_PATH", "acs_py");
     ASSERT_FALSE(lib_path.empty())
-        << "No library found with prefix 'acs_int' in LD_LIBRARY_PATH";
+        << "No library found with prefix 'acs_py' in LD_LIBRARY_PATH";
     void *handle_int = dlopen(lib_path.c_str(), RTLD_LAZY);
     ASSERT_NE(handle_int, nullptr);
     dlclose(handle_int);

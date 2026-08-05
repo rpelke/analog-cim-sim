@@ -49,7 +49,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
             -DPY_INSTALL_PATH=${{github.workspace}}/.venv/lib/python3.11/site-packages \
             -DLIB_TESTS=OFF \
-            -DBUILD_LIB_ACS_INT=ON \
+            -DBUILD_LIB_ACS_PY=ON \
             ../cpp
 
       - name: Build lib

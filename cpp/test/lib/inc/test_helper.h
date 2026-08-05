@@ -15,7 +15,7 @@
 #include <iostream>
 #include <string>
 
-// C interface of acs_int
+// C interface of acs_py
 extern "C" {
 int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat, int32_t m_matrix,
                 int32_t n_matrix, const char *l_name = "Unknown");
@@ -29,7 +29,7 @@ const void *get_gd_p(size_t *size);
 const void *get_gd_m(size_t *size);
 }
 
-// C++ interface of acs_int
+// C++ interface of acs_py
 extern const std::vector<std::vector<float>> &get_ia_p();
 extern const std::vector<std::vector<float>> &get_ia_m();
 extern const std::vector<std::vector<int32_t>> &get_gd_p();

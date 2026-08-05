@@ -7,22 +7,22 @@
 ##############################################################################
 add_subdirectory(googletest EXCLUDE_FROM_ALL)
 
-get_target_property(acs_int_path acs_int BINARY_DIR)
-set(ld_library_path "${acs_int_path}")
+get_target_property(acs_py_path acs_py BINARY_DIR)
+set(ld_library_path "${acs_py_path}")
 message(STATUS "Use lib: ${ld_library_path}")
 
 option(USE_STDCXXFS "Use stdc++fs for older GCC versions" OFF)
 
 
 ### Library tests ###
-# This function adds tests that link against the acs_int library
+# This function adds tests that link against the acs_py library
 # It can only use functions exposed in the public interface
 function(add_library_test TEST_NAME SOURCE_FILE CFG_DIR)
     add_executable(${TEST_NAME} ${SOURCE_FILE})
     target_include_directories(${TEST_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../inc)
-    add_dependencies(${TEST_NAME} acs_int)
+    add_dependencies(${TEST_NAME} acs_py)
     target_link_libraries(${TEST_NAME} PRIVATE
-        acs_int
+        acs_py
         gtest
         gtest_main
         gmock
@@ -43,7 +43,7 @@ endfunction()
 
 
 ### Core tests ###
-# This function adds tests that do not link against the acs_int library
+# This function adds tests that do not link against the acs_py library
 # It can use internal functions by compiling source files (CORE_SOURCES) directly
 function(add_core_test TEST_NAME TEST_SOURCE_FILE CFG_DIR CORE_SOURCES)
     add_executable(${TEST_NAME}
@@ -71,7 +71,7 @@ function(add_core_test TEST_NAME TEST_SOURCE_FILE CFG_DIR CORE_SOURCES)
         nlohmann_json::nlohmann_json
     )
     find_package(TBB REQUIRED)
-    message(STATUS "Found TBB: (found version \"${TBB_VERSION}\"), linking acs_int against TBB (Parallel STL backend).")
+    message(STATUS "Found TBB: (found version \"${TBB_VERSION}\"), linking acs_py against TBB (Parallel STL backend).")
     target_link_libraries(${TEST_NAME} PRIVATE
         TBB::tbb
     )

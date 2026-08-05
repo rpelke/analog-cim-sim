@@ -101,8 +101,8 @@ cmake \
     -DCMAKE_INSTALL_PREFIX=../ \
     -DLIB_TESTS=ON \
     -DBUILD_LIB_CB_EMU=ON \
-    -DBUILD_LIB_ACS_INT=ON \
-    -DBUILD_LIB_ACS_CPP=ON \
+    -DBUILD_LIB_ACS_PY=ON \
+    -DBUILD_LIB_ACS_CORE=ON \
     ../../../cpp
 
 make -j `nproc`
@@ -127,8 +127,8 @@ If you are using the devcontainer, the requirements are already installed.
 | Target Name | Description | Enabled By | Installed To |
 | ----------- | ----------- | ---------- | ------------ |
 | `acs_cb_emu` | Emulator/callback interface library | `BUILD_LIB_CB_EMU=ON` | `lib/` |
-| `acs_int` | Python binding module for the C++ library | `BUILD_LIB_ACS_INT=ON` | `${PY_INSTALL_PATH}` |
-| `acs_cpp` | Core C++ library, no interface | `BUILD_LIB_ACS_CPP=ON` | `lib/` (library) + `include/` (headers) |
+| `acs_py` | Python binding module for the C++ library | `BUILD_LIB_ACS_PY=ON` | `${PY_INSTALL_PATH}` |
+| `acs_core` | Core C++ library, no interface | `BUILD_LIB_ACS_CORE=ON` | `lib/` (library) + `include/` (headers) |
 
 ## Testing and debugging
 
