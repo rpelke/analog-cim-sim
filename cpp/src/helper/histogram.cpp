@@ -143,8 +143,7 @@ json BinnedHistogram::to_json() const {
                 {"var", get_variance()}};
 }
 
-Stratum::Stratum(std::map<std::string, float> values) :
-    values_(values) {}
+Stratum::Stratum(std::map<std::string, float> values) : values_(values) {}
 
 StratumFactory::StratumFactory(std::map<std::string, float> bin_sizes) :
     bin_sizes_(bin_sizes) {}
@@ -210,39 +209,6 @@ json StratifiedHistogram::to_json() const {
                    });
 
     return json{{"strata", strata}};
-}
-
-WorkloadHistograms::WorkloadHistograms() {}
-
-WorkloadHistograms::~WorkloadHistograms() {}
-
-bool WorkloadHistograms::has_histogram(std::string l_name) const {
-    auto val = hists_.find(l_name);
-    return val != hists_.end();
-}
-
-bool WorkloadHistograms::add_histogram(std::string l_name, float min, float max,
-                                       float bin_size) {
-    return hists_.try_emplace(l_name, min, max, bin_size).second;
-}
-
-std::optional<std::reference_wrapper<BinnedHistogram>>
-WorkloadHistograms::get_histogram(std::string l_name) {
-    if (auto val = hists_.find(l_name); val != hists_.end()) {
-        return std::optional<std::reference_wrapper<BinnedHistogram>>(
-            val->second);
-    }
-    return std::optional<std::reference_wrapper<BinnedHistogram>>();
-}
-
-json WorkloadHistograms::to_json() const {
-    json json_obj{};
-
-    std::for_each(hists_.begin(), hists_.end(), [&json_obj](const auto &hist) {
-        json_obj.emplace(hist.first, hist.second.to_json());
-    });
-
-    return json_obj;
 }
 
 ADCHistograms::ADCHistograms() {}

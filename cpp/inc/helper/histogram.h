@@ -192,38 +192,61 @@ class StratifiedHistogram {
 /** Collection of histograms associated with each operator in a NN
  * workload.
  */
-class WorkloadHistograms {
+template <typename HistogramT> class WorkloadHistograms {
   public:
-    WorkloadHistograms();
+    WorkloadHistograms() {}
     WorkloadHistograms(const WorkloadHistograms &) = delete;
     WorkloadHistograms &operator=(const WorkloadHistograms &) = delete;
 
     /** Destructor */
-    virtual ~WorkloadHistograms();
+    virtual ~WorkloadHistograms() {}
 
     /** Check if histogram already exists for a layer. */
-    bool has_histogram(std::string l_name) const;
+    bool has_histogram(std::string l_name) const {
+        return hists_.find(l_name) != hists_.end();
+    }
 
     /** Add a histogram associated with a layer. */
-    bool add_histogram(std::string l_name, float min, float max,
-                       float bin_size = 1.0);
+    template <typename... Args>
+    bool add_histogram(std::string l_name, Args &&...args) {
+        auto [it, inserted] =
+            hists_.try_emplace(std::move(l_name), std::forward<Args>(args)...);
+        return inserted;
+    }
 
     /** Get histogram associated with a layer. */
-    std::optional<std::reference_wrapper<BinnedHistogram>>
-    get_histogram(std::string l_name);
+    std::optional<std::reference_wrapper<HistogramT>>
+    get_histogram(std::string l_name) {
+        auto it = hists_.find(l_name);
+        if (it == hists_.end()) {
+            return std::nullopt;
+        }
+        return std::ref(it->second);
+    }
 
     /** Get histogram data as a JSON object. */
-    json to_json() const;
+    json to_json() const {
+        json json_obj{};
+        std::for_each(hists_.begin(), hists_.end(),
+                      [&json_obj](const auto &hist) {
+                          json_obj.emplace(hist.first, hist.second.to_json());
+                      });
+        return json_obj;
+    }
 
     /** Get histogram data as a JSON string. */
-    std::string to_json_string() const;
+    std::string to_json_string() const { return to_json().dump(); }
 
   protected:
-    std::map<std::string, BinnedHistogram> hists_; /**< Layer histograms */
+    std::map<std::string, HistogramT> hists_; /**< Layer histograms */
 };
 
+using SimpleWorkloadHistograms = WorkloadHistograms<SimpleHistogram>;
+using BinnedWorkloadHistograms = WorkloadHistograms<BinnedHistogram>;
+using StratifiedWorkloadHistograms = WorkloadHistograms<StratifiedHistogram>;
+
 /** Singleton collection of histograms profiling ADC inputs. */
-class ADCHistograms : public WorkloadHistograms {
+class ADCHistograms : public BinnedWorkloadHistograms {
   public:
     ADCHistograms(const ADCHistograms &) = delete;
     ADCHistograms &operator=(const ADCHistograms &) = delete;
