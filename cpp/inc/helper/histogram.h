@@ -266,6 +266,32 @@ class ADCHistograms : public BinnedWorkloadHistograms {
     ADCHistograms();
 };
 
+/** Singleton collection of histograms profiling MVMs.
+ *
+ * Each stratum/category is for number of rows, columns and average
+ * weight value (between 0 and 1). This is linked to a binned
+ * histograms which tracks average input values.
+ */
+class MVMHistograms : public StratifiedWorkloadHistograms {
+  public:
+    MVMHistograms(const MVMHistograms &) = delete;
+    MVMHistograms &operator=(const MVMHistograms &) = delete;
+
+    /** Destructor */
+    virtual ~MVMHistograms() override;
+
+    /** Get singleton instance. */
+    static MVMHistograms &get_instance();
+
+  private:
+    /** Constructor
+     *
+     * Private constructor for singleton. Can only be accessed with
+     * WorkloadHistograms::get_histograms().
+     */
+    MVMHistograms();
+};
+
 } // namespace nq
 
 #endif /* HISTOGRAM_H */

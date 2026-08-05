@@ -220,4 +220,13 @@ ADCHistograms &ADCHistograms::get_instance() {
     return instance;
 }
 
+MVMHistograms::MVMHistograms() {}
+
+MVMHistograms::~MVMHistograms() {}
+
+MVMHistograms &MVMHistograms::get_instance() {
+    static MVMHistograms instance;
+    return instance;
+}
+
 } // namespace nq
