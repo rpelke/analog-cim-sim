@@ -52,11 +52,6 @@ if (LIB_TESTS AND NOT BUILD_LIB_ACS_INT)
     message(FATAL_ERROR "Error: LIB_TESTS option requires BUILD_LIB_ACS_INT to be ON!")
 endif()
 
-# acs_int depends on acs_cpp, so ensure it gets built too
-if (BUILD_LIB_ACS_INT AND NOT BUILD_LIB_ACS_CPP)
-    set(BUILD_LIB_ACS_CPP ON)
-endif()
-
 # Set sources
 set(ACS_EMU_SRC
   src/interface_cb.cpp
@@ -95,19 +90,26 @@ set(ACS_INT_SRC
 ### Build emulater/callback interface ###
 if(BUILD_LIB_CB_EMU)
     add_library(acs_cb_emu SHARED ${ACS_EMU_SRC})
+    target_include_directories(acs_cb_emu PRIVATE inc)
+endif()
+
+### Core implementation shared by acs_cpp and acs_int ###
+if(BUILD_LIB_ACS_CPP OR BUILD_LIB_ACS_INT)
+    find_package(TBB REQUIRED)
+    message(STATUS "Found TBB: (version \"${TBB_VERSION}\"). Linking libraries against TBB (Parallel STL backend).")
+
+    add_library(acs_core OBJECT ${ACS_CPP_SRC})
+    target_include_directories(acs_core PUBLIC inc extern/json/include)
+    target_link_libraries(acs_core PUBLIC
+        nlohmann_json::nlohmann_json
+        TBB::tbb
+    )
 endif()
 
 ### Build CPP library ###
 if(BUILD_LIB_ACS_CPP)
-    add_library(acs_cpp SHARED ${ACS_CPP_SRC})
-    target_include_directories(acs_cpp PUBLIC inc extern/json/include)
-
-    find_package(TBB REQUIRED)
-    message(STATUS "Found TBB: (version \"${TBB_VERSION}\"). Linking libraries against TBB (Parallel STL backend).")
-    target_link_libraries(acs_cpp PRIVATE
-        nlohmann_json::nlohmann_json
-        TBB::tbb
-    )
+    add_library(acs_cpp SHARED)
+    target_link_libraries(acs_cpp PUBLIC acs_core)
 endif()
 
 ### Build Int library ###
@@ -124,11 +126,11 @@ if(BUILD_LIB_ACS_INT)
     message(STATUS "Use Python: ${PYTHON_VERSION}")
     find_package(pybind11 CONFIG REQUIRED PATHS ${CMAKE_CURRENT_LIST_DIR}/../.venv/lib/python${PYTHON_VERSION}/site-packages/pybind11/share/cmake/pybind11)
     pybind11_add_module(acs_int SHARED ${ACS_INT_SRC})
-    target_link_libraries(acs_int PRIVATE pybind11::module acs_cpp)
+    target_link_libraries(acs_int PUBLIC pybind11::module acs_core)
 endif()
 
 # Apply core compiler flags & properties to ALL enabled targets
-foreach(tgt acs_cb_emu acs_int acs_cpp)
+foreach(tgt acs_cb_emu acs_int acs_cpp acs_core)
     if(TARGET ${tgt})
         # Ensure Position Independent Code is set for all shared modules
         set_target_properties(${tgt} PROPERTIES POSITION_INDEPENDENT_CODE ON)
