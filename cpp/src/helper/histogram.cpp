@@ -143,6 +143,9 @@ json BinnedHistogram::to_json() const {
                 {"var", get_variance()}};
 }
 
+Stratum::Stratum(std::map<std::string, float> values) :
+    values_(values) {}
+
 StratumFactory::StratumFactory(std::map<std::string, float> bin_sizes) :
     bin_sizes_(bin_sizes) {}
 
@@ -169,13 +172,9 @@ StratifiedHistogram::StratifiedHistogram(float min, float max, float bin_size) :
 
 void StratifiedHistogram::update(std::unique_ptr<Stratum> stratum,
                                  std::vector<float> &values) {
-    auto it = hists_.find(*stratum);
-    if (it == hists_.end()) {
-        it = hists_
-                 .emplace(std::move(*stratum),
-                          BinnedHistogram(min_, max_, bin_size_))
-                 .first;
-    }
+    auto [it, inserted] =
+        hists_.try_emplace(std::move(*stratum), min_, max_, bin_size_);
+
     it->second.update(values);
 }
 
@@ -183,9 +182,8 @@ std::vector<Stratum> StratifiedHistogram::get_strata() const {
     std::vector<Stratum> strata;
     strata.reserve(hists_.size());
 
-    std::transform(
-        hists_.begin(), hists_.end(), std::back_inserter(strata),
-        [](const std::pair<Stratum, BinnedHistogram> &kv) { return kv.first; });
+    std::transform(hists_.begin(), hists_.end(), std::back_inserter(strata),
+                   [](const auto &kv) { return kv.first; });
 
     return strata;
 }
@@ -206,7 +204,7 @@ json StratifiedHistogram::to_json() const {
     std::vector<json> strata;
     strata.reserve(hists_.size());
     std::transform(hists_.cbegin(), hists_.cend(), std::back_inserter(strata),
-                   [](std::pair<const Stratum, BinnedHistogram> &kv) {
+                   [](const auto &kv) {
                        return json{{"stratum", kv.first.values()},
                                    {"histogram", kv.second.to_json()}};
                    });
@@ -225,7 +223,7 @@ bool WorkloadHistograms::has_histogram(std::string l_name) const {
 
 bool WorkloadHistograms::add_histogram(std::string l_name, float min, float max,
                                        float bin_size) {
-    return hists_.insert({l_name, BinnedHistogram(min, max, bin_size)}).second;
+    return hists_.try_emplace(l_name, min, max, bin_size).second;
 }
 
 std::optional<std::reference_wrapper<BinnedHistogram>>
@@ -238,15 +236,13 @@ WorkloadHistograms::get_histogram(std::string l_name) {
 }
 
 json WorkloadHistograms::to_json() const {
-    struct JSONConstructor {
-        void operator()(std::pair<std::string, BinnedHistogram> hist) {
-            json_obj.emplace(hist.first, hist.second.to_json());
-        }
-        json json_obj{};
-    };
-    JSONConstructor json_cons = std::for_each(
-        this->hists_.begin(), this->hists_.end(), JSONConstructor());
-    return json_cons.json_obj;
+    json json_obj{};
+
+    std::for_each(hists_.begin(), hists_.end(), [&json_obj](const auto &hist) {
+        json_obj.emplace(hist.first, hist.second.to_json());
+    });
+
+    return json_obj;
 }
 
 ADCHistograms::ADCHistograms() {}

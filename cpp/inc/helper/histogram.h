@@ -99,8 +99,6 @@ class BinnedHistogram {
                                        stored in histogram */
 };
 
-class StratumFactory;
-
 /** A stratum is a collection of categorical values. */
 class Stratum {
 
@@ -111,9 +109,16 @@ class Stratum {
         values_; /**< Values for each stratum category. */
 
     /** Friend factory for construction. */
-    friend StratumFactory;
+    friend class StratumFactory;
 
   public:
+    /** Copy constructors. */
+    Stratum(const Stratum &) = default;
+    Stratum(Stratum &&) noexcept = default;
+    /** Move operators. */
+    Stratum &operator=(const Stratum &) = default;
+    Stratum &operator=(Stratum &&) noexcept = default;
+
     std::map<std::string, float> values() const { return values_; }
     bool operator<(const Stratum &other) const {
         return this->values_ < other.values_;
