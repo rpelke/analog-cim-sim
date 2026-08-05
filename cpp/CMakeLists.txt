@@ -54,7 +54,7 @@ endif()
 
 # Set sources
 set(ACS_EMU_SRC
-  src/interface_cb.cpp
+  src/interface_emu.cpp
 )
 
 set(ACS_CORE_SRC
@@ -84,7 +84,7 @@ set(ACS_CORE_SRC
 )
 
 set(ACS_PY_SRC
-  src/interface_xbar.cpp
+  src/interface_pybind.cpp
 )
 
 ### Build emulater/callback interface ###
