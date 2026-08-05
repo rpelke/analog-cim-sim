@@ -32,16 +32,16 @@ The table below tracks which simulation detail is implemented for which crossbar
 
 Setting `digital_only: true` bypasses the analog crossbar model completely, so none of the effects below are applied.
 
-| Non-ideality | Config keys | INT | BNN | TNN |
-| --- | --- | --- | --- | --- |
-| ADC quantization + clipping | `adc_type`, `resolution` | ✅ | ✅ | ✅ |
-| ADC calibration (`MAX` / `CALIB`) | `adc_calib_mode`, `adc_calib_dict` | ✅ | ✅ | ✅ |
-| ADC input profiling (histograms) | `adc_profile`, `adc_profile_bin_size` | ❌ | ✅ | ✅ |
-| Device-to-device (D2D) variability | `HRS_NOISE`, `LRS_NOISE`, `d2d_var` | ❌ | ✅ | ✅ |
-| Cycle-to-cycle (C2C) variability | `c2c_var`, `HRS_NOISE`, `LRS_NOISE` | ❌ | ✅ | ✅ |
-| Read disturb | `read_disturb`, `t_read`, `V_read` | ❌ | ✅ | ✅ |
-| Read disturb mitigation (`SOFTWARE` / `CELL_BASED`) | `read_disturb_mitigation_strategy` | ❌ | ✅ | ✅ |
-| Parasitic wire resistance (IR drop) | `parasitics`, `w_res`, `V_read` | ✅ (except `I_TC_W_DIFF`) | ✅ | ✅ |
+| Non-ideality                                        | Config keys                           | INT                       | BNN | TNN |
+| --------------------------------------------------- | ------------------------------------- | ------------------------- | --- | --- |
+| ADC quantization + clipping                         | `adc_type`, `resolution`              | ✅                        | ✅  | ✅  |
+| ADC calibration (`MAX` / `CALIB`)                   | `adc_calib_mode`, `adc_calib_dict`    | ✅                        | ✅  | ✅  |
+| ADC input profiling (histograms)                    | `adc_profile`, `adc_profile_bin_size` | ❌                        | ✅  | ✅  |
+| Device-to-device (D2D) variability                  | `HRS_NOISE`, `LRS_NOISE`, `d2d_var`   | ❌                        | ✅  | ✅  |
+| Cycle-to-cycle (C2C) variability                    | `c2c_var`, `HRS_NOISE`, `LRS_NOISE`   | ❌                        | ✅  | ✅  |
+| Read disturb                                        | `read_disturb`, `t_read`, `V_read`    | ❌                        | ✅  | ✅  |
+| Read disturb mitigation (`SOFTWARE` / `CELL_BASED`) | `read_disturb_mitigation_strategy`    | ❌                        | ✅  | ✅  |
+| Parasitic wire resistance (IR drop)                 | `parasitics`, `w_res`, `V_read`       | ✅ (except `I_TC_W_DIFF`) | ✅  | ✅  |
 
 All three ADC models are implemented for every mapping type.
 Which one is valid for a given mapping mode follows from the mapping itself and is checked when the config is loaded,
@@ -124,11 +124,11 @@ If you are using the devcontainer, the requirements are already installed.
 
 ### Available building targets
 
-| Target Name | Description | Enabled By | Installed To |
-| ----------- | ----------- | ---------- | ------------ |
-| `acs_cb_emu` | Emulator/callback interface library | `BUILD_LIB_CB_EMU=ON` | `lib/` |
-| `acs_py` | Python binding module for the C++ library | `BUILD_LIB_ACS_PY=ON` | `${PY_INSTALL_PATH}` |
-| `acs_core` | Core C++ library, no interface | `BUILD_LIB_ACS_CORE=ON` | `lib/` (library) + `include/` (headers) |
+| Target Name  | Description                               | Enabled By              | Installed To                            |
+| ------------ | ----------------------------------------- | ----------------------- | --------------------------------------- |
+| `acs_cb_emu` | Emulator/callback interface library       | `BUILD_LIB_CB_EMU=ON`   | `lib/`                                  |
+| `acs_py`     | Python binding module for the C++ library | `BUILD_LIB_ACS_PY=ON`   | `${PY_INSTALL_PATH}`                    |
+| `acs_core`   | Core C++ library, no interface            | `BUILD_LIB_ACS_CORE=ON` | `lib/` (library) + `include/` (headers) |
 
 ## Testing and debugging
 
