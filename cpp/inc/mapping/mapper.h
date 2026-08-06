@@ -9,10 +9,13 @@
 #define MAPPER_H
 
 #include <cstdint>
+#include <functional>
 #include <memory>
+#include <optional>
 #include <random>
 #include <vector>
 
+#include "helper/histogram.h"
 #include "mapping/mapping_properties.h"
 #include "xbar/adc.h"
 #include "xbar/parasitics.h"
@@ -83,6 +86,24 @@ class Mapper {
     void slice_vd(std::vector<int32_t> &vd, std::vector<int32_t> &vd_slice,
                   size_t n, size_t i_bit);
 
+    // MVM profiling
+    /** Get average cell value for given weights. */
+    float get_average_cell_value(
+        const std::vector<std::vector<int32_t>> &gd_p,
+        const std::optional<
+            std::reference_wrapper<std::vector<std::vector<int32_t>>>> &gd_m,
+        int32_t m_matrix, int32_t n_matrix, int32_t min_val = 0,
+        int32_t max_val = 1);
+
+    /** Get average input value for given inputs. */
+    float get_average_input_value(
+        const std::vector<int32_t> &vd_p,
+        const std::optional<std::reference_wrapper<std::vector<int32_t>>> &vd_m,
+        int32_t n_matrix, int32_t min_val = 0, int32_t max_val = 1);
+
+    /** Profile MVM. */
+    void profile_mvm(const float avg_input_val, const char *l_name);
+
     // Parameters for the digital crossbar
     std::vector<std::vector<int32_t>> gd_p_;
     std::vector<std::vector<int32_t>> gd_m_;
@@ -98,7 +119,14 @@ class Mapper {
     int num_segments_;
     float i_mm_;
     const std::unique_ptr<ADC> adc_;
-    std::shared_ptr<ParasiticSolver> par_solver_; // Parasitic resistance solver
+    std::shared_ptr<ParasiticSolver>
+        par_solver_; /**< Parasitic resistance solver */
+    std::reference_wrapper<MVMHistograms>
+        mvm_hists_; /**< MVM profiling histograms */
+    std::unique_ptr<StratumFactory>
+        mvm_strat_factory_; /**< Stratum factory for MVM profiling. */
+    std::unique_ptr<Stratum>
+        mvm_cur_strat_; /**< Current stratum based on last write to crossbar. */
 
   private:
     // State variability

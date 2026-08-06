@@ -123,7 +123,10 @@ Mapper::Mapper(const MappingProperties &props) :
     ia_m_orig_(CFG.state_columns(),
                std::vector<float>(CFG.capacity().n, CFG.HRS)),
     i_step_size_(CFG.SPLIT.size(), 0.0),
-    adc_(ADCFactory::createADC(CFG.adc_type)) {
+    adc_(ADCFactory::createADC(CFG.adc_type)),
+    mvm_hists_(MVMHistograms::get_instance())
+
+{
 
     if (!CFG.digital_only) {
         i_mm_ = CFG.LRS - CFG.HRS;
@@ -155,6 +158,14 @@ Mapper::Mapper(const MappingProperties &props) :
         for (size_t s = 0; s < num_segments_; ++s) {
             i_step_size_[s] = i_mm_ / ((1 << CFG.SPLIT[s]) - 1);
         }
+    }
+
+    if (CFG.mvm_profile) {
+        mvm_strat_factory_ =
+            std::make_unique<StratumFactory>(std::map<std::string, float>{
+                {"rows", 1.0},
+                {"cols", 1.0},
+                {"avg_cell_val", CFG.mvm_profile_bin_size}});
     }
 }
 
@@ -532,6 +543,104 @@ void Mapper::slice_vd(std::vector<int32_t> &vd, std::vector<int32_t> &vd_slice,
     std::transform(std::execution::par, vd.begin(), vd.begin() + n,
                    vd_slice.begin(),
                    [i_bit](int32_t v) { return (v >> i_bit) & 1; });
+}
+
+float Mapper::get_average_cell_value(
+    const std::vector<std::vector<int32_t>> &gd_p,
+    const std::optional<
+        std::reference_wrapper<std::vector<std::vector<int32_t>>>> &gd_m,
+    int32_t m_matrix, int32_t n_matrix, int32_t min_val, int32_t max_val) {
+
+    if (max_val == min_val) {
+        throw std::invalid_argument(
+            "Maximum and minimum cell values must not be equal");
+    }
+
+    if (max_val < 0 || min_val < 0) {
+        throw std::invalid_argument(
+            "Maximum and minimum cell values must be positive.");
+    }
+
+    const double range = static_cast<double>(max_val - min_val);
+
+    double sum = 0.0;
+    std::int64_t count = 0;
+
+    auto sum_matrix = [&](const std::vector<std::vector<int32_t>> &matrix) {
+        sum += std::transform_reduce(
+            std::execution::par, matrix.begin(), matrix.begin() + m_matrix, 0.0,
+            std::plus<>{}, [&](const std::vector<int32_t> &row) {
+                return std::transform_reduce(
+                    std::execution::par, row.begin(), row.begin() + n_matrix,
+                    0.0, std::plus<>{}, [&](int32_t value) {
+                        return (static_cast<double>(value) -
+                                static_cast<double>(min_val)) /
+                               range;
+                    });
+            });
+
+        count += static_cast<std::int64_t>(m_matrix) *
+                 static_cast<std::int64_t>(n_matrix);
+    };
+
+    sum_matrix(gd_p);
+
+    if (gd_m.has_value()) {
+        sum_matrix(gd_m->get());
+    }
+
+    return static_cast<float>(sum / static_cast<double>(count));
+}
+
+float Mapper::get_average_input_value(
+    const std::vector<int32_t> &vd_p,
+    const std::optional<std::reference_wrapper<std::vector<int32_t>>> &vd_m,
+    int32_t n_matrix, int32_t min_val, int32_t max_val) {
+
+    if (max_val == min_val) {
+        throw std::invalid_argument(
+            "Maximum and minimum input values must not be equal");
+    }
+
+    const double range = static_cast<double>(max_val - min_val);
+
+    double sum = 0.0;
+    std::int64_t count = 0;
+
+    auto sum_vector = [&](const std::vector<int32_t> &vec) {
+        sum += std::transform_reduce(std::execution::par, vec.begin(),
+                                     vec.begin() + n_matrix, 0.0, std::plus<>{},
+                                     [&](int32_t value) {
+                                         return (static_cast<double>(value) -
+                                                 static_cast<double>(min_val)) /
+                                                range;
+                                     });
+
+        count += static_cast<std::int64_t>(n_matrix);
+    };
+
+    sum_vector(vd_p);
+
+    if (vd_m.has_value()) {
+        sum_vector(vd_m->get());
+    }
+
+    return static_cast<float>(sum / static_cast<double>(count));
+}
+
+void Mapper::profile_mvm(const float avg_input_val, const char *l_name) {
+    // Check if a histogram already exists for the given layer, otherwise
+    // create one.
+    if (!mvm_hists_.get().has_histogram(l_name)) {
+        mvm_hists_.get().add_histogram(l_name, 0.0, 1.0,
+                                       CFG.mvm_profile_bin_size);
+    }
+
+    // Update values in layer histogram
+    std::reference_wrapper<StratifiedHistogram> l_hist(
+        mvm_hists_.get().get_histogram(l_name).value());
+
+    l_hist.get().update(mvm_cur_strat_, avg_input_val);
 }
 
 void Mapper::a_add_c2c_var(int32_t m_matrix, int32_t n_matrix) {

@@ -94,6 +94,13 @@ BinnedHistogram::BinnedHistogram(float min, float max, float bin_size) :
         });
 }
 
+void BinnedHistogram::update(const float value) {
+    // TODO: Check if values are within histogram ranges
+    // Offset values to get indices to update histogram data
+    int32_t index = round((value - this->min_) / bin_size_);
+    data_[index]++;
+}
+
 void BinnedHistogram::update(const std::vector<float> &values) {
     // TODO: Check if values are within histogram ranges
     // Offset values to get indices to update histogram data
@@ -169,7 +176,15 @@ StratifiedHistogram::StratifiedHistogram(float min, float max, float bin_size) :
     max_(max),
     bin_size_(bin_size) {}
 
-void StratifiedHistogram::update(std::unique_ptr<Stratum> stratum,
+void StratifiedHistogram::update(std::unique_ptr<Stratum> &stratum,
+                                 float value) {
+    auto [it, inserted] =
+        hists_.try_emplace(std::move(*stratum), min_, max_, bin_size_);
+
+    it->second.update(value);
+}
+
+void StratifiedHistogram::update(std::unique_ptr<Stratum> &stratum,
                                  std::vector<float> &values) {
     auto [it, inserted] =
         hists_.try_emplace(std::move(*stratum), min_, max_, bin_size_);
