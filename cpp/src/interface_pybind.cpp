@@ -483,6 +483,20 @@ EXPORT_API const void dump_adc_profile(const std::string filename) {
     file_stream.close();
 }
 
+EXPORT_API const std::string get_mvm_profile() {
+    return nq::MVMHistograms::get_instance().to_json().dump();
+}
+
+EXPORT_API const void dump_mvm_profile(const std::string filename) {
+    std::ofstream file_stream(filename);
+    if (!file_stream.is_open()) {
+        std::cerr << "Could not open MVM profile dump file!";
+        std::exit(EXIT_FAILURE);
+    }
+    file_stream << nq::MVMHistograms::get_instance().to_json().dump(2);
+    file_stream.close();
+}
+
 /********************* Pybind definitions *********************/
 PYBIND11_MODULE(acs_py, m) {
     m.def("cpy", &cpy_mtrx_pb, "Copy matrix to crossbar.");
@@ -522,4 +536,5 @@ PYBIND11_MODULE(acs_py, m) {
     m.def("rd_run_out_of_bounds", &get_rd_run_out_of_bounds,
           "Check if the read disturb model ran out of bounds.");
     m.def("dump_adc_profile", &dump_adc_profile, "Dump ADC profile JSON file.");
+    m.def("dump_mvm_profile", &dump_mvm_profile, "Dump MVM profile JSON file.");
 }

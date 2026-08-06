@@ -56,7 +56,8 @@ class Config {
                         "read_disturb_mitigation_strategy",
                         "read_disturb_mitigation_fp",
                         "read_disturb_update_tolerance",
-                        "parasitics"});
+                        "parasitics",
+                        "mvm_profile"});
 
     /** Physical cells one logical weight occupies under the current mapping. */
     XbarFactors factors() const;
