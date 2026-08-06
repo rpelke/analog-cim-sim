@@ -94,21 +94,14 @@ BinnedHistogram::BinnedHistogram(float min, float max, float bin_size) :
         });
 }
 
-void BinnedHistogram::update(const float value) {
-    // TODO: Check if values are within histogram ranges
-    // Offset values to get indices to update histogram data
-    int32_t index = round((value - this->min_) / bin_size_);
-    data_[index]++;
-}
+void BinnedHistogram::update(const float value) { data_[get_index(value)]++; }
 
 void BinnedHistogram::update(const std::vector<float> &values) {
-    // TODO: Check if values are within histogram ranges
     // Offset values to get indices to update histogram data
     std::vector<int32_t> indices(values.size(), 0);
     std::transform(std::execution::par_unseq, values.begin(), values.end(),
-                   indices.begin(), [this](float v) -> int32_t {
-                       return round((v - this->min_) / bin_size_);
-                   });
+                   indices.begin(),
+                   [this](float v) -> int32_t { return get_index(v); });
     // Update histogram data
     std::for_each(std::execution::seq, indices.begin(), indices.end(),
                   [this](int32_t i) -> void { this->data_[i]++; });
@@ -150,10 +143,28 @@ json BinnedHistogram::to_json() const {
                 {"var", get_variance()}};
 }
 
+int32_t BinnedHistogram::get_index(const float value) {
+    if (value <= min_)
+        return 0;
+    else if (value >= max_)
+        return num_bins_ - 1;
+
+    int32_t index =
+        static_cast<int32_t>(std::floor((value - min_) / bin_size_));
+
+    // Floating point sanitation
+    if (index < 0)
+        index = 0;
+    else if (index >= num_bins_)
+        index = num_bins_ - 1;
+
+    return index;
+}
+
 Stratum::Stratum(std::map<std::string, float> values) : values_(values) {}
 
 StratumFactory::StratumFactory(std::map<std::string, float> bin_sizes) :
-    bin_sizes_(bin_sizes) {}
+    bin_sizes_(std::move(bin_sizes)) {}
 
 std::unique_ptr<Stratum>
 StratumFactory::get_stratum(std::map<std::string, float> values) const {
@@ -176,18 +187,16 @@ StratifiedHistogram::StratifiedHistogram(float min, float max, float bin_size) :
     max_(max),
     bin_size_(bin_size) {}
 
-void StratifiedHistogram::update(std::unique_ptr<Stratum> &stratum,
+void StratifiedHistogram::update(const std::unique_ptr<Stratum> &stratum,
                                  float value) {
-    auto [it, inserted] =
-        hists_.try_emplace(std::move(*stratum), min_, max_, bin_size_);
+    auto [it, inserted] = hists_.try_emplace(*stratum, min_, max_, bin_size_);
 
     it->second.update(value);
 }
 
-void StratifiedHistogram::update(std::unique_ptr<Stratum> &stratum,
+void StratifiedHistogram::update(const std::unique_ptr<Stratum> &stratum,
                                  std::vector<float> &values) {
-    auto [it, inserted] =
-        hists_.try_emplace(std::move(*stratum), min_, max_, bin_size_);
+    auto [it, inserted] = hists_.try_emplace(*stratum, min_, max_, bin_size_);
 
     it->second.update(values);
 }

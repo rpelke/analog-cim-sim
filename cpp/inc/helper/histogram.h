@@ -92,6 +92,9 @@ class BinnedHistogram {
     json to_json() const;
 
   private:
+    /** Get histogram index for given value. */
+    int32_t get_index(const float value);
+
     float min_;      /**< Minimum value */
     float max_;      /**< Maximum value */
     float bin_size_; /**< Bin size */
@@ -167,10 +170,10 @@ class StratifiedHistogram {
     virtual ~StratifiedHistogram() = default;
 
     /** Update histogram for a given stratum with a value. */
-    void update(std::unique_ptr<Stratum> &stratum, float values);
+    void update(const std::unique_ptr<Stratum> &stratum, float values);
 
     /** Update histogram for a given stratum with a vector of values. */
-    void update(std::unique_ptr<Stratum> &stratum, std::vector<float> &values);
+    void update(const std::unique_ptr<Stratum> &stratum, std::vector<float> &values);
 
     /** Get strata present in the histogram. */
     std::vector<Stratum> get_strata() const;
