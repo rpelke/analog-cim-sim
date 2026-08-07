@@ -122,11 +122,11 @@ class Mapper {
     std::shared_ptr<ParasiticSolver>
         par_solver_; /**< Parasitic resistance solver */
     std::reference_wrapper<MVMHistograms>
-        mvm_hists_; /**< MVM profiling histograms */
+        mvm_prof_hists_; /**< MVM profiling histograms */
     std::unique_ptr<StratumFactory>
-        mvm_strat_factory_; /**< Stratum factory for MVM profiling. */
-    std::unique_ptr<Stratum>
-        mvm_cur_strat_; /**< Current stratum based on last write to crossbar. */
+        mvm_prof_strat_factory_; /**< Stratum factory for MVM profiling. */
+    std::unique_ptr<Stratum> mvm_prof_cur_strat_; /**< Current stratum based on
+                                                     last write to crossbar. */
 
   private:
     // State variability

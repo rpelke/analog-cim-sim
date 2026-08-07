@@ -173,7 +173,8 @@ class StratifiedHistogram {
     void update(const std::unique_ptr<Stratum> &stratum, float values);
 
     /** Update histogram for a given stratum with a vector of values. */
-    void update(const std::unique_ptr<Stratum> &stratum, std::vector<float> &values);
+    void update(const std::unique_ptr<Stratum> &stratum,
+                std::vector<float> &values);
 
     /** Get strata present in the histogram. */
     std::vector<Stratum> get_strata() const;

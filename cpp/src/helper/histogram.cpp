@@ -232,7 +232,7 @@ json StratifiedHistogram::to_json() const {
                                    {"histogram", kv.second.to_json()}};
                    });
 
-    return json{{"strata", strata}};
+    return json(strata);
 }
 
 ADCHistograms::ADCHistograms() {}

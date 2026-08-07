@@ -124,7 +124,7 @@ Mapper::Mapper(const MappingProperties &props) :
                std::vector<float>(CFG.capacity().n, CFG.HRS)),
     i_step_size_(CFG.SPLIT.size(), 0.0),
     adc_(ADCFactory::createADC(CFG.adc_type)),
-    mvm_hists_(MVMHistograms::get_instance())
+    mvm_prof_hists_(MVMHistograms::get_instance())
 
 {
 
@@ -161,7 +161,7 @@ Mapper::Mapper(const MappingProperties &props) :
     }
 
     if (CFG.mvm_profile) {
-        mvm_strat_factory_ =
+        mvm_prof_strat_factory_ =
             std::make_unique<StratumFactory>(std::map<std::string, float>{
                 {"rows", 1.0},
                 {"cols", 1.0},
@@ -566,7 +566,7 @@ float Mapper::get_average_cell_value(
     double sum = 0.0;
     std::int64_t count = 0;
 
-    auto sum_matrix = [&](const std::vector<std::vector<int32_t>> &matrix) {
+    auto reduce_matrix = [&](const std::vector<std::vector<int32_t>> &matrix) {
         sum += std::transform_reduce(
             std::execution::par, matrix.begin(), matrix.begin() + m_matrix, 0.0,
             std::plus<>{}, [&](const std::vector<int32_t> &row) {
@@ -583,10 +583,10 @@ float Mapper::get_average_cell_value(
                  static_cast<std::int64_t>(n_matrix);
     };
 
-    sum_matrix(gd_p);
+    reduce_matrix(gd_p);
 
     if (gd_m.has_value()) {
-        sum_matrix(gd_m->get());
+        reduce_matrix(gd_m->get());
     }
 
     return static_cast<float>(sum / static_cast<double>(count));
@@ -607,7 +607,7 @@ float Mapper::get_average_input_value(
     double sum = 0.0;
     std::int64_t count = 0;
 
-    auto sum_vector = [&](const std::vector<int32_t> &vec) {
+    auto reduce_vector = [&](const std::vector<int32_t> &vec) {
         sum += std::transform_reduce(std::execution::par, vec.begin(),
                                      vec.begin() + n_matrix, 0.0, std::plus<>{},
                                      [&](int32_t value) {
@@ -619,10 +619,10 @@ float Mapper::get_average_input_value(
         count += static_cast<std::int64_t>(n_matrix);
     };
 
-    sum_vector(vd_p);
+    reduce_vector(vd_p);
 
     if (vd_m.has_value()) {
-        sum_vector(vd_m->get());
+        reduce_vector(vd_m->get());
     }
 
     return static_cast<float>(sum / static_cast<double>(count));
@@ -631,16 +631,17 @@ float Mapper::get_average_input_value(
 void Mapper::profile_mvm(const float avg_input_val, const char *l_name) {
     // Check if a histogram already exists for the given layer, otherwise
     // create one.
-    if (!mvm_hists_.get().has_histogram(l_name)) {
-        mvm_hists_.get().add_histogram(l_name, 0.0, 1.0,
-                                       CFG.mvm_profile_bin_size);
+    if (!mvm_prof_hists_.get().has_histogram(l_name)) {
+        // Average input values are recored between 0 and 1
+        mvm_prof_hists_.get().add_histogram(l_name, 0.0, 1.0,
+                                            CFG.mvm_profile_bin_size);
     }
 
     // Update values in layer histogram
     std::reference_wrapper<StratifiedHistogram> l_hist(
-        mvm_hists_.get().get_histogram(l_name).value());
+        mvm_prof_hists_.get().get_histogram(l_name).value());
 
-    l_hist.get().update(mvm_cur_strat_, avg_input_val);
+    l_hist.get().update(mvm_prof_cur_strat_, avg_input_val);
 }
 
 void Mapper::a_add_c2c_var(int32_t m_matrix, int32_t n_matrix) {

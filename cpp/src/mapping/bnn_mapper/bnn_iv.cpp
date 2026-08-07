@@ -29,6 +29,16 @@ void MapperBnnIV::d_write(const int32_t *mat, int32_t m_matrix,
             gd_p_[m][n] = (mat[n_matrix * m + n] - 1) / -2;
         }
     }
+
+    if (CFG.mvm_profile) {
+        // Construct new MVM profile stratum
+        float avg_cell_val = get_average_cell_value(gd_p_, std::nullopt,
+                                                    m_matrix, n_matrix, 0, 1);
+        mvm_prof_cur_strat_ = mvm_prof_strat_factory_->get_stratum(
+            std::map<std::string, float>{{"rows", n_matrix},
+                                         {"cols", m_matrix},
+                                         {"avg_cell_val", avg_cell_val}});
+    }
 }
 
 void MapperBnnIV::a_write(int32_t m_matrix, int32_t n_matrix) {
@@ -109,6 +119,16 @@ void MapperBnnIV::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 
     for (size_t m = 0; m < m_matrix; ++m) {
         res[m] += tmp_out_m_[m] - tmp_out_p_[m] + vec_sum;
+    }
+
+    if (CFG.mvm_profile) {
+        // Profile inputs vd_p and vd_m as separate MVMs
+        float avg_input_val_p =
+            get_average_input_value(vd_p_, std::nullopt, n_matrix);
+        float avg_input_val_m =
+            get_average_input_value(vd_m_, std::nullopt, n_matrix);
+        profile_mvm(avg_input_val_p, l_name);
+        profile_mvm(avg_input_val_m, l_name);
     }
 }
 

@@ -20,6 +20,13 @@ MapperBnnII::~MapperBnnII() {}
 void MapperBnnII::d_write(const int32_t *mat, int32_t m_matrix,
                           int32_t n_matrix) {
     d_write_diff_bnn(mat, m_matrix, n_matrix);
+    if (CFG.mvm_profile) {
+        // Construct new MVM profile stratum
+        mvm_prof_cur_strat_ = mvm_prof_strat_factory_->get_stratum(
+            std::map<std::string, float>{{"rows", n_matrix},
+                                         {"cols", m_matrix},
+                                         {"avg_cell_val", avg_cell_val_}});
+    }
 }
 
 void MapperBnnII::a_write(int32_t m_matrix, int32_t n_matrix) {
@@ -73,6 +80,12 @@ void MapperBnnII::a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
 
     for (size_t m = 0; m < m_matrix; ++m) {
         res[m] += tmp_out_[m] + sum_w_[m];
+    }
+
+    if (CFG.mvm_profile) {
+        float avg_input_val =
+            get_average_input_value(vd_, std::nullopt, n_matrix);
+        profile_mvm(avg_input_val, l_name);
     }
 }
 

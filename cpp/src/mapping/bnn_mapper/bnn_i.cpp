@@ -23,14 +23,10 @@ void MapperBnnI::d_write(const int32_t *mat, int32_t m_matrix,
 
     if (CFG.mvm_profile) {
         // Construct new MVM profile stratum
-        std::optional<std::reference_wrapper<std::vector<std::vector<int32_t>>>>
-            gd_m{std::ref(gd_m_)};
-        float avg_cell_val =
-            get_average_cell_value(gd_p_, gd_m, m_matrix, n_matrix, 0, 1);
-        mvm_cur_strat_ = mvm_strat_factory_->get_stratum(
+        mvm_prof_cur_strat_ = mvm_prof_strat_factory_->get_stratum(
             std::map<std::string, float>{{"rows", n_matrix},
                                          {"cols", m_matrix},
-                                         {"avg_cell_val", avg_cell_val}});
+                                         {"avg_cell_val", avg_cell_val_}});
     }
 }
 

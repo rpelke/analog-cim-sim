@@ -46,6 +46,10 @@ class MapperBnnVI : public Mapper {
     std::vector<int32_t> vd_p_;
     std::vector<int32_t> vd_m_;
     std::vector<float> tmp_out_;
+
+    // For BNN VI, average cell value is always 0.5, due to
+    // differential encoding of binary values.
+    const float avg_cell_val_ = 0.5;
 };
 
 } // namespace nq
