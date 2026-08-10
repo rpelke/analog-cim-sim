@@ -29,8 +29,8 @@ void MapperBnnVI::d_write(const int32_t *mat, int32_t m_matrix,
         std::optional<std::reference_wrapper<std::vector<std::vector<int32_t>>>>
             gd_m{std::ref(gd_m_)};
         mvm_prof_cur_strat_ = mvm_prof_strat_factory_->get_stratum(
-            std::map<std::string, float>{{"rows", n_matrix},
-                                         {"cols", m_matrix},
+            std::map<std::string, float>{{"rows", n_matrix * 2},
+                                         {"cols", m_matrix * 2},
                                          {"avg_cell_val", avg_cell_val_}});
     }
 }

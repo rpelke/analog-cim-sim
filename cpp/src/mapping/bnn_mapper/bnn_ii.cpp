@@ -24,7 +24,7 @@ void MapperBnnII::d_write(const int32_t *mat, int32_t m_matrix,
         // Construct new MVM profile stratum
         mvm_prof_cur_strat_ = mvm_prof_strat_factory_->get_stratum(
             std::map<std::string, float>{{"rows", n_matrix},
-                                         {"cols", m_matrix},
+                                         {"cols", m_matrix * 2},
                                          {"avg_cell_val", avg_cell_val_}});
     }
 }
