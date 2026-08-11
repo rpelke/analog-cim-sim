@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
 
@@ -25,12 +25,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake python3.11-dev gdb libtbb-dev
+          sudo apt-get install -y cmake python3.12-dev gdb libtbb-dev
 
       - name: Setup python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Create virtual environment
         run: |
@@ -47,7 +47,7 @@ jobs:
           cmake \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
-            -DPY_INSTALL_PATH=${{github.workspace}}/.venv/lib/python3.11/site-packages \
+            -DPY_INSTALL_PATH=${{github.workspace}}/.venv/lib/python3.12/site-packages \
             -DLIB_TESTS=OFF \
             -DBUILD_LIB_ACS_PY=ON \
             ../cpp

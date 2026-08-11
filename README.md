@@ -149,9 +149,13 @@ To manually test the coverage (library was built with -DCOVERAGE=ON set):
 ```bash
 cd build/debug/build
 ctest -C . --output-on-failure
-lcov --capture --directory . --output-file coverage_int.info --include '*cpp*' --exclude '*extern*'
+lcov --capture --directory . --output-file coverage_int.info --include '*cpp*' --exclude '*extern*' \
+    --ignore-errors mismatch
 genhtml coverage_int.info --output-directory coverage_int_html
 ```
+
+`--ignore-errors mismatch` is required with `lcov` 2.x (the version shipped by Ubuntu 24.04).
+With `lcov` 1.x it can be omitted.
 
 The line and function coverage should be displayed at the end of the `genhtml` command.
 

@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
 
@@ -25,12 +25,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake python3.11-dev gcc g++ lcov libtbb-dev
+          sudo apt-get install -y cmake python3.12-dev gcc g++ lcov libtbb-dev
 
       - name: Setup python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Create virtual environment
         run: |
@@ -43,7 +43,7 @@ jobs:
           mkdir build && cd build
           cmake \
             -DCMAKE_BUILD_TYPE=Debug \
-            -DPY_INSTALL_PATH=${{github.workspace}}/.venv/lib/python3.11/site-packages \
+            -DPY_INSTALL_PATH=${{github.workspace}}/.venv/lib/python3.12/site-packages \
             -DLIB_TESTS=ON \
             -DBUILD_LIB_CB_EMU=ON \
             -DBUILD_LIB_ACS_PY=ON \
@@ -58,9 +58,15 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           ctest -C . --output-on-failure
-          lcov --capture --directory . --output-file coverage_int.info --include '*cpp*' --exclude '*extern*'
-          COVERAGE_LINES=$(genhtml coverage_int.info --output-directory coverage_int_html | grep 'lines' | awk '{print $2}')
-          COVERAGE_FUNC=$(genhtml coverage_int.info --output-directory coverage_int_html | grep 'functions' | awk '{print $2}')
+          # lcov 2.x fails on the end-line mismatch of the PYBIND11_MODULE
+          # init function. It is the only one, and ignoring it keeps the
+          # numbers lcov 1.x reported -> excluding the file would inflate them.
+          lcov --capture --directory . --output-file coverage_int.info \
+            --include '*cpp*' --exclude '*extern*' --ignore-errors mismatch
+          genhtml coverage_int.info --output-directory coverage_int_html
+          # 'lcov --summary' prints just the totals, unlike the genhtml log.
+          COVERAGE_LINES=$(lcov --summary coverage_int.info | grep -oP 'lines\.+:\s*\K[0-9.]+%')
+          COVERAGE_FUNC=$(lcov --summary coverage_int.info | grep -oP 'functions\.+:\s*\K[0-9.]+%')
           echo "Coverage lines: $COVERAGE_LINES"
           echo "Coverage functions: $COVERAGE_FUNC"
           echo "COVERAGE_LINES=$COVERAGE_LINES" >> $GITHUB_ENV
