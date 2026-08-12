@@ -169,8 +169,8 @@ The line and function coverage should be displayed at the end of the `genhtml` c
 
 ## Linting (Style)
 
-To test the linting locally, you need `clang-format-18`.
-In the devcontainer, `clang-format-18` and the Python packages below are already installed.
+To test the linting locally, you need `clang-format-18`, `shellcheck` and `shfmt`.
+In the devcontainer, these and the Python packages below are already installed.
 
 Install the required Python packages:
 
@@ -185,6 +185,7 @@ Run:
 ```bash
 ./util/format_cpp.py
 ./util/format_py.py
+./util/format_sh.py
 pymarkdown scan README.md
 ```
 

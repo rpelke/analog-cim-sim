@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang-format-18
+          sudo apt-get install -y clang-format-18 shellcheck shfmt
 
       - name: Setup python
         uses: actions/setup-python@v4
@@ -38,3 +38,4 @@ jobs:
           ./util/format_cpp.py
           ./util/format_py.py
           pymarkdown scan README.md
+          ./util/format_sh.py
