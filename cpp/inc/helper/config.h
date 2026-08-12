@@ -83,7 +83,7 @@ class Config : public Singleton<Config> {
     uint32_t I_BIT;
 
     // No conversion to analog values
-    bool digital_only;
+    bool digital_only = false;
 
     // LRS and HRS current (in uA)
     float HRS;
@@ -96,9 +96,9 @@ class Config : public Singleton<Config> {
     // adc_profile_bin_size: Binning size for ADC profile histogram
     // adc_calib_mode: Calibration mode for ADC
     // adc_calib_dict: ADC calibration dictionary with per-layer current limits
-    ADCType adc_type;
+    ADCType adc_type = ADCType::INF_ADC;
     int32_t resolution;
-    bool adc_profile;
+    bool adc_profile = false;
     int adc_profile_bin_size;
     ADCCalibMode adc_calib_mode;
     std::map<std::string, std::pair<float, float>> adc_calib_dict;
@@ -107,26 +107,26 @@ class Config : public Singleton<Config> {
     // mvm_profile: Whether MVMs should be profiled
     // mvm_profile_bin_size: Binning size for average weight/input values
     // (between 0 & 1)
-    bool mvm_profile;
+    bool mvm_profile = false;
     float mvm_profile_bin_size;
 
     // Mapping strategy
     MappingMode m_mode;
 
     // Verbose output
-    bool verbose;
+    bool verbose = false;
 
     // State variability: standard deviation of a gaussian distribution (in uA)
     float HRS_NOISE;
     float LRS_NOISE;
-    bool d2d_var; // Model device-to-device variation
-    bool c2c_var; // Model cycle-to-cycle variation
+    bool d2d_var = false; // Model device-to-device variation
+    bool c2c_var = false; // Model cycle-to-cycle variation
 
     // Read disturb parameters
     // t_read: time of a read pulse (in s)
     // read_disturb_update_freq: how often (in number of MVMs) the conductance
     // is updated
-    bool read_disturb;
+    bool read_disturb = false;
     float t_read;
     uint32_t read_disturb_update_freq;
 
@@ -144,7 +144,7 @@ class Config : public Singleton<Config> {
 
     // Parasitic resistance modeling parameters
     // w_res: parasitic wire resistance (in Ohm)
-    bool parasitics;
+    bool parasitics = false;
     float w_res;
 
     // V_read: read voltage (in V, negative) - Needed for parasitics and read
