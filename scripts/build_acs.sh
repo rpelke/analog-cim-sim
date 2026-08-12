@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 # Dynamically locate the project root directory
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 PROJECT_ROOT=$(dirname "$SCRIPT_DIR")
 
 # Dynamically detect python version inside the .venv

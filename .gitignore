@@ -8,6 +8,7 @@ build/
 *.json
 !cpp/test/lib/configs/*.json
 !cpp/test/lib/configs/*/*.json
+!.devcontainer/devcontainer.json
 
 # Python packages
 dist/*

@@ -62,6 +62,14 @@ git clone --recursive git@github.com:rpelke/analog-cim-sim.git
 
 Reopen the folder in the devcontainer, the devcontainer.json will automatically build the container.
 
+Its `postCreateCommand` initializes the submodules and creates the `.venv` with all build and style requirements,
+and VS Code installs the recommended extensions (C/C++, CMake Tools, Python, yapf, markdownlint, ShellCheck,
+GitHub Actions). The editor is preconfigured to format with the same tools the Style workflow checks:
+`clang-format-18` for C/C++ and `yapf` with `.style.yapf` for Python.
+
+A `.venv` or CMake build tree that was created on the host is rebuilt automatically, since both record absolute
+paths that do not resolve inside the container.
+
 Run the build script provided in `scripts/build_acs.sh`:
 
 ```bash
@@ -162,6 +170,7 @@ The line and function coverage should be displayed at the end of the `genhtml` c
 ## Linting (Style)
 
 To test the linting locally, you need `clang-format-18`.
+In the devcontainer, `clang-format-18` and the Python packages below are already installed.
 
 Install the required Python packages:
 

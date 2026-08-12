@@ -1,0 +1,110 @@
+// Dev container for analog-cim-sim.
+// Docs: https://containers.dev/implementors/json_reference/
+{
+    "name": "analog-cim-sim",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "."
+    },
+    // Initializes submodules and the .venv (see requirements.txt).
+    "postCreateCommand": "./.devcontainer/post_create.sh",
+    "remoteEnv": {
+        // Makes every cmake configure (also scripts/build_acs.sh) emit
+        // compile_commands.json, which drives C/C++ IntelliSense below.
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "1"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                // C++ / CMake toolchain
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools",
+                // Python bindings + unittest
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.debugpy",
+                // yapf is the formatter this repo enforces (.style.yapf,
+                // ./util/format_py.py).
+                "eeyore.yapf",
+                // README is linted by pymarkdown in the Style workflow, and the
+                // support matrix is a wide Markdown table
+                "davidanson.vscode-markdownlint",
+                "darkriszty.markdown-table-prettify",
+                // scripts/*.sh: LSP driven by the image's shellcheck and shfmt
+                "mads-hartmann.bash-ide-vscode",
+                // .github/workflows/*.yml
+                "github.vscode-github-actions"
+            ],
+            "settings": {
+                // --- Python -------------------------------------------------
+                "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+                "python.terminal.activateEnvInCurrentTerminal": true,
+                "python.testing.unittestEnabled": true,
+                "python.testing.pytestEnabled": false,
+                "python.testing.unittestArgs": [
+                    "-s",
+                    "int-bindings/test",
+                    "-p",
+                    "*_test.py"
+                ],
+                // Format with yapf against the repo's .style.yapf, i.e. exactly
+                // what ./util/format_py.py checks in the Style workflow.
+                "yapf.interpreter": [
+                    "${workspaceFolder}/.venv/bin/python"
+                ],
+                "yapf.args": [
+                    "--style",
+                    "${workspaceFolder}/.style.yapf"
+                ],
+                "[python]": {
+                    "editor.defaultFormatter": "eeyore.yapf",
+                    "editor.formatOnSave": true
+                },
+                // --- C++ / CMake --------------------------------------------
+                "cmake.sourceDirectory": "${workspaceFolder}/cpp",
+                "cmake.buildDirectory": "${workspaceFolder}/build/debug/build",
+                // scripts/build_acs.sh owns the configure step (it passes
+                // PY_INSTALL_PATH / CMAKE_PREFIX_PATH); run it once, then the
+                // CMake Tools build/test panels work against that build dir.
+                "cmake.configureOnOpen": false,
+                "C_Cpp.default.compileCommands": "${workspaceFolder}/build/debug/build/compile_commands.json",
+                "C_Cpp.default.compilerPath": "/usr/bin/g++",
+                "C_Cpp.default.cppStandard": "c++17",
+                "C_Cpp.formatting": "clangFormat",
+                "C_Cpp.clang_format_path": "/usr/bin/clang-format-18",
+                "C_Cpp.clang_format_style": "file",
+                "[cpp]": {
+                    "editor.defaultFormatter": "ms-vscode.cpptools",
+                    "editor.formatOnSave": true
+                },
+                "[c]": {
+                    "editor.defaultFormatter": "ms-vscode.cpptools",
+                    "editor.formatOnSave": true
+                },
+                // --- Markdown -----------------------------------------------
+                // Mirrors .pymarkdown.
+                "markdownlint.configFile": ".devcontainer/markdownlint.yaml",
+                // --- Shell ----------------------------------------------------
+                // shfmt takes its indent from the editor, so set it here.
+                "[shellscript]": {
+                    "editor.defaultFormatter": "mads-hartmann.bash-ide-vscode",
+                    "editor.formatOnSave": true,
+                    "editor.tabSize": 4,
+                    "editor.insertSpaces": true
+                },
+                "bashIde.shfmt.caseIndent": true,
+                // --- Misc ---------------------------------------------------
+                "files.watcherExclude": {
+                    "**/build/**": true,
+                    "**/.venv/**": true
+                },
+                "search.exclude": {
+                    "**/build": true,
+                    "**/.venv": true,
+                    "cpp/extern": true,
+                    "cpp/test/googletest": true
+                }
+            }
+        }
+    }
+}
