@@ -73,7 +73,8 @@ paths that do not resolve inside the container.
 Run the build script provided in `scripts/build_acs.sh`:
 
 ```bash
-./scripts/build_acs.sh
+./scripts/build_acs.sh              # Debug (default)
+./scripts/build_acs.sh -t Release   # Release
 ```
 
 ### Native Building
@@ -90,16 +91,18 @@ pip3 install -r requirements.txt
 
 Run the build script provided in `scripts/build_acs.sh`.
 Make sure that `libtbb-dev` is installed (it may be called `tbb-devel` on other Linux distributions).
-You can also change the `CMAKE_BUILD_TYPE` in this script (it is currently set to `Debug`).
+The script builds `Debug` by default. Pass `-t` (or `--type`) to select `Release`, `RelWithDebInfo` or
+`MinSizeRel`; `-h` lists the options.
 
 ```bash
-./scripts/build_acs.sh
+./scripts/build_acs.sh              # Debug (default)
+./scripts/build_acs.sh -t Release   # Release
 ```
 
 **Or** build and install the project without the script (replace the placeholders):
 
 ```bash
-export PY_PACKAGE_DIR=<path to 'site-packages'> # can be found in .venv/lib/<python-version>
+export PY_PACKAGE_DIR=<directory containing 'site-packages'> # i.e. .venv/lib/python<python-version>
 
 mkdir -p build/release/build && cd build/release/build
 cmake \
