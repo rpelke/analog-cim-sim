@@ -1,0 +1,8 @@
+# clangd configuration for analog-cim-sim.
+# Docs: https://clangd.llvm.org/config
+
+# Vendored submodules: navigable, but not our code to fix.
+If:
+    PathMatch: cpp/(extern|test/googletest)/.*
+Diagnostics:
+    Suppress: "*"

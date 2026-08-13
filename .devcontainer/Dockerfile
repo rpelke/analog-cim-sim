@@ -3,6 +3,7 @@ FROM ubuntu:24.04
 
 # Install system dependencies including CMake >= 3.15, Python3 development tools, and TBB.
 # clang-format-18 is required by ./util/format_cpp.py (see the Style workflow).
+# clangd-18 backs the C/C++ LSP (see the clangd settings in devcontainer.json).
 # shellcheck and shfmt back the Bash IDE extension.
 RUN apt-get update -qq \
     && apt-get install -y --no-install-recommends \
@@ -20,6 +21,7 @@ RUN apt-get update -qq \
     libtbb-dev \
     lcov \
     clang-format-18 \
+    clangd-18 \
     shellcheck \
     shfmt \
     && apt-get clean \

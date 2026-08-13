@@ -8,17 +8,16 @@
     },
     // Initializes submodules and the .venv (see requirements.txt).
     "postCreateCommand": "./.devcontainer/post_create.sh",
-    "remoteEnv": {
-        // Makes every cmake configure (also scripts/build_acs.sh) emit
-        // compile_commands.json, which drives C/C++ IntelliSense below.
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "1"
-    },
     "customizations": {
         "vscode": {
             "extensions": [
-                // C++ / CMake toolchain
+                // C++ / CMake toolchain. clangd owns IntelliSense and
+                // formatting, cpptools is kept only for its cppdbg (gdb)
+                // debug adapter, with its own engine disabled below.
+                "llvm-vs-code-extensions.vscode-clangd",
                 "ms-vscode.cpptools",
                 "ms-vscode.cmake-tools",
+                "ms-vscode.cpp-devtools",
                 // Python bindings + unittest
                 "ms-python.python",
                 "ms-python.vscode-pylance",
@@ -63,22 +62,22 @@
                 // --- C++ / CMake --------------------------------------------
                 "cmake.sourceDirectory": "${workspaceFolder}/cpp",
                 "cmake.buildDirectory": "${workspaceFolder}/build/debug/build",
-                // scripts/build_acs.sh owns the configure step (it passes
-                // PY_INSTALL_PATH / CMAKE_PREFIX_PATH); run it once, then the
-                // CMake Tools build/test panels work against that build dir.
                 "cmake.configureOnOpen": false,
-                "C_Cpp.default.compileCommands": "${workspaceFolder}/build/debug/build/compile_commands.json",
-                "C_Cpp.default.compilerPath": "/usr/bin/g++",
-                "C_Cpp.default.cppStandard": "c++17",
-                "C_Cpp.formatting": "clangFormat",
-                "C_Cpp.clang_format_path": "/usr/bin/clang-format-18",
-                "C_Cpp.clang_format_style": "file",
+                // clangd is the language server.
+                "C_Cpp.intelliSenseEngine": "disabled",
+                "clangd.path": "/usr/bin/clangd-18",
+                "clangd.arguments": [
+                    // The database compiles with g++-13 -> ask that driver for its
+                    // libstdc++ include paths instead of guessing them.
+                    "--query-driver=/usr/bin/g++*",
+                    "--background-index"
+                ],
                 "[cpp]": {
-                    "editor.defaultFormatter": "ms-vscode.cpptools",
+                    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
                     "editor.formatOnSave": true
                 },
                 "[c]": {
-                    "editor.defaultFormatter": "ms-vscode.cpptools",
+                    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
                     "editor.formatOnSave": true
                 },
                 // --- Markdown -----------------------------------------------
@@ -96,11 +95,13 @@
                 // --- Misc ---------------------------------------------------
                 "files.watcherExclude": {
                     "**/build/**": true,
-                    "**/.venv/**": true
+                    "**/.venv/**": true,
+                    "**/.cache/**": true
                 },
                 "search.exclude": {
                     "**/build": true,
                     "**/.venv": true,
+                    "**/.cache": true,
                     "cpp/extern": true,
                     "cpp/test/googletest": true
                 }

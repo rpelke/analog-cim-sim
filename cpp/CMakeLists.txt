@@ -20,6 +20,9 @@ if (COVERAGE)
     set(CMAKE_CXX_COMPILER g++)
 endif()
 
+# Emit compile_commands.json unconditionally so it does not depend on the environment of the caller for LSP support.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "Emit compile_commands.json.")
+
 project(analog-cim-sim)
 
 # Include for standardized install directories
@@ -169,4 +172,22 @@ endif()
 if(DEBUG_MODE)
     add_definitions(-DDEBUG_MODE)
     message(STATUS "Debug mode enabled - will print matrix operation details.")
+endif()
+
+# Link the compile_commands.json database from the build tree into the repository root so that LSP clients can find it.
+if(CMAKE_EXPORT_COMPILE_COMMANDS AND CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    get_filename_component(ACS_REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/.." ABSOLUTE)
+    if(NOT ACS_REPO_ROOT STREQUAL CMAKE_BINARY_DIR)
+        # SYMBOLIC: the database is written at generate time, i.e. after this
+        # call, so a hard link would have nothing to point at yet.
+        file(CREATE_LINK
+            "${CMAKE_BINARY_DIR}/compile_commands.json"
+            "${ACS_REPO_ROOT}/compile_commands.json"
+            SYMBOLIC
+            RESULT ACS_COMPILE_COMMANDS_LINK)
+        if(NOT ACS_COMPILE_COMMANDS_LINK STREQUAL "0")
+            message(WARNING "Could not link compile_commands.json into "
+                "${ACS_REPO_ROOT}: ${ACS_COMPILE_COMMANDS_LINK}")
+        endif()
+    endif()
 endif()
