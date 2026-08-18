@@ -50,6 +50,16 @@ mappings that accumulate a signed column current (the differential ones) require
 mappings whose column current is positive-only (`I_UINT_W_OFFS`, `BNN_III`, `BNN_IV`, `BNN_V`, `TNN_IV`, `TNN_V`)
 require `POS_RANGE_ONLY_ADC`. `INF_ADC` models an ideal ADC without quantization and clipping and is always allowed.
 
+## Requirements
+
+To build the project, you will require:
+
+- `cmake` >= 3.15
+- `python3` (*dev version* for pybind11). The build is tested with Python `3.12`.
+- oneAPI Threading Building Blocks (`oneTBB`). On Debian-based distributions,
+  `sudo apt install libtbb-dev` (it may be called `tbb-devel` on other Linux distributions).
+  For more details see this [website](https://uxlfoundation.github.io/oneTBB/index.html).
+
 ## Build instructions
 
 Clone the repository including submodules:
@@ -58,31 +68,7 @@ Clone the repository including submodules:
 git clone --recursive git@github.com:rpelke/analog-cim-sim.git
 ```
 
-### Building in the devcontainer
-
-Reopen the folder in the devcontainer, the devcontainer.json will automatically build the container.
-
-Its `postCreateCommand` initializes the submodules and creates the `.venv` with all build and style requirements,
-and VS Code installs the recommended extensions (clangd, CMake Tools, Python, yapf, markdownlint, ShellCheck,
-GitHub Actions). The editor is preconfigured to format with the same tools the Style workflow checks:
-`clang-format-18` for C/C++ (via `clangd-18` and the repository `.clang-format`) and `yapf` with `.style.yapf`
-for Python.
-
-A `.venv` or CMake build tree that was created on the host is rebuilt automatically, since both record absolute
-paths that do not resolve inside the container.
-
-Run the build script provided in `scripts/build_acs.sh`:
-
-```bash
-./scripts/build_acs.sh              # Debug (default)
-./scripts/build_acs.sh -t Release   # Release
-```
-
-### Native Building
-
-The follwing steps have been tested with Python versions `>=3.11` and `<=3.14`.
-
-If you are not using the devcontainer, create a virtual environment:
+Create a virtual environment and install the build requirements:
 
 ```bash
 python3 -m venv .venv
@@ -91,16 +77,44 @@ pip3 install -r requirements.txt
 ```
 
 Run the build script provided in `scripts/build_acs.sh`.
-Make sure that `libtbb-dev` is installed (it may be called `tbb-devel` on other Linux distributions).
 The script builds `Debug` by default. Pass `-t` (or `--type`) to select `Release`, `RelWithDebInfo` or
-`MinSizeRel`; `-h` lists the options.
+`MinSizeRel`. `-h` lists the options.
 
 ```bash
 ./scripts/build_acs.sh              # Debug (default)
 ./scripts/build_acs.sh -t Release   # Release
 ```
 
-**Or** build and install the project without the script (replace the placeholders):
+## Testing
+
+Execute the tests:
+
+```bash
+python3 -m unittest discover -s int-bindings/test -p '*_test.py'
+```
+
+## Development
+
+This section covers the devcontainer, the manual build, debugging and linting.
+
+### Devcontainer
+
+Reopen the folder in the devcontainer, the devcontainer.json will automatically build the container.
+All requirements listed above are already installed in it, as are the linting tools.
+
+Building works exactly as described above:
+
+```bash
+# Source the virtual environment first
+source .venv/bin/activate
+
+./scripts/build_acs.sh              # Debug (default)
+./scripts/build_acs.sh -t Release   # Release
+```
+
+### Building without the build script
+
+Build and install the project manually (replace the placeholders):
 
 ```bash
 export PY_PACKAGE_DIR=<directory containing 'site-packages'> # i.e. .venv/lib/python<python-version>
@@ -123,18 +137,7 @@ make install
 
 This will build all available targets in release mode with support for unittests.
 
-### Requirements
-
-To build the project, you will require:
-
-- `cmake` >= 3.15
-- `python3` (*dev version* for pybind11)
-- oneAPI Threading Building Blocks (`oneTBB`). On Debian-based distributions,
-  `sudo apt install libtbb-dev`. For more details see this [website](https://uxlfoundation.github.io/oneTBB/index.html).
-
-If you are using the devcontainer, the requirements are already installed.
-
-### Available building targets
+#### Available building targets
 
 | Target Name  | Description                               | Enabled By              | Installed To                            |
 | ------------ | ----------------------------------------- | ----------------------- | --------------------------------------- |
@@ -142,13 +145,27 @@ If you are using the devcontainer, the requirements are already installed.
 | `acs_py`     | Python binding module for the C++ library | `BUILD_LIB_ACS_PY=ON`   | `${PY_INSTALL_PATH}`                    |
 | `acs_core`   | Core C++ library, no interface            | `BUILD_LIB_ACS_CORE=ON` | `lib/` (library) + `include/` (headers) |
 
-## Testing and debugging
+#### Some useful cmake options
 
-Execute the tests:
+Build project with additional debug output:
 
 ```bash
-python3 -m unittest discover -s int-bindings/test -p '*_test.py'
+cmake -DDEBUG_MODE=ON ...
 ```
+
+Build the project with support for coverage:
+
+```bash
+cmake -DCMAKE_BUILD_TYPE=Debug -DLIB_TESTS=ON -DCOVERAGE=ON ...
+```
+
+Use C++17 `filesystem` features for the [unittests](cpp/test/lib/inc/test_helper.h) with old gcc versions (<9.1):
+
+```bash
+cmake -DUSE_STDCXXFS=ON ...
+```
+
+### Debugging and coverage
 
 To detect segmentation faults in the C++ part, you can also run:
 
@@ -171,7 +188,7 @@ With `lcov` 1.x it can be omitted.
 
 The line and function coverage should be displayed at the end of the `genhtml` command.
 
-## Linting (Style)
+### Linting (Style)
 
 To test the linting locally, you need `clang-format-18`, `shellcheck` and `shfmt`.
 In the devcontainer, these and the Python packages below are already installed.
@@ -191,24 +208,4 @@ Run:
 ./util/format_py.py
 ./util/format_sh.py
 pymarkdown scan README.md
-```
-
-### Some useful cmake options
-
-Build project with additional debug output:
-
-```bash
-cmake -DDEBUG_MODE=ON ...
-```
-
-Build the project with support for coverage:
-
-```bash
-cmake -DCMAKE_BUILD_TYPE=Debug -DLIB_TESTS=ON -DCOVERAGE=ON ...
-```
-
-Use C++17 `filesystem` features for the [unittests](cpp/test/lib/inc/test_helper.h) with old gcc versions (<9.1):
-
-```bash
-cmake -DUSE_STDCXXFS=ON ...
 ```
