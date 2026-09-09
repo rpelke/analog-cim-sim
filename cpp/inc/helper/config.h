@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "helper/definitions.h"
+#include "mapping/mapping_properties.h"
 #include "nlohmann/json.hpp"
 #include "xbar/adc.h"
 
@@ -57,7 +58,17 @@ class Config {
                         "read_disturb_update_tolerance",
                         "parasitics"});
 
-    // Matrix dimensions MxN
+    /** Physical cells one logical weight occupies under the current mapping. */
+    XbarFactors factors() const;
+
+    /** Largest logical matrix that fits on the configured crossbar. */
+    XbarCapacity capacity() const;
+
+    /** Number of columns for the state matrices of the crossbar. */
+    uint32_t state_columns() const;
+
+    // Physical crossbar dimensions: M columns (bitlines) by N rows (wordlines).
+    // A weight costs several cells, so use capacity() for the usable size.
     uint32_t M;
     uint32_t N;
 

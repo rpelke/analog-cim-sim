@@ -13,26 +13,51 @@
 namespace nq {
 
 Crossbar::Crossbar() :
-    mapper_(Mapper::create_from_config()),
+    mapper_(Mapper::create()),
     write_xbar_counter_(0),
     mvm_counter_(0),
     rd_model_(nullptr),
     consecutive_mvm_counter_(0),
     refresh_xbar_counter_(0),
-    refresh_cell_counter_(0) {
+    refresh_cell_counter_(0),
+    factors_(CFG.factors()),
+    bits_per_input_(mapper_->properties().bit_serial ? CFG.I_BIT : 1) {
     if (CFG.read_disturb) {
         rd_model_ = std::make_shared<ReadDisturb>(CFG.V_read);
     }
 }
 
-void Crossbar::write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix) {
+bool Crossbar::fits(int32_t m_matrix, int32_t n_matrix) const {
+    const XbarCapacity cap = CFG.capacity();
+    if ((m_matrix <= static_cast<int32_t>(cap.m)) &&
+        (n_matrix <= static_cast<int32_t>(cap.n))) {
+        return true;
+    }
+
+    const XbarFactors f = CFG.factors();
+    std::cerr << "Error: A " << m_matrix << "x" << n_matrix
+              << " matrix does not fit the crossbar. "
+              << Mapper::name_from_mode(CFG.m_mode) << " needs " << f.col
+              << " column(s) and " << f.row << " row(s) per weight, so it maps "
+              << "to " << m_matrix * f.col << "x" << n_matrix * f.row
+              << " cells on a " << CFG.M << "x" << CFG.N
+              << " crossbar. At most " << cap.m << "x" << cap.n << " fits."
+              << std::endl;
+    return false;
+}
+
+int32_t Crossbar::write(const int32_t *mat, int32_t m_matrix,
+                        int32_t n_matrix) {
+    if (!fits(m_matrix, n_matrix)) {
+        return -1;
+    }
     write_xbar_counter_++;
     consecutive_mvm_counter_ = 0;
     if (CFG.read_disturb) {
         std::vector<std::vector<bool>> update_p(
-            CFG.M * CFG.SPLIT.size(), std::vector<bool>(CFG.N, false));
+            CFG.state_columns(), std::vector<bool>(CFG.capacity().n, false));
         std::vector<std::vector<bool>> update_m(
-            CFG.M * CFG.SPLIT.size(), std::vector<bool>(CFG.N, false));
+            CFG.state_columns(), std::vector<bool>(CFG.capacity().n, false));
 
         // Copy gd_p and gd_m before changing them
         const std::vector<std::vector<int32_t>> prev_gd_p = mapper_->get_gd_p();
@@ -71,10 +96,14 @@ void Crossbar::write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix) {
     if (!CFG.digital_only) {
         mapper_->a_write(m_matrix, n_matrix);
     }
+    return 0;
 }
 
-void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-                   int32_t m_matrix, int32_t n_matrix, const char *l_name) {
+int32_t Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
+                      int32_t m_matrix, int32_t n_matrix, const char *l_name) {
+    if (!fits(m_matrix, n_matrix)) {
+        return -1;
+    }
     mvm_counter_++;
     consecutive_mvm_counter_++;
     if (CFG.digital_only) {
@@ -118,11 +147,11 @@ void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                         // all LRS cells are reprogrammed by resetting and
                         // setting again
                         std::vector<std::vector<bool>> update_p(
-                            CFG.M * CFG.SPLIT.size(),
-                            std::vector<bool>(CFG.N, false));
+                            CFG.state_columns(),
+                            std::vector<bool>(CFG.capacity().n, false));
                         std::vector<std::vector<bool>> update_m(
-                            CFG.M * CFG.SPLIT.size(),
-                            std::vector<bool>(CFG.N, false));
+                            CFG.state_columns(),
+                            std::vector<bool>(CFG.capacity().n, false));
 
                         // Get the current gd_p and gd_m
                         const std::vector<std::vector<int32_t>> &curr_gd_p =
@@ -136,7 +165,7 @@ void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                                     update_p[i][j] = true;
                                     refresh_cell_counter_++;
                                 }
-                                if (mapper_->is_diff_weight_mapping()) {
+                                if (mapper_->uses_negative_matrix()) {
                                     if (curr_gd_m[i][j] == 1) {
                                         update_m[i][j] = true;
                                         refresh_cell_counter_++;
@@ -152,7 +181,7 @@ void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                         consecutive_mvm_counter_ = 0;
 
                         // Reset conductance values
-                        mapper_->a_write(CFG.M, CFG.N);
+                        mapper_->a_write(CFG.capacity().m, CFG.capacity().n);
                     }
                 }
                 break;
@@ -183,62 +212,25 @@ void Crossbar::mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
             }
         }
     }
+    return 0;
 }
 
 Crossbar::~Crossbar() {
     if (CFG.verbose) {
-        std::cout << "MappingMode: " << m_mode_to_string(CFG.m_mode)
-                  << std::endl;
+        const MappingProperties &prop = mapper_->properties();
+
+        std::cout << "MappingMode: " << prop.name << std::endl;
         std::cout << "write_xbar_counter_: " << write_xbar_counter_
                   << std::endl;
         std::cout << "mvm_counter_: " << mvm_counter_ << std::endl;
 
-        uint64_t num_write = 0;
-        uint64_t num_mvm_total = 0;
-        uint64_t num_mvm_sequential = 0;
-        uint32_t cells_per_value = CFG.SPLIT.size();
-
-        switch (CFG.m_mode) {
-        case MappingMode::I_DIFF_W_DIFF_1XB:
-            num_write = write_xbar_counter_;
-            num_mvm_total = mvm_counter_ * CFG.I_BIT;
-            num_mvm_sequential = mvm_counter_ * 2 * CFG.I_BIT;
-            cells_per_value *= 2;
-            break;
-        case MappingMode::I_DIFF_W_DIFF_2XB:
-            num_write = write_xbar_counter_ * 2;
-            num_mvm_total = mvm_counter_ * 2 * CFG.I_BIT;
-            num_mvm_sequential = mvm_counter_ * CFG.I_BIT;
-            cells_per_value *= 4;
-            break;
-        case MappingMode::I_OFFS_W_DIFF:
-            num_write = write_xbar_counter_;
-            num_mvm_total = mvm_counter_ * CFG.I_BIT;
-            num_mvm_sequential = mvm_counter_ * CFG.I_BIT;
-            cells_per_value *= 2;
-            break;
-        case MappingMode::I_TC_W_DIFF:
-            num_write = write_xbar_counter_;
-            num_mvm_total = mvm_counter_ * CFG.I_BIT;
-            num_mvm_sequential = mvm_counter_ * CFG.I_BIT;
-            cells_per_value *= 2;
-            break;
-        case MappingMode::I_UINT_W_DIFF:
-            num_write = write_xbar_counter_;
-            num_mvm_total = mvm_counter_ * CFG.I_BIT;
-            num_mvm_sequential = mvm_counter_ * CFG.I_BIT;
-            cells_per_value *= 2;
-            break;
-        case MappingMode::I_UINT_W_OFFS:
-            num_write = write_xbar_counter_;
-            num_mvm_total = mvm_counter_ * CFG.I_BIT;
-            num_mvm_sequential = mvm_counter_ * CFG.I_BIT;
-            cells_per_value *= 1;
-            break;
-        default:
-            std::cerr << "Unknown mode encountered!" << std::endl;
-            std::exit(EXIT_FAILURE);
-        }
+        const uint64_t num_write = write_xbar_counter_ * prop.xbars;
+        const uint64_t num_mvm_total =
+            mvm_counter_ * prop.xbars * bits_per_input_;
+        const uint64_t num_mvm_sequential =
+            mvm_counter_ * prop.cycles * bits_per_input_;
+        const uint32_t cells_per_value =
+            factors_.col * factors_.row * prop.xbars;
 
         std::cout << "num_write: " << num_write << std::endl;
         std::cout << "num_mvm_total: " << num_mvm_total << std::endl;

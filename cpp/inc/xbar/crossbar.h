@@ -22,10 +22,13 @@ class Crossbar {
     Crossbar(const Crossbar &) = delete;
     virtual ~Crossbar();
 
-    void write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix);
-    void mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
-             int32_t m_matrix, int32_t n_matrix,
-             const char *l_name = "Unknown");
+    /** Write a matrix to the crossbar. Returns -1 if it does not fit. */
+    int32_t write(const int32_t *mat, int32_t m_matrix, int32_t n_matrix);
+
+    /** Multiply matrix and vector. Returns -1 if the matrix does not fit. */
+    int32_t mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
+                int32_t m_matrix, int32_t n_matrix,
+                const char *l_name = "Unknown");
     const std::vector<std::vector<int32_t>> &get_gd_p() const;
     const std::vector<std::vector<int32_t>> &get_gd_m() const;
     const std::vector<std::vector<float>> &get_ia_p() const;
@@ -42,6 +45,9 @@ class Crossbar {
     bool get_rd_run_out_of_bounds() const;
 
   private:
+    /** Whether a logical matrix fits. */
+    bool fits(int32_t m_matrix, int32_t n_matrix) const;
+
     std::unique_ptr<Mapper> mapper_;
     uint64_t write_xbar_counter_; // Number of write function calls
     uint64_t mvm_counter_;        // Number of MVM function calls
@@ -50,6 +56,9 @@ class Crossbar {
                                        // (without a write in between)
     uint64_t refresh_xbar_counter_;    // Number of complete crossbar refreshes
     uint64_t refresh_cell_counter_;    // Number of single-cell refreshes
+
+    XbarFactors factors_;     // Physical cells a single logical weight occupies
+    uint64_t bits_per_input_; // Number of bits per input
 };
 
 } // namespace nq

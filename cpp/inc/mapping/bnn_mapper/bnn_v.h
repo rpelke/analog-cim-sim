@@ -17,6 +17,17 @@ namespace nq {
 // Mapping BNN V: XNOR mapping
 class MapperBnnV : public Mapper {
   public:
+    static constexpr MappingProperties PROPERTIES = {MappingMode::BNN_V,
+                                                     "BNN_V",
+                                                     MappingType::BNN,
+                                                     1,
+                                                     2,
+                                                     false,
+                                                     OutputEnc::SINGLE,
+                                                     1,
+                                                     1,
+                                                     false};
+
     MapperBnnV();
     MapperBnnV(const MapperBnnV &) = delete;
     virtual ~MapperBnnV();

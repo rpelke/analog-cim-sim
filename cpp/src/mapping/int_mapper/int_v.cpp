@@ -12,12 +12,12 @@
 namespace nq {
 
 MapperIntV::MapperIntV() :
-    vd_p_(CFG.N, 0),
-    tmp_out_int_(CFG.M * CFG.SPLIT.size(), 0),
-    tmp_out_fp_(CFG.M * CFG.SPLIT.size(), 0.0),
-    res_fp_(CFG.M * CFG.SPLIT.size(), 0.0),
-    vd_slice_(CFG.N, 0),
-    Mapper(false) {
+    vd_p_(CFG.capacity().n, 0),
+    tmp_out_int_(CFG.state_columns(), 0),
+    tmp_out_fp_(CFG.state_columns(), 0.0),
+    res_fp_(CFG.state_columns(), 0.0),
+    vd_slice_(CFG.capacity().n, 0),
+    Mapper(PROPERTIES) {
     // Calculation of the delta factor
     delta_ = 0.0;
     if (CFG.m_mode == MappingMode::I_UINT_W_OFFS) {
@@ -43,8 +43,8 @@ void MapperIntV::a_write(int32_t m_matrix, int32_t n_matrix) {
 
     // Set conductance matrix of parasitic solver
     if (CFG.parasitics) {
-        par_solver_->set_conductance_matrix(ia_p_, m_matrix * CFG.SPLIT.size(),
-                                            n_matrix);
+        par_solver_->set_conductance_matrix(ia_p_, CFG.state_columns(),
+                                            CFG.capacity().n);
     }
 }
 

@@ -11,9 +11,9 @@
 namespace nq {
 
 MapperBnnII::MapperBnnII() :
-    vd_(CFG.N, 0),
-    tmp_out_(CFG.M, 0.0),
-    Mapper(true) {}
+    vd_(CFG.capacity().n, 0),
+    tmp_out_(CFG.capacity().m, 0.0),
+    Mapper(PROPERTIES) {}
 
 MapperBnnII::~MapperBnnII() {}
 
@@ -28,7 +28,8 @@ void MapperBnnII::a_write(int32_t m_matrix, int32_t n_matrix) {
     // Set conductance matrix of parasitic solver
     if (CFG.parasitics) {
         // Switch ia_p and ia_m for proper conductance encoding
-        par_solver_->set_conductance_matrix(ia_m_, ia_p_, m_matrix, n_matrix);
+        par_solver_->set_conductance_matrix(ia_m_, ia_p_, CFG.state_columns(),
+                                            CFG.capacity().n);
     }
 }
 

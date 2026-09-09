@@ -17,6 +17,17 @@ namespace nq {
 // Mapping TNN II: i_NN = (v_D^1, v_D^0), w_NN = g_D+ - g_D-
 class MapperTnnII : public Mapper {
   public:
+    static constexpr MappingProperties PROPERTIES = {MappingMode::TNN_II,
+                                                     "TNN_II",
+                                                     MappingType::TNN,
+                                                     2,
+                                                     1,
+                                                     false,
+                                                     OutputEnc::DIFF_COL,
+                                                     1,
+                                                     2,
+                                                     false};
+
     MapperTnnII();
     MapperTnnII(const MapperTnnII &) = delete;
     virtual ~MapperTnnII();

@@ -17,6 +17,17 @@ namespace nq {
 // Mapping TNN III: i_NN + 1= (v_D^1, v_D^0), w_NN = g_D+ - g_D-
 class MapperTnnIII : public Mapper {
   public:
+    static constexpr MappingProperties PROPERTIES = {MappingMode::TNN_III,
+                                                     "TNN_III",
+                                                     MappingType::TNN,
+                                                     2,
+                                                     1,
+                                                     false,
+                                                     OutputEnc::DIFF_COL,
+                                                     1,
+                                                     2,
+                                                     false};
+
     MapperTnnIII();
     MapperTnnIII(const MapperTnnIII &) = delete;
     virtual ~MapperTnnIII();

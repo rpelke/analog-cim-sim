@@ -17,6 +17,17 @@ namespace nq {
 // Mapping BNN II: i_NN = -2 v_D + 1, w_NN = g_D+ - g_D-
 class MapperBnnII : public Mapper {
   public:
+    static constexpr MappingProperties PROPERTIES = {MappingMode::BNN_II,
+                                                     "BNN_II",
+                                                     MappingType::BNN,
+                                                     2,
+                                                     1,
+                                                     false,
+                                                     OutputEnc::DIFF_COL,
+                                                     1,
+                                                     1,
+                                                     false};
+
     MapperBnnII();
     MapperBnnII(const MapperBnnII &) = delete;
     virtual ~MapperBnnII();

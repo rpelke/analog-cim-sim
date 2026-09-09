@@ -130,12 +130,9 @@ extern "C" EXPORT_API int32_t exe_mvm(int32_t *res, int32_t *vec, int32_t *mat,
                   << std::endl;
         return -1;
     }
-    if (m_matrix > CFG.M || n_matrix > CFG.N) {
-        std::cerr << "Error: Matrix dimensions exceed the crossbar size."
-                  << std::endl;
+    if (xbar->mvm(res, vec, mat, m_matrix, n_matrix, l_name) != 0) {
         return -1;
     }
-    xbar->mvm(res, vec, mat, m_matrix, n_matrix, l_name);
 #ifdef DEBUG_MODE
     // Find max and min values in the result vector
     max_val = INT32_MIN;
@@ -183,13 +180,7 @@ extern "C" EXPORT_API int32_t cpy_mtrx(int32_t *mat, int32_t m_matrix,
                   << std::endl;
         return -1;
     }
-    if (m_matrix > CFG.M || n_matrix > CFG.N) {
-        std::cerr << "Error: Matrix dimensions exceed the crossbar size."
-                  << std::endl;
-        return -1;
-    }
-    xbar->write(mat, m_matrix, n_matrix);
-    return 0;
+    return xbar->write(mat, m_matrix, n_matrix);
 }
 
 extern "C" EXPORT_API const void *get_gd_p(size_t *size) {
@@ -287,8 +278,7 @@ int32_t exe_mvm_pb(pybind11::array_t<int32_t> res,
     int32_t *vec_ptr = static_cast<int32_t *>(vec_buffer.ptr);
     int32_t *mat_ptr = static_cast<int32_t *>(mat_buffer.ptr);
 
-    xbar->mvm(res_ptr, vec_ptr, mat_ptr, m_matrix, n_matrix);
-    return 0;
+    return exe_mvm(res_ptr, vec_ptr, mat_ptr, m_matrix, n_matrix);
 }
 
 int32_t cpy_mtrx_pb(pybind11::array_t<int32_t> mat, int32_t m_matrix,

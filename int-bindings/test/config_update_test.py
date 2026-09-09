@@ -12,6 +12,8 @@ import os
 import sys
 import json
 
+from helper.native_output import suppressed_native_output
+
 repo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
 sys.path.append(repo_path)
 
@@ -22,6 +24,10 @@ class TestConfigUpdate(unittest.TestCase):
         # Load a base configuration
         acs_py.set_config(
             os.path.abspath(f"{repo_path}/cpp/test/lib/configs/analog/I_DIFF_W_DIFF_1XB.json"))
+
+    def tearDown(self):
+        with suppressed_native_output(stdout=True):
+            acs_py.update_config(json.dumps({"verbose": False}))
 
     def test_simple_parameter_update(self):
         # Base test
@@ -69,7 +75,7 @@ class TestConfigUpdate(unittest.TestCase):
         self.assertFalse(np.array_equal(initial_ia_p, updated_ia_p))
 
     def test_multiple_parameter_update(self):
-        update_json = json.dumps({"HRS": 1000.0, "LRS": 100.0, "verbose": True, "resolution": 8})
+        update_json = json.dumps({"HRS": 1000.0, "LRS": 100.0, "resolution": 8})
         acs_py.update_config(update_json)
 
         # Test that the configuration was properly applied

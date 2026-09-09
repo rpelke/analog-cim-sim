@@ -17,6 +17,17 @@ namespace nq {
 // Mapping: I_UINT_W_DIFF
 class MapperIntIV : public Mapper {
   public:
+    static constexpr MappingProperties PROPERTIES = {MappingMode::I_UINT_W_DIFF,
+                                                     "I_UINT_W_DIFF",
+                                                     MappingType::INT,
+                                                     2,
+                                                     1,
+                                                     true,
+                                                     OutputEnc::DIFF_COL,
+                                                     1,
+                                                     1,
+                                                     true};
+
     MapperIntIV();
     MapperIntIV(const MapperIntIV &) = delete;
     virtual ~MapperIntIV();

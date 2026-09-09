@@ -10,10 +10,10 @@
 
 #include <cstdint>
 #include <optional>
-#include <unordered_map>
 #include <vector>
 
 #include "helper/definitions.h"
+#include "mapping/mapping_properties.h"
 
 namespace nq {
 
@@ -24,8 +24,10 @@ class ParasiticSolver {
      *
      * @param wire_resistance Parasitic wire resistance.
      * @param V_read Read voltage applied to each crossbar row.
+     * @param props Properties of the mapping this solver serves.
      */
-    ParasiticSolver(const float wire_resistance, const float V_read);
+    ParasiticSolver(const float wire_resistance, const float V_read,
+                    const MappingProperties &props);
     ParasiticSolver(const ParasiticSolver &) = delete;
     ParasiticSolver() = delete;
 
@@ -95,61 +97,6 @@ class ParasiticSolver {
     typedef void (ParasiticSolver::*OutputEncFunc)(
         std::vector<float> &, std::vector<float> &,
         int32_t); /**< Output encoding function pointer type */
-
-    // Mapping mode to encoding function pointer maps
-    const std::unordered_map<MappingMode, WeightEncFunc> mm_to_wenc = {
-        {MappingMode::I_DIFF_W_DIFF_1XB, &ParasiticSolver::w_enc_double_col},
-        {MappingMode::I_DIFF_W_DIFF_2XB, &ParasiticSolver::w_enc_double_col},
-        {MappingMode::I_OFFS_W_DIFF, &ParasiticSolver::w_enc_double_col},
-        {MappingMode::I_UINT_W_DIFF, &ParasiticSolver::w_enc_double_col},
-        {MappingMode::I_UINT_W_OFFS, &ParasiticSolver::w_enc_single},
-        {MappingMode::BNN_I, &ParasiticSolver::w_enc_double_col},
-        {MappingMode::BNN_II, &ParasiticSolver::w_enc_double_col},
-        {MappingMode::BNN_III, &ParasiticSolver::w_enc_single},
-        {MappingMode::BNN_IV, &ParasiticSolver::w_enc_single},
-        {MappingMode::BNN_V, &ParasiticSolver::w_enc_double_row},
-        {MappingMode::BNN_VI, &ParasiticSolver::w_enc_quad},
-        {MappingMode::TNN_I, &ParasiticSolver::w_enc_quad},
-        {MappingMode::TNN_II, &ParasiticSolver::w_enc_double_col},
-        {MappingMode::TNN_III, &ParasiticSolver::w_enc_double_col},
-        {MappingMode::TNN_IV, &ParasiticSolver::w_enc_double_col},
-        {MappingMode::TNN_V, &ParasiticSolver::w_enc_double_col}};
-
-    const std::unordered_map<MappingMode, InputEncFunc> mm_to_ienc = {
-        {MappingMode::I_DIFF_W_DIFF_1XB, &ParasiticSolver::i_enc_single},
-        {MappingMode::I_DIFF_W_DIFF_2XB, &ParasiticSolver::i_enc_single},
-        {MappingMode::I_OFFS_W_DIFF, &ParasiticSolver::i_enc_single},
-        {MappingMode::I_UINT_W_DIFF, &ParasiticSolver::i_enc_single},
-        {MappingMode::I_UINT_W_OFFS, &ParasiticSolver::i_enc_single},
-        {MappingMode::BNN_I, &ParasiticSolver::i_enc_single},
-        {MappingMode::BNN_II, &ParasiticSolver::i_enc_single},
-        {MappingMode::BNN_III, &ParasiticSolver::i_enc_single},
-        {MappingMode::BNN_IV, &ParasiticSolver::i_enc_single},
-        {MappingMode::BNN_V, &ParasiticSolver::i_enc_double},
-        {MappingMode::BNN_VI, &ParasiticSolver::i_enc_double},
-        {MappingMode::TNN_I, &ParasiticSolver::i_enc_double},
-        {MappingMode::TNN_II, &ParasiticSolver::i_enc_single},
-        {MappingMode::TNN_III, &ParasiticSolver::i_enc_single},
-        {MappingMode::TNN_IV, &ParasiticSolver::i_enc_single},
-        {MappingMode::TNN_V, &ParasiticSolver::i_enc_single}};
-
-    const std::unordered_map<MappingMode, OutputEncFunc> mm_to_oenc = {
-        {MappingMode::I_DIFF_W_DIFF_1XB, &ParasiticSolver::o_enc_double},
-        {MappingMode::I_DIFF_W_DIFF_2XB, &ParasiticSolver::o_enc_double},
-        {MappingMode::I_OFFS_W_DIFF, &ParasiticSolver::o_enc_double},
-        {MappingMode::I_UINT_W_DIFF, &ParasiticSolver::o_enc_double},
-        {MappingMode::I_UINT_W_OFFS, &ParasiticSolver::o_enc_single},
-        {MappingMode::BNN_I, &ParasiticSolver::o_enc_double},
-        {MappingMode::BNN_II, &ParasiticSolver::o_enc_double},
-        {MappingMode::BNN_III, &ParasiticSolver::o_enc_single},
-        {MappingMode::BNN_IV, &ParasiticSolver::o_enc_single},
-        {MappingMode::BNN_V, &ParasiticSolver::o_enc_single},
-        {MappingMode::BNN_VI, &ParasiticSolver::o_enc_double},
-        {MappingMode::TNN_I, &ParasiticSolver::o_enc_double},
-        {MappingMode::TNN_II, &ParasiticSolver::o_enc_double},
-        {MappingMode::TNN_III, &ParasiticSolver::o_enc_double},
-        {MappingMode::TNN_IV, &ParasiticSolver::o_enc_single},
-        {MappingMode::TNN_V, &ParasiticSolver::o_enc_single}};
 
   private:
     ///////////////////////////////
@@ -238,11 +185,10 @@ class ParasiticSolver {
     void o_enc_double(std::vector<float> &tmp_res, std::vector<float> &res,
                       int32_t m_matrix);
 
-    uint32_t m_xbar_;    /**< Crossbar rows */
-    uint32_t n_xbar_;    /**< Crossbar columns */
-    float w_res_;        /**< Parasitic wire resistance (in Ohms)*/
-    float v_read_;       /**< Crossbar read voltage (in Volts)*/
-    MappingMode m_mode_; /**< Mapping mode */
+    uint32_t m_xbar_; /**< Crossbar columns (bitlines) */
+    uint32_t n_xbar_; /**< Crossbar rows (wordlines) */
+    float w_res_;     /**< Parasitic wire resistance (in Ohms)*/
+    float v_read_;    /**< Crossbar read voltage (in Volts)*/
 
     std::vector<std::vector<float>> ga_mat_; /**< Conductance matrix (in uS)*/
     std::vector<std::vector<float>>

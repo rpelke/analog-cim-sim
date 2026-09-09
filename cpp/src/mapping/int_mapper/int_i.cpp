@@ -13,12 +13,12 @@
 namespace nq {
 
 MapperIntI::MapperIntI() :
-    vd_p_(CFG.N, 0),
-    vd_m_(CFG.N, 0),
-    tmp_out_int_(CFG.M * CFG.SPLIT.size(), 0),
-    tmp_out_fp_(CFG.M * CFG.SPLIT.size(), 0.0),
-    vd_slice_(CFG.N, 0),
-    Mapper(true) {}
+    vd_p_(CFG.capacity().n, 0),
+    vd_m_(CFG.capacity().n, 0),
+    tmp_out_int_(CFG.state_columns(), 0),
+    tmp_out_fp_(CFG.state_columns(), 0.0),
+    vd_slice_(CFG.capacity().n, 0),
+    Mapper(properties_of(CFG.m_mode)) {}
 
 MapperIntI::~MapperIntI() {}
 
@@ -32,8 +32,8 @@ void MapperIntI::a_write(int32_t m_matrix, int32_t n_matrix) {
 
     // Set conductance matrix of parasitic solver
     if (CFG.parasitics) {
-        par_solver_->set_conductance_matrix(
-            ia_p_, ia_m_, m_matrix * CFG.SPLIT.size(), n_matrix);
+        par_solver_->set_conductance_matrix(ia_p_, ia_m_, CFG.state_columns(),
+                                            CFG.capacity().n);
     }
 }
 

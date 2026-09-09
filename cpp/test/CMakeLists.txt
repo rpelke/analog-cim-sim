@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   #
+# Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan, Joel Klein       #
 # All Rights Reserved                                                        #
 #                                                                            #
 # This is work is licensed under the terms described in the LICENSE file     #
@@ -44,19 +44,16 @@ endfunction()
 
 ### Core tests ###
 # This function adds tests that do not link against the acs_py library
-# It can use internal functions by compiling source files (CORE_SOURCES) directly
-function(add_core_test TEST_NAME TEST_SOURCE_FILE CFG_DIR CORE_SOURCES)
-    add_executable(${TEST_NAME}
-        ${TEST_SOURCE_FILE}
-        ${CORE_SOURCES}
-    )
+# It can use internal functions by linking the core objects directly
+function(add_core_test TEST_NAME TEST_SOURCE_FILE CFG_DIR)
+    add_executable(${TEST_NAME} ${TEST_SOURCE_FILE})
 
-    target_include_directories(${TEST_NAME} PRIVATE 
+    target_include_directories(${TEST_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/../inc
-        ${CMAKE_CURRENT_SOURCE_DIR}/../extern/json/include
     )
 
     target_link_libraries(${TEST_NAME} PRIVATE
+        acs_core_object
         gtest
         gtest_main
         gmock
@@ -66,15 +63,6 @@ function(add_core_test TEST_NAME TEST_SOURCE_FILE CFG_DIR CORE_SOURCES)
     if (USE_STDCXXFS)
         target_link_libraries(${TEST_NAME} PRIVATE stdc++fs)
     endif()
-
-    target_link_libraries(${TEST_NAME} PRIVATE
-        nlohmann_json::nlohmann_json
-    )
-    find_package(TBB REQUIRED)
-    message(STATUS "Found TBB: (found version \"${TBB_VERSION}\"), linking acs_py against TBB (Parallel STL backend).")
-    target_link_libraries(${TEST_NAME} PRIVATE
-        TBB::tbb
-    )
 
     enable_testing()
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
@@ -92,11 +80,10 @@ add_library_test(mvm_tests lib/mvm_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/con
 add_library_test(var_tests lib/var_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)
 add_library_test(adc_tests lib/adc_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)
 add_library_test(parasitics_tests lib/parasitics_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)
+add_library_test(size_check_tests lib/size_check_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)
+add_library_test(accounting_tests lib/accounting_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)
 
 # Core tests
-set(CORE_CPP_FILES
-    ../src/helper/config.cpp
-    ../src/helper/histogram.cpp
-    ../src/xbar/adc.cpp
-)
-add_core_test(config_tests lib/config_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs ${CORE_CPP_FILES})
+add_core_test(config_tests lib/config_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)
+add_core_test(mapping_properties_tests lib/mapping_properties_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)
+add_core_test(mapping_registry_tests lib/mapping_registry_tests.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/configs)

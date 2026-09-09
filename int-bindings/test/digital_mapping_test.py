@@ -177,11 +177,17 @@ class TestDigitalMapping(unittest.TestCase):
         pos_mat = acs_py.gd_p()
         neg_mat = acs_py.gd_m()
 
-        np.testing.assert_equal(np.size(pos_mat) - np.count_nonzero(pos_mat), 32 * 32 - 3 * 2 + 3)
+        # BNN_I is differential, so one weight takes two of the 32 columns and
+        # each matrix holds half of them.
+        matrix_size = (32 // 2) * 32
+
+        np.testing.assert_equal(
+            np.size(pos_mat) - np.count_nonzero(pos_mat), matrix_size - 3 * 2 + 3)
         np.testing.assert_array_equal(pos_mat[0][:2], [1, 1])
         np.testing.assert_equal(pos_mat[2][0], 1)
 
-        np.testing.assert_equal(np.size(neg_mat) - np.count_nonzero(neg_mat), 32 * 32 - 3 * 2 + 3)
+        np.testing.assert_equal(
+            np.size(neg_mat) - np.count_nonzero(neg_mat), matrix_size - 3 * 2 + 3)
         np.testing.assert_array_equal(neg_mat[1][:2], [1, 1])
         np.testing.assert_equal(neg_mat[2][1], 1)
 

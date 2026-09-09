@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   *
+ * Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan, Joel Klein       *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This work is licensed under the terms described in the LICENSE file        *
@@ -27,19 +27,101 @@
 #include <algorithm>
 #include <execution>
 #include <iostream>
+#include <map>
 
 namespace nq {
 
-Mapper::Mapper(bool is_diff_weight_mapping) :
-    is_diff_weight_mapping_(is_diff_weight_mapping),
-    gd_p_(CFG.M * CFG.SPLIT.size(), std::vector<int32_t>(CFG.N, 0)),
-    gd_m_(CFG.M * CFG.SPLIT.size(), std::vector<int32_t>(CFG.N, 0)),
+struct MapperRegistry {
+    MapperRegistry() = delete;
+
+    /** Everything the registry knows about one mapping mode. */
+    struct MapperRegistryEntry {
+        const MappingProperties *props; /**< How the mapping places a weight */
+        std::unique_ptr<Mapper> (
+            *create)(); /**< Builds the mapper of that mode */
+    };
+
+    template <typename T> static std::unique_ptr<Mapper> make_mapper() {
+        return std::make_unique<T>();
+    }
+
+    // One row per mode, in the order of the enums.
+    static constexpr MapperRegistryEntry _registry[] = {
+        {&MapperIntI::PROPERTIES_1XB, &make_mapper<MapperIntI>},
+        {&MapperIntI::PROPERTIES_2XB, &make_mapper<MapperIntI>},
+        {&MapperIntII::PROPERTIES, &make_mapper<MapperIntII>},
+        {&MapperIntIII::PROPERTIES, &make_mapper<MapperIntIII>},
+        {&MapperIntIV::PROPERTIES, &make_mapper<MapperIntIV>},
+        {&MapperIntV::PROPERTIES, &make_mapper<MapperIntV>},
+        {&MapperBnnI::PROPERTIES, &make_mapper<MapperBnnI>},
+        {&MapperBnnII::PROPERTIES, &make_mapper<MapperBnnII>},
+        {&MapperBnnIII::PROPERTIES, &make_mapper<MapperBnnIII>},
+        {&MapperBnnIV::PROPERTIES, &make_mapper<MapperBnnIV>},
+        {&MapperBnnV::PROPERTIES, &make_mapper<MapperBnnV>},
+        {&MapperBnnVI::PROPERTIES, &make_mapper<MapperBnnVI>},
+        {&MapperTnnI::PROPERTIES, &make_mapper<MapperTnnI>},
+        {&MapperTnnII::PROPERTIES, &make_mapper<MapperTnnII>},
+        {&MapperTnnIII::PROPERTIES, &make_mapper<MapperTnnIII>},
+        {&MapperTnnIV::PROPERTIES, &make_mapper<MapperTnnIV>},
+        {&MapperTnnV::PROPERTIES, &make_mapper<MapperTnnV>},
+    };
+
+    /** Whether every row sits at the index of the mode it describes. */
+    static constexpr bool registry_is_ordered() {
+        for (size_t i = 0; i < std::size(_registry); ++i) {
+            if (_registry[i].props->mode != static_cast<MappingMode>(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Row of a mode, aborts on NUM_MODES and on anything cast in from outside
+     * the enum. */
+    static const MapperRegistryEntry &entry_of(MappingMode mode,
+                                               const char *what) {
+        const size_t index = static_cast<size_t>(mode);
+        if (index >= std::size(_registry)) {
+            std::cerr << "No " << what << " for mapping mode " << index << "."
+                      << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+        return _registry[index];
+    }
+
+    static std::optional<MappingMode> mode_from_name(const std::string &name) {
+        for (const MapperRegistryEntry &entry : _registry) {
+            if (name == entry.props->name) {
+                return entry.props->mode;
+            }
+        }
+        return {};
+    }
+
+    static std::string name_from_mode(MappingMode mode) {
+        const size_t index = static_cast<size_t>(mode);
+        if (index >= std::size(_registry)) {
+            return "Unknown mode";
+        }
+        return _registry[index].props->name;
+    }
+};
+
+static_assert(MapperRegistry::registry_is_ordered(),
+              "The mapping registry rows are not in MappingMode order");
+
+Mapper::Mapper(const MappingProperties &props) :
+    props_(props),
+    gd_p_(CFG.state_columns(), std::vector<int32_t>(CFG.capacity().n, 0)),
+    gd_m_(CFG.state_columns(), std::vector<int32_t>(CFG.capacity().n, 0)),
     shift_(CFG.SPLIT.size(), 0),
-    sum_w_(CFG.M, 0),
-    ia_p_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
-    ia_m_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
-    ia_p_orig_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
-    ia_m_orig_(CFG.M * CFG.SPLIT.size(), std::vector<float>(CFG.N, CFG.HRS)),
+    sum_w_(CFG.capacity().m, 0),
+    ia_p_(CFG.state_columns(), std::vector<float>(CFG.capacity().n, CFG.HRS)),
+    ia_m_(CFG.state_columns(), std::vector<float>(CFG.capacity().n, CFG.HRS)),
+    ia_p_orig_(CFG.state_columns(),
+               std::vector<float>(CFG.capacity().n, CFG.HRS)),
+    ia_m_orig_(CFG.state_columns(),
+               std::vector<float>(CFG.capacity().n, CFG.HRS)),
     i_step_size_(CFG.SPLIT.size(), 0.0),
     adc_(ADCFactory::createADC(CFG.adc_type)) {
 
@@ -57,8 +139,8 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
         }
 
         if (CFG.parasitics) {
-            par_solver_ =
-                std::make_shared<ParasiticSolver>(CFG.w_res, CFG.V_read);
+            par_solver_ = std::make_shared<ParasiticSolver>(CFG.w_res,
+                                                            CFG.V_read, props_);
         }
     }
 
@@ -76,46 +158,26 @@ Mapper::Mapper(bool is_diff_weight_mapping) :
     }
 }
 
-std::unique_ptr<Mapper> Mapper::create_from_config() {
-    switch (CFG.m_mode) {
-    case MappingMode::I_DIFF_W_DIFF_1XB:
-        return std::make_unique<MapperIntI>();
-    case MappingMode::I_DIFF_W_DIFF_2XB:
-        return std::make_unique<MapperIntI>();
-    case MappingMode::I_OFFS_W_DIFF:
-        return std::make_unique<MapperIntII>();
-    case MappingMode::I_TC_W_DIFF:
-        return std::make_unique<MapperIntIII>();
-    case MappingMode::I_UINT_W_DIFF:
-        return std::make_unique<MapperIntIV>();
-    case MappingMode::I_UINT_W_OFFS:
-        return std::make_unique<MapperIntV>();
-    case MappingMode::BNN_I:
-        return std::make_unique<MapperBnnI>();
-    case MappingMode::BNN_II:
-        return std::make_unique<MapperBnnII>();
-    case MappingMode::BNN_III:
-        return std::make_unique<MapperBnnIII>();
-    case MappingMode::BNN_IV:
-        return std::make_unique<MapperBnnIV>();
-    case MappingMode::BNN_V:
-        return std::make_unique<MapperBnnV>();
-    case MappingMode::BNN_VI:
-        return std::make_unique<MapperBnnVI>();
-    case MappingMode::TNN_I:
-        return std::make_unique<MapperTnnI>();
-    case MappingMode::TNN_II:
-        return std::make_unique<MapperTnnII>();
-    case MappingMode::TNN_III:
-        return std::make_unique<MapperTnnIII>();
-    case MappingMode::TNN_IV:
-        return std::make_unique<MapperTnnIV>();
-    case MappingMode::TNN_V:
-        return std::make_unique<MapperTnnV>();
-    default:
-        std::cerr << "Mapper not implemented.";
-        abort();
-    }
+std::unique_ptr<Mapper> Mapper::create() {
+    return MapperRegistry::entry_of(CFG.m_mode, "mapper").create();
+}
+
+const MappingProperties &Mapper::properties() const { return props_; }
+
+bool Mapper::uses_negative_matrix() const {
+    return props_.uses_negative_matrix();
+}
+
+const MappingProperties &Mapper::properties(MappingMode mode) {
+    return *MapperRegistry::entry_of(mode, "properties").props;
+}
+
+std::optional<MappingMode> Mapper::mode_from_name(const std::string &name) {
+    return MapperRegistry::mode_from_name(name);
+}
+
+std::string Mapper::name_from_mode(MappingMode mode) {
+    return MapperRegistry::name_from_mode(mode);
 }
 
 void Mapper::d_write_diff(const int32_t *mat, int32_t m_matrix,
@@ -339,8 +401,8 @@ void Mapper::rd_update_conductance(std::shared_ptr<const ReadDisturb> rd_model,
         }
     }
 
-    if (!is_diff_weight_mapping_) {
-        // No need to update ia_m_ for non-diff weight mapping
+    if (!uses_negative_matrix()) {
+        // No need to update ia_m_ if the mapping leaves it empty
         return;
     }
 
@@ -378,8 +440,8 @@ void Mapper::rd_update_conductance(
         }
     }
 
-    if (!is_diff_weight_mapping_) {
-        // No need to update ia_m_ for non-diff weight mapping
+    if (!uses_negative_matrix()) {
+        // No need to update ia_m_ if the mapping leaves it empty
         return;
     }
 
@@ -439,8 +501,8 @@ int Mapper::rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model) {
         }
     }
 
-    if (!is_diff_weight_mapping_) {
-        // No need to check ia_m_ for non-diff weight mapping
+    if (!uses_negative_matrix()) {
+        // No need to check ia_m_ if the mapping leaves it empty
         return refresh_count;
     }
 
@@ -464,8 +526,6 @@ int Mapper::rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model) {
     }
     return refresh_count;
 }
-
-bool Mapper::is_diff_weight_mapping() const { return is_diff_weight_mapping_; }
 
 void Mapper::slice_vd(std::vector<int32_t> &vd, std::vector<int32_t> &vd_slice,
                       size_t n, size_t i_bit) {

@@ -17,6 +17,17 @@ namespace nq {
 // Mapping: I_OFFS_W_DIFF
 class MapperIntII : public Mapper {
   public:
+    static constexpr MappingProperties PROPERTIES = {MappingMode::I_OFFS_W_DIFF,
+                                                     "I_OFFS_W_DIFF",
+                                                     MappingType::INT,
+                                                     2,
+                                                     1,
+                                                     true,
+                                                     OutputEnc::DIFF_COL,
+                                                     1,
+                                                     1,
+                                                     true};
+
     MapperIntII();
     MapperIntII(const MapperIntII &) = delete;
     virtual ~MapperIntII();

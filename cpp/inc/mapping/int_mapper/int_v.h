@@ -17,6 +17,17 @@ namespace nq {
 // Mapping: I_UINT_W_OFFS
 class MapperIntV : public Mapper {
   public:
+    static constexpr MappingProperties PROPERTIES = {MappingMode::I_UINT_W_OFFS,
+                                                     "I_UINT_W_OFFS",
+                                                     MappingType::INT,
+                                                     1,
+                                                     1,
+                                                     true,
+                                                     OutputEnc::SINGLE,
+                                                     1,
+                                                     1,
+                                                     true};
+
     MapperIntV();
     MapperIntV(const MapperIntV &) = delete;
     virtual ~MapperIntV();

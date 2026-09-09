@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   *
+ * Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan, Joel Klein       *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This work is licensed under the terms described in the LICENSE file        *
@@ -13,6 +13,7 @@
 #include <random>
 #include <vector>
 
+#include "mapping/mapping_properties.h"
 #include "xbar/adc.h"
 #include "xbar/parasitics.h"
 #include "xbar/read_disturb.h"
@@ -21,9 +22,11 @@ namespace nq {
 
 class Mapper {
   public:
-    Mapper(bool is_diff_weight_mapping);
+    explicit Mapper(const MappingProperties &props);
     Mapper(const Mapper &) = delete;
     virtual ~Mapper() = default;
+
+    static std::unique_ptr<Mapper> create();
 
     virtual void d_write(const int32_t *mat, int32_t m_matrix,
                          int32_t n_matrix) = 0;
@@ -33,11 +36,12 @@ class Mapper {
     virtual void a_mvm(int32_t *res, const int32_t *vec, const int32_t *mat,
                        int32_t m_matrix, int32_t n_matrix,
                        const char *l_name) = 0;
-    static std::unique_ptr<Mapper> create_from_config();
+
     const std::vector<std::vector<int32_t>> &get_gd_p() const;
     const std::vector<std::vector<int32_t>> &get_gd_m() const;
     const std::vector<std::vector<float>> &get_ia_p() const;
     const std::vector<std::vector<float>> &get_ia_m() const;
+
     void rd_update_conductance(std::shared_ptr<const ReadDisturb> rd_model,
                                const uint64_t read_num);
     void rd_update_conductance(
@@ -48,10 +52,16 @@ class Mapper {
                                    const uint64_t read_num,
                                    const uint64_t write_num);
     int rd_cell_based_refresh(std::shared_ptr<ReadDisturb> rd_model);
-    bool is_diff_weight_mapping() const;
 
     void a_add_c2c_var(int32_t m_matrix, int32_t n_matrix);
     void a_remove_c2c_var(int32_t m_matrix, int32_t n_matrix);
+
+    const MappingProperties &properties() const;
+    bool uses_negative_matrix() const;
+
+    static const MappingProperties &properties(MappingMode mode);
+    static std::optional<MappingMode> mode_from_name(const std::string &name);
+    static std::string name_from_mode(MappingMode mode);
 
   protected:
     void d_write_diff(const int32_t *mat, int32_t m_matrix, int32_t n_matrix);
@@ -67,7 +77,7 @@ class Mapper {
     void a_write_p(int32_t m_matrix, int32_t n_matrix);
     void a_write_p_bnn(int32_t m_matrix, int32_t n_matrix);
 
-    bool is_diff_weight_mapping_;
+    const MappingProperties &props_;
 
     // Helper functions
     void slice_vd(std::vector<int32_t> &vd, std::vector<int32_t> &vd_slice,

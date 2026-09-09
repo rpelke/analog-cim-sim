@@ -136,7 +136,7 @@ float ADCUnsigned::convert(const float current, float scale, float offset,
 }
 
 float ADCUnsigned::maximum_max_current() {
-    return static_cast<float>(CFG.N) * CFG.LRS;
+    return static_cast<float>(CFG.capacity().n) * CFG.LRS;
 }
 
 float ADCUnsigned::maximum_min_current() { return 0.0; }
@@ -147,11 +147,11 @@ ADCSigned::ADCSigned() : ADCUnsigned() {
 }
 
 float ADCSigned::maximum_max_current() {
-    return static_cast<float>(CFG.N) * (CFG.LRS - CFG.HRS);
+    return static_cast<float>(CFG.capacity().n) * (CFG.LRS - CFG.HRS);
 }
 
 float ADCSigned::maximum_min_current() {
-    return -static_cast<float>(CFG.N) * (CFG.LRS - CFG.HRS);
+    return -static_cast<float>(CFG.capacity().n) * (CFG.LRS - CFG.HRS);
 }
 
 std::unique_ptr<ADC> ADCFactory::createADC(ADCType type) {

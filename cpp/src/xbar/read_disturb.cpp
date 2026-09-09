@@ -7,18 +7,19 @@
  ******************************************************************************/
 #include "xbar/read_disturb.h"
 #include "helper/config.h"
+#include "mapping/mapper.h"
 
 #include <iostream>
 
 namespace nq {
 
 ReadDisturb::ReadDisturb(const float V_read) :
-    cycles_p_(CFG.M * CFG.SPLIT.size(), std::vector<uint64_t>(CFG.N, 0)),
-    cycles_m_(CFG.M * CFG.SPLIT.size(), std::vector<uint64_t>(CFG.N, 0)),
-    consecutive_reads_p_(CFG.M * CFG.SPLIT.size(),
-                         std::vector<uint64_t>(CFG.N, 0)),
-    consecutive_reads_m_(CFG.M * CFG.SPLIT.size(),
-                         std::vector<uint64_t>(CFG.N, 0)),
+    cycles_p_(CFG.state_columns(), std::vector<uint64_t>(CFG.capacity().n, 0)),
+    cycles_m_(CFG.state_columns(), std::vector<uint64_t>(CFG.capacity().n, 0)),
+    consecutive_reads_p_(CFG.state_columns(),
+                         std::vector<uint64_t>(CFG.capacity().n, 0)),
+    consecutive_reads_m_(CFG.state_columns(),
+                         std::vector<uint64_t>(CFG.capacity().n, 0)),
     t0_(1.55e-8),
     fitting_param_(1.43339),
     c1_(0.0068),
@@ -110,7 +111,10 @@ void ReadDisturb::update_cycle_m(int m, int n, uint64_t cycles) {
 }
 
 void ReadDisturb::update_consecutive_reads(int32_t m_matrix, int32_t n_matrix) {
-    for (size_t m = 0; m < m_matrix * CFG.SPLIT.size(); ++m) {
+    const MappingProperties &props = Mapper::properties(CFG.m_mode);
+    const size_t cols_per_weight =
+        props.split_columns_per_weight(CFG.SPLIT.size());
+    for (size_t m = 0; m < m_matrix * cols_per_weight; ++m) {
         for (size_t n = 0; n < n_matrix; ++n) {
             consecutive_reads_p_[m][n]++;
             consecutive_reads_m_[m][n]++;
@@ -119,8 +123,8 @@ void ReadDisturb::update_consecutive_reads(int32_t m_matrix, int32_t n_matrix) {
 }
 
 void ReadDisturb::reset_all_consecutive_reads() {
-    for (size_t m = 0; m < CFG.M * CFG.SPLIT.size(); ++m) {
-        for (size_t n = 0; n < CFG.N; ++n) {
+    for (size_t m = 0; m < consecutive_reads_p_.size(); ++m) {
+        for (size_t n = 0; n < consecutive_reads_p_[m].size(); ++n) {
             consecutive_reads_p_[m][n] = 0;
             consecutive_reads_m_[m][n] = 0;
         }

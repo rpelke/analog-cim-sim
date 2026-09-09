@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan                   #
+# Copyright (C) 2025 Rebecca Pelke, Arunkumar Vaidyanathan, Joel Klein       #
 # All Rights Reserved                                                        #
 #                                                                            #
 # This is work is licensed under the terms described in the LICENSE file     #
