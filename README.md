@@ -37,6 +37,7 @@ Setting `digital_only: true` bypasses the analog crossbar model completely, so n
 | ADC quantization + clipping                         | `adc_type`, `resolution`              | ✅  | ✅  | ✅  |
 | ADC calibration (`MAX` / `CALIB`)                   | `adc_calib_mode`, `adc_calib_dict`    | ✅  | ✅  | ✅  |
 | ADC input profiling (histograms)                    | `adc_profile`, `adc_profile_bin_size` | ❌  | ✅  | ✅  |
+| MVM profiling (histograms)                          | `mvm_profile`, `mvm_profile_bin_size` | ❌  | ✅  | ✅  |
 | Device-to-device (D2D) variability                  | `HRS_NOISE`, `LRS_NOISE`, `d2d_var`   | ❌  | ✅  | ✅  |
 | Cycle-to-cycle (C2C) variability                    | `c2c_var`, `HRS_NOISE`, `LRS_NOISE`   | ❌  | ✅  | ✅  |
 | Read disturb                                        | `read_disturb`, `t_read`, `V_read`    | ❌  | ✅  | ✅  |
