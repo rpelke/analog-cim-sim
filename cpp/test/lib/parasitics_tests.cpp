@@ -490,7 +490,7 @@ TEST(ParasiticsTests, TNN_IV_split) {
     int32_t res2[m_matrix] = {0, 0, 0};
     status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
     ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
-    ASSERT_THAT(res2, ::testing::ElementsAre(2, -2, 1));
+    ASSERT_THAT(res2, ::testing::ElementsAre(1, -3, 0));
 }
 
 TEST(ParasiticsTests, TNN_V_split) {

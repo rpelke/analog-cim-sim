@@ -568,8 +568,8 @@ float Mapper::get_average_cell_value(
 
     auto reduce_matrix = [&](const std::vector<std::vector<int32_t>> &matrix) {
         sum += std::transform_reduce(
-            std::execution::unseq, matrix.begin(), matrix.begin() + m_matrix, 0.0,
-            std::plus<>{}, [&](const std::vector<int32_t> &row) {
+            std::execution::unseq, matrix.begin(), matrix.begin() + m_matrix,
+            0.0, std::plus<>{}, [&](const std::vector<int32_t> &row) {
                 return std::transform_reduce(
                     std::execution::unseq, row.begin(), row.begin() + n_matrix,
                     0.0, std::plus<>{}, [&](int32_t value) {
