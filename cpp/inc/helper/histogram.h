@@ -17,6 +17,8 @@
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
+#include "helper/definitions.h"
+
 namespace nq {
 
 /** Simple histogram for profiling integer arrays. */
@@ -256,7 +258,8 @@ using BinnedWorkloadHistograms = WorkloadHistograms<BinnedHistogram>;
 using StratifiedWorkloadHistograms = WorkloadHistograms<StratifiedHistogram>;
 
 /** Singleton collection of histograms profiling ADC inputs. */
-class ADCHistograms : public BinnedWorkloadHistograms {
+class ADCHistograms : public BinnedWorkloadHistograms,
+                      public Singleton<ADCHistograms> {
   public:
     ADCHistograms(const ADCHistograms &) = delete;
     ADCHistograms &operator=(const ADCHistograms &) = delete;
@@ -264,16 +267,14 @@ class ADCHistograms : public BinnedWorkloadHistograms {
     /** Destructor */
     virtual ~ADCHistograms() override;
 
-    /** Get singleton instance. */
-    static ADCHistograms &get_instance();
-
   private:
     /** Constructor
      *
      * Private constructor for singleton. Can only be accessed with
-     * WorkloadHistograms::get_histograms().
+     * ADCHistograms::get_instance().
      */
     ADCHistograms();
+    friend class Singleton<ADCHistograms>;
 };
 
 /** Singleton collection of histograms profiling MVMs.
@@ -282,7 +283,8 @@ class ADCHistograms : public BinnedWorkloadHistograms {
  * weight value (between 0 and 1). This is linked to a binned
  * histograms which tracks average input values.
  */
-class MVMHistograms : public StratifiedWorkloadHistograms {
+class MVMHistograms : public StratifiedWorkloadHistograms,
+                      public Singleton<MVMHistograms> {
   public:
     MVMHistograms(const MVMHistograms &) = delete;
     MVMHistograms &operator=(const MVMHistograms &) = delete;
@@ -290,16 +292,14 @@ class MVMHistograms : public StratifiedWorkloadHistograms {
     /** Destructor */
     virtual ~MVMHistograms() override;
 
-    /** Get singleton instance. */
-    static MVMHistograms &get_instance();
-
   private:
     /** Constructor
      *
      * Private constructor for singleton. Can only be accessed with
-     * WorkloadHistograms::get_histograms().
+     * MVMHistograms::get_instance().
      */
     MVMHistograms();
+    friend class Singleton<MVMHistograms>;
 };
 
 } // namespace nq

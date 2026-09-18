@@ -17,16 +17,11 @@ Config::~Config() {}
 
 Config::Config() {}
 
-Config &Config::get_cfg() {
-    static Config instance;
-    return instance;
-}
-
 // Read parameter from JSON config file
 // If the parameter is not found, return the default value if provided.
 // Otherwise: exit with an error message.
 template <typename T>
-T getConfigValue(const nlohmann::json &cfg, const std::string &key,
+T getConfigValue(const json &cfg, const std::string &key,
                  std::optional<T> default_value = std::nullopt) {
     try {
         return cfg.at(key).get<T>();
@@ -352,7 +347,7 @@ bool Config::update_cfg(const char *json_string, bool *recreate_xbar,
 
     try {
         // Parse the JSON string
-        nlohmann::json updates = nlohmann::json::parse(json_string);
+        json updates = json::parse(json_string);
 
         // Track if configuration was actually modified
         bool config_modified = false;
@@ -407,7 +402,7 @@ bool Config::update_cfg(const char *json_string, bool *recreate_xbar,
         }
 
         return false;
-    } catch (const nlohmann::json::parse_error &e) {
+    } catch (const json::parse_error &e) {
         std::cerr << "JSON parse error: " << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
     } catch (const std::exception &e) {

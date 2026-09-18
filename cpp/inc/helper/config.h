@@ -15,19 +15,21 @@
 #include "helper/definitions.h"
 #include "mapping/mapping_properties.h"
 #include "nlohmann/json.hpp"
+using json = nlohmann::json;
+
+#include "helper/definitions.h"
 #include "xbar/adc.h"
 
-#define CFG ::nq::Config::get_cfg()
+#define CFG ::nq::Config::get_instance()
 
 namespace nq {
 
-class Config {
+class Config : public Singleton<Config> {
   public:
     Config(const Config &) = delete;
     Config &operator=(const Config &) = delete;
     virtual ~Config();
 
-    static Config &get_cfg();
     bool load_cfg(const char *cfg_file);
     bool is_int_mapping(const MappingMode &mode);
     bool is_bnn_mapping(const MappingMode &mode);
@@ -152,8 +154,8 @@ class Config {
   private:
     Config();
     bool apply_config();
-    static Config cfg_;
-    nlohmann::json cfg_data_;
+    json cfg_data_;
+    friend class Singleton<Config>;
 };
 
 } // namespace nq
