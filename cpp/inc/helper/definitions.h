@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2025 Rebecca Pelke, Joel Klein                               *
+ * Copyright (C) 2025 Rebecca Pelke, Joel Klein, Arunkumar Vaidyanathan       *
  * All Rights Reserved                                                        *
  *                                                                            *
  * This work is licensed under the terms described in the LICENSE file        *
@@ -7,6 +7,8 @@
  ******************************************************************************/
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
+
+#include <memory>
 
 namespace nq {
 
@@ -37,6 +39,36 @@ enum class MappingMode {
 };
 
 enum class ReadDisturbMitigationStrategy { SOFTWARE, CELL_BASED, OFF };
+
+/** Mixin base class providing get_instance()/reset() singleton semantics. */
+template <typename T> class Singleton {
+  public:
+    Singleton(const Singleton &) = delete;
+    Singleton &operator=(const Singleton &) = delete;
+
+    /** Get singleton instance, constructing it on first use. */
+    static T &get_instance() {
+        if (!instance_) {
+            instance_ = std::unique_ptr<T>(new T());
+        }
+        return *instance_;
+    }
+
+    /** Explicitly destroy the singleton instance, if it exists.
+     *
+     * @warning Any reference obtained from a prior get_instance()
+     * call is invalidated once reset() runs; callers must not use
+     * it afterwards.
+     */
+    static void reset() { instance_.reset(); }
+
+  protected:
+    Singleton() = default;
+    ~Singleton() = default; // non-virtual: never deleted through Singleton<T>*
+
+  private:
+    static inline std::unique_ptr<T> instance_;
+};
 
 } // namespace nq
 

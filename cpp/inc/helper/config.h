@@ -15,19 +15,21 @@
 #include "helper/definitions.h"
 #include "mapping/mapping_properties.h"
 #include "nlohmann/json.hpp"
+using json = nlohmann::json;
+
+#include "helper/definitions.h"
 #include "xbar/adc.h"
 
-#define CFG ::nq::Config::get_cfg()
+#define CFG ::nq::Config::get_instance()
 
 namespace nq {
 
-class Config {
+class Config : public Singleton<Config> {
   public:
     Config(const Config &) = delete;
     Config &operator=(const Config &) = delete;
-    virtual ~Config();
+    virtual ~Config() = default;
 
-    static Config &get_cfg();
     bool load_cfg(const char *cfg_file);
     bool is_int_mapping(const MappingMode &mode);
     bool is_bnn_mapping(const MappingMode &mode);
@@ -56,7 +58,8 @@ class Config {
                         "read_disturb_mitigation_strategy",
                         "read_disturb_mitigation_fp",
                         "read_disturb_update_tolerance",
-                        "parasitics"});
+                        "parasitics",
+                        "mvm_profile"});
 
     /** Physical cells one logical weight occupies under the current mapping. */
     XbarFactors factors() const;
@@ -80,7 +83,7 @@ class Config {
     uint32_t I_BIT;
 
     // No conversion to analog values
-    bool digital_only;
+    bool digital_only = false;
 
     // LRS and HRS current (in uA)
     float HRS;
@@ -93,30 +96,37 @@ class Config {
     // adc_profile_bin_size: Binning size for ADC profile histogram
     // adc_calib_mode: Calibration mode for ADC
     // adc_calib_dict: ADC calibration dictionary with per-layer current limits
-    ADCType adc_type;
+    ADCType adc_type = ADCType::INF_ADC;
     int32_t resolution;
-    bool adc_profile;
+    bool adc_profile = false;
     int adc_profile_bin_size;
     ADCCalibMode adc_calib_mode;
     std::map<std::string, std::pair<float, float>> adc_calib_dict;
+
+    // Profile MVMs
+    // mvm_profile: Whether MVMs should be profiled
+    // mvm_profile_bin_size: Binning size for average weight/input values
+    // (between 0 & 1)
+    bool mvm_profile = false;
+    float mvm_profile_bin_size;
 
     // Mapping strategy
     MappingMode m_mode;
 
     // Verbose output
-    bool verbose;
+    bool verbose = false;
 
     // State variability: standard deviation of a gaussian distribution (in uA)
     float HRS_NOISE;
     float LRS_NOISE;
-    bool d2d_var; // Model device-to-device variation
-    bool c2c_var; // Model cycle-to-cycle variation
+    bool d2d_var = false; // Model device-to-device variation
+    bool c2c_var = false; // Model cycle-to-cycle variation
 
     // Read disturb parameters
     // t_read: time of a read pulse (in s)
     // read_disturb_update_freq: how often (in number of MVMs) the conductance
     // is updated
-    bool read_disturb;
+    bool read_disturb = false;
     float t_read;
     uint32_t read_disturb_update_freq;
 
@@ -134,7 +144,7 @@ class Config {
 
     // Parasitic resistance modeling parameters
     // w_res: parasitic wire resistance (in Ohm)
-    bool parasitics;
+    bool parasitics = false;
     float w_res;
 
     // V_read: read voltage (in V, negative) - Needed for parasitics and read
@@ -142,10 +152,10 @@ class Config {
     float V_read;
 
   private:
-    Config();
+    Config() = default;
     bool apply_config();
-    static Config cfg_;
-    nlohmann::json cfg_data_;
+    json cfg_data_;
+    friend class Singleton<Config>;
 };
 
 } // namespace nq

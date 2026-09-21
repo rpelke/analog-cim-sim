@@ -42,7 +42,7 @@ void ADC::convert(const std::vector<float> &in, std::vector<float> &out,
     }
 
     // Apply offset and scale
-    std::transform(std::execution::par, in.begin(), in.begin() + len,
+    std::transform(std::execution::unseq, in.begin(), in.begin() + len,
                    out.begin(), [this, scale, offset, l_name](float current) {
                        return convert(current, scale, offset, l_name);
                    });

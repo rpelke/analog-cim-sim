@@ -26,10 +26,9 @@
 #endif
 
 /********************** Global variables **********************/
-bool cfg_loaded = nq::Config::get_cfg().load_cfg("");
+bool cfg_loaded = false;
 std::unique_ptr<nq::Crossbar> xbar =
     (cfg_loaded) ? std::make_unique<nq::Crossbar>() : nullptr;
-std::string adc_profile_cache = "";
 std::unique_ptr<tbb::global_control> gc; /** TBB Global Control */
 
 /********************** Helper functions **********************/
@@ -60,7 +59,7 @@ const uint32_t num_matrix_elems(const std::vector<std::vector<T>> &mat) {
 extern "C" EXPORT_API void set_config(const char *cfg_file,
                                       const int num_threads = 1) {
     xbar = nullptr;
-    nq::Config::get_cfg().load_cfg(cfg_file);
+    nq::Config::get_instance().load_cfg(cfg_file);
     xbar = std::make_unique<nq::Crossbar>();
 
     // Set maximum number of threads
@@ -92,7 +91,7 @@ extern "C" EXPORT_API int32_t update_config(const char *json_config,
 
     // Let Config class handle the JSON parsing and updates
     bool config_updated =
-        nq::Config::get_cfg().update_cfg(json_config, &recreate_xbar);
+        nq::Config::get_instance().update_cfg(json_config, &recreate_xbar);
 
     // Only recreate crossbar if necessary keys were updated
     if (config_updated && recreate_xbar) {
@@ -483,6 +482,29 @@ EXPORT_API const void dump_adc_profile(const std::string filename) {
     file_stream.close();
 }
 
+EXPORT_API const std::string get_mvm_profile() {
+    return nq::MVMHistograms::get_instance().to_json().dump();
+}
+
+EXPORT_API const void dump_mvm_profile(const std::string filename) {
+    std::ofstream file_stream(filename);
+    if (!file_stream.is_open()) {
+        std::cerr << "Could not open MVM profile dump file!";
+        std::exit(EXIT_FAILURE);
+    }
+    file_stream << nq::MVMHistograms::get_instance().to_json().dump(2);
+    file_stream.close();
+}
+
+EXPORT_API void reset() {
+    cfg_loaded = false;
+    gc.reset();
+    xbar.reset();
+    nq::Config::reset();
+    nq::ADCHistograms::reset();
+    nq::MVMHistograms::reset();
+}
+
 /********************* Pybind definitions *********************/
 PYBIND11_MODULE(acs_py, m) {
     m.def("cpy", &cpy_mtrx_pb, "Copy matrix to crossbar.");
@@ -522,4 +544,6 @@ PYBIND11_MODULE(acs_py, m) {
     m.def("rd_run_out_of_bounds", &get_rd_run_out_of_bounds,
           "Check if the read disturb model ran out of bounds.");
     m.def("dump_adc_profile", &dump_adc_profile, "Dump ADC profile JSON file.");
+    m.def("dump_mvm_profile", &dump_mvm_profile, "Dump MVM profile JSON file.");
+    m.def("reset", &reset, "Reset all global simulator objects.");
 }

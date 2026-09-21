@@ -118,21 +118,21 @@ void ParasiticSolver::compute_currents(std::vector<int32_t> &vd_p,
     // Lambdas to accumulate column conductances. Each row is parallel to
     // the previous columns and parasitic wires are in series to the the
     // columns. Result is stored in vector a.
-    auto reduce_par_g = [](std::vector<float> &a, std::vector<float> &b,
+    auto reduce_par_g = [](std::vector<float> &a, const std::vector<float> &b,
                            size_t len) {
-        std::transform(std::execution::par_unseq, a.begin(), a.begin() + len,
+        std::transform(std::execution::unseq, a.begin(), a.begin() + len,
                        b.begin(), a.begin(),
                        [](const float &a, const float &b) { return a + b; });
     };
-    auto reduce_ser_g = [](std::vector<float> &a, std::vector<float> &b,
+    auto reduce_ser_g = [](std::vector<float> &a, const std::vector<float> &b,
                            size_t len) {
         std::transform(
-            std::execution::par_unseq, a.begin(), a.begin() + len, b.begin(),
+            std::execution::unseq, a.begin(), a.begin() + len, b.begin(),
             a.begin(),
             [](const float &a, const float &b) { return (a * b) / (a + b); });
     };
 
-    for (auto ga_row : ga_mat_gated_) {
+    for (const auto &ga_row : ga_mat_gated_) {
         reduce_par_g(ga_col_acc_, ga_row, num_cols);
         reduce_ser_g(ga_col_acc_, ga_wire_, num_cols);
     }

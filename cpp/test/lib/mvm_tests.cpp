@@ -201,6 +201,37 @@ TEST(INTLibTests, BNN_I) {
     }
 }
 
+TEST(INTLibTests, BNN_I_profiling) {
+    const int32_t m_matrix = 3;
+    const int32_t n_matrix = 2;
+    int32_t vec1[n_matrix] = {1, 1};
+    int32_t vec2[n_matrix] = {-1, 1};
+    int32_t mat[m_matrix * n_matrix] = {1, 1, -1, -1, 1, -1};
+
+    std::string cfg = get_cfg_file(digital_to_foldername(false) + "BNN_I.json");
+    set_config(cfg.c_str());
+
+    update_config(R"(
+      {
+         "mvm_profile": true,
+         "mvm_profile_bin_size": 0.1
+      })");
+
+    int32_t status = cpy_mtrx(mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix write operation failed.";
+
+    int32_t res1[m_matrix] = {1, -1, 1};
+    status = exe_mvm(res1, vec1, mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+    ASSERT_THAT(res1, ::testing::ElementsAre(3, -3, 1));
+
+    int32_t res2[m_matrix] = {0, 0, 0};
+    status = exe_mvm(res2, vec2, mat, m_matrix, n_matrix);
+    ASSERT_EQ(status, 0) << "Matrix-vector multiplication failed.";
+    ASSERT_THAT(res2, ::testing::ElementsAre(0, 0, -2));
+    std::cout << get_mvm_profile() << std::endl;
+}
+
 TEST(INTLibTests, BNN_II) {
     const int32_t m_matrix = 3;
     const int32_t n_matrix = 2;
