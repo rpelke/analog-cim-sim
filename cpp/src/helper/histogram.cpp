@@ -124,7 +124,7 @@ float BinnedHistogram::get_variance() const {
     return std::transform_reduce(std::execution::par, this->data_.begin(),
                                  this->data_.end(), this->values_.begin(), 0.0,
                                  std::plus<float>(),
-                                 [mean](int32_t d, int32_t v) {
+                                 [mean](int32_t d, float v) {
                                      return (d * std::pow(v - mean, 2));
                                  }) /
            get_samples();
@@ -143,7 +143,7 @@ json BinnedHistogram::to_json() const {
                 {"var", get_variance()}};
 }
 
-int32_t BinnedHistogram::get_index(const float value) {
+int32_t BinnedHistogram::get_index(const float value) const {
     if (value <= min_)
         return 0;
     else if (value >= max_)
@@ -234,13 +234,5 @@ json StratifiedHistogram::to_json() const {
 
     return json(strata);
 }
-
-ADCHistograms::ADCHistograms() {}
-
-ADCHistograms::~ADCHistograms() {}
-
-MVMHistograms::MVMHistograms() {}
-
-MVMHistograms::~MVMHistograms() {}
 
 } // namespace nq

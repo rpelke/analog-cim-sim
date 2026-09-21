@@ -95,7 +95,7 @@ class BinnedHistogram {
 
   private:
     /** Get histogram index for given value. */
-    int32_t get_index(const float value);
+    int32_t get_index(const float value) const;
 
     float min_;      /**< Minimum value */
     float max_;      /**< Maximum value */
@@ -206,21 +206,21 @@ class StratifiedHistogram {
  */
 template <typename HistogramT> class WorkloadHistograms {
   public:
-    WorkloadHistograms() {}
+    WorkloadHistograms() = default;
     WorkloadHistograms(const WorkloadHistograms &) = delete;
     WorkloadHistograms &operator=(const WorkloadHistograms &) = delete;
 
     /** Destructor */
-    virtual ~WorkloadHistograms() {}
+    virtual ~WorkloadHistograms() = default;
 
     /** Check if histogram already exists for a layer. */
-    bool has_histogram(std::string l_name) const {
+    bool has_histogram(const std::string &l_name) const {
         return hists_.find(l_name) != hists_.end();
     }
 
     /** Add a histogram associated with a layer. */
     template <typename... Args>
-    bool add_histogram(std::string l_name, Args &&...args) {
+    bool add_histogram(const std::string &l_name, Args &&...args) {
         auto [it, inserted] =
             hists_.try_emplace(std::move(l_name), std::forward<Args>(args)...);
         return inserted;
@@ -228,7 +228,7 @@ template <typename HistogramT> class WorkloadHistograms {
 
     /** Get histogram associated with a layer. */
     std::optional<std::reference_wrapper<HistogramT>>
-    get_histogram(std::string l_name) {
+    get_histogram(const std::string &l_name) {
         auto it = hists_.find(l_name);
         if (it == hists_.end()) {
             return std::nullopt;
@@ -265,7 +265,7 @@ class ADCHistograms : public BinnedWorkloadHistograms,
     ADCHistograms &operator=(const ADCHistograms &) = delete;
 
     /** Destructor */
-    virtual ~ADCHistograms() override;
+    virtual ~ADCHistograms() override = default;
 
   private:
     /** Constructor
@@ -273,7 +273,7 @@ class ADCHistograms : public BinnedWorkloadHistograms,
      * Private constructor for singleton. Can only be accessed with
      * ADCHistograms::get_instance().
      */
-    ADCHistograms();
+    ADCHistograms() = default;
     friend class Singleton<ADCHistograms>;
 };
 
@@ -290,7 +290,7 @@ class MVMHistograms : public StratifiedWorkloadHistograms,
     MVMHistograms &operator=(const MVMHistograms &) = delete;
 
     /** Destructor */
-    virtual ~MVMHistograms() override;
+    virtual ~MVMHistograms() override = default;
 
   private:
     /** Constructor
@@ -298,7 +298,7 @@ class MVMHistograms : public StratifiedWorkloadHistograms,
      * Private constructor for singleton. Can only be accessed with
      * MVMHistograms::get_instance().
      */
-    MVMHistograms();
+    MVMHistograms() = default;
     friend class Singleton<MVMHistograms>;
 };
 

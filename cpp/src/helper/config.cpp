@@ -13,10 +13,6 @@
 
 namespace nq {
 
-Config::Config() {}
-
-Config::~Config() {}
-
 // Read parameter from JSON config file
 // If the parameter is not found, return the default value if provided.
 // Otherwise: exit with an error message.
@@ -73,6 +69,11 @@ bool Config::apply_config() {
         if (mvm_profile) {
             mvm_profile_bin_size =
                 getConfigValue<float>(cfg_data_, "mvm_profile_bin_size", 0.1);
+            if ((mvm_profile_bin_size <= 0.0) || (mvm_profile_bin_size > 1)) {
+                std::cerr << "MVM profile bin size must be between 0 and 1."
+                          << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
         }
 
         digital_only = getConfigValue<bool>(cfg_data_, "digital_only");
@@ -129,6 +130,12 @@ bool Config::apply_config() {
                 if (adc_profile) {
                     adc_profile_bin_size = getConfigValue<int>(
                         cfg_data_, "adc_profile_bin_size", 10);
+                    if (adc_profile_bin_size <= 0) {
+                        std::cerr
+                            << "ADC profile bin size must be greater than 0."
+                            << std::endl;
+                        std::exit(EXIT_FAILURE);
+                    }
                 }
             }
 

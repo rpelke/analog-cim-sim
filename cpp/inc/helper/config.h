@@ -28,7 +28,7 @@ class Config : public Singleton<Config> {
   public:
     Config(const Config &) = delete;
     Config &operator=(const Config &) = delete;
-    virtual ~Config();
+    virtual ~Config() = default;
 
     bool load_cfg(const char *cfg_file);
     bool is_int_mapping(const MappingMode &mode);
@@ -152,7 +152,7 @@ class Config : public Singleton<Config> {
     float V_read;
 
   private:
-    Config();
+    Config() = default;
     bool apply_config();
     json cfg_data_;
     friend class Singleton<Config>;

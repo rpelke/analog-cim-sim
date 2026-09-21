@@ -27,10 +27,11 @@ void MapperTnnII::d_write(const int32_t *mat, int32_t m_matrix,
             gd_m{std::ref(gd_m_)};
         float avg_cell_val =
             get_average_cell_value(gd_p_, gd_m, m_matrix, n_matrix, 0, 1);
-        mvm_prof_cur_strat_ = mvm_prof_strat_factory_->get_stratum(
-            std::map<std::string, float>{{"rows", n_matrix},
-                                         {"cols", m_matrix * 2},
-                                         {"avg_cell_val", avg_cell_val}});
+        mvm_prof_cur_strat_ =
+            mvm_prof_strat_factory_->get_stratum(std::map<std::string, float>{
+                {"rows", n_matrix * PROPERTIES.row_mult},
+                {"cols", m_matrix * PROPERTIES.col_mult},
+                {"avg_cell_val", avg_cell_val}});
     }
 }
 
