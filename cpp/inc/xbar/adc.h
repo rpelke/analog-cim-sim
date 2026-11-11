@@ -25,6 +25,7 @@ enum ADCCalibMode { MAX, CALIB };
 enum class ADCType {
     INF_ADC,           // ADC with infinite resolution (ADCInfinite)
     SYM_RANGE_ADC,     // Symmetric range (around 0) (ADCSigned)
+    SYM_LEVEL_ADC,     // Symmetric range, codes on cell levels (ADCSignedLevel)
     POS_RANGE_ONLY_ADC // Positive range only (ADCUnsigned)
 };
 
@@ -41,10 +42,11 @@ class ADC {
                          const int32_t len, float scale = 1.0,
                          float offset = 0.0, const char *l_name = "Unknown");
 
-    /** Convert an analog input current to digital output. */
-    virtual float convert(const float current, float scale = 1.0,
-                          float offset = 0.0,
-                          const char *l_name = "Unknown") = 0;
+    /** Convert an analog input current to digital output. `level` is the
+     * current of one cell level, used by ADCSignedLevel. */
+    virtual float convert(const float current, double scale = 1.0,
+                          float offset = 0.0, const char *l_name = "Unknown",
+                          float level = 0.0) = 0;
 
   protected:
     /** Get maximum and minimum currents to the ADC. */
@@ -78,9 +80,9 @@ class ADCInfinite : public ADC {
     virtual ~ADCInfinite() = default;
 
     /** Convert an analog input current to digital output. */
-    virtual float convert(const float current, float scale = 1.0,
-                          float offset = 0.0,
-                          const char *l_name = "Unknown") override;
+    virtual float convert(const float current, double scale = 1.0,
+                          float offset = 0.0, const char *l_name = "Unknown",
+                          float level = 0.0) override;
 
   protected:
     /** Get maximum possible current to ADC */
@@ -99,9 +101,9 @@ class ADCUnsigned : public ADC {
     virtual ~ADCUnsigned() = default;
 
     /** Convert an analog input current to digital output. */
-    virtual float convert(const float current, float scale = 1.0,
-                          float offset = 0.0,
-                          const char *l_name = "Unknown") override;
+    virtual float convert(const float current, double scale = 1.0,
+                          float offset = 0.0, const char *l_name = "Unknown",
+                          float level = 0.0) override;
 
   protected:
     /** Get maximum possible current to ADC */
@@ -125,6 +127,24 @@ class ADCSigned : public ADCUnsigned {
 
     /** Get minimum possible current to ADC */
     virtual float maximum_min_current() override;
+};
+
+/** Signed ADC with codes on the cell levels */
+class ADCSignedLevel : public ADCSigned {
+  public:
+    /** Constructor */
+    explicit ADCSignedLevel();
+    ADCSignedLevel(const ADCSignedLevel &) = delete;
+    virtual ~ADCSignedLevel() = default;
+
+    /** Convert an analog input current to digital output. */
+    virtual float convert(const float current, double scale = 1.0,
+                          float offset = 0.0, const char *l_name = "Unknown",
+                          float level = 0.0) override;
+
+  private:
+    /** Step size for the given current range and cell level. */
+    double step_size(double curr_range, float level) const;
 };
 
 /** Factory class to create ADC from configured option. */
