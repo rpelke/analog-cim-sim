@@ -87,6 +87,8 @@ bool Config::apply_config() {
                 adc_type = ADCType::INF_ADC;
             } else if (adc_type_name == "SYM_RANGE_ADC") {
                 adc_type = ADCType::SYM_RANGE_ADC;
+            } else if (adc_type_name == "SYM_LEVEL_ADC") {
+                adc_type = ADCType::SYM_LEVEL_ADC;
             } else if (adc_type_name == "POS_RANGE_ONLY_ADC") {
                 adc_type = ADCType::POS_RANGE_ONLY_ADC;
             } else {
@@ -164,11 +166,14 @@ bool Config::apply_config() {
                        (m_mode == MappingMode::TNN_II) ||
                        (m_mode == MappingMode::TNN_III)) {
                 if (!((adc_type == ADCType::INF_ADC) ||
-                      (adc_type == ADCType::SYM_RANGE_ADC))) {
+                      (adc_type == ADCType::SYM_RANGE_ADC) ||
+                      ((adc_type == ADCType::SYM_LEVEL_ADC) &&
+                       is_int_mapping(m_mode)))) {
                     std::cerr
                         << "I_DIFF_W_DIFF_1XB, I_DIFF_W_DIFF_2XB, I_TC_W_DIFF, "
                            "I_TC_W_DIFF, I_UINT_W_DIFF, BNN_I, BNN_II, BNN_VI, "
-                           "TNN_I, TNN_II need INF_ADC or SYM_RANGE_ADC."
+                           "TNN_I, TNN_II need INF_ADC or SYM_RANGE_ADC "
+                           "(or SYM_LEVEL_ADC for the INT mappings)."
                         << std::endl;
                     std::exit(EXIT_FAILURE);
                 }
