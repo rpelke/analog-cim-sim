@@ -47,6 +47,20 @@ bool Config::load_cfg(const char *cfg_file = "") {
     return apply_config();
 }
 
+bool Config::load_cfg_string(const char *json_string) {
+    if (!json_string) {
+        std::cerr << "Error: JSON string is null." << std::endl;
+        return false;
+    }
+    try {
+        cfg_data_ = json::parse(json_string);
+    } catch (const json::parse_error &e) {
+        std::cerr << "JSON parse error: " << e.what() << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+    return apply_config();
+}
+
 bool Config::apply_config() {
     try {
         M = getConfigValue<uint32_t>(cfg_data_, "M");
