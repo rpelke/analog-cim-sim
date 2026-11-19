@@ -31,6 +31,7 @@ class Config : public Singleton<Config> {
     virtual ~Config() = default;
 
     bool load_cfg(const char *cfg_file);
+    bool load_cfg_string(const char *json_string);
     bool is_int_mapping(const MappingMode &mode);
     bool is_bnn_mapping(const MappingMode &mode);
     bool is_tnn_mapping(const MappingMode &mode);

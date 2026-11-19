@@ -7,7 +7,9 @@
  ******************************************************************************/
 
 #include <cstdlib>
+#include <fstream>
 #include <gtest/gtest.h>
+#include <sstream>
 #include <string>
 
 #include "helper/config.h"
@@ -50,4 +52,27 @@ TEST(ConfigTests, LoadCfgFromEnvVar) {
     nq::Config &cfg = nq::Config::get_instance();
     ASSERT_TRUE(cfg.load_cfg(""));
     check_cfg_fields(cfg);
+}
+
+// Load config from a JSON string with the content of a config file
+TEST(ConfigTests, LoadCfgFromString) {
+    std::ifstream file_stream(get_cfg_file("analog/POS_ADC_1.json"));
+    ASSERT_TRUE(file_stream.is_open());
+    std::stringstream content;
+    content << file_stream.rdbuf();
+    nq::Config &cfg = nq::Config::get_instance();
+    ASSERT_TRUE(cfg.load_cfg_string(content.str().c_str()));
+    check_cfg_fields(cfg);
+}
+
+// Config init: No JSON string provided
+TEST(ConfigTests, LoadCfgStringNull) {
+    nq::Config &cfg = nq::Config::get_instance();
+    ASSERT_FALSE(cfg.load_cfg_string(nullptr));
+}
+
+// Trigger error on a JSON string that does not parse
+TEST(ConfigTests, ErrorOnFaultyCfgString) {
+    nq::Config &cfg = nq::Config::get_instance();
+    ASSERT_DEATH(cfg.load_cfg_string("{"), "JSON parse error");
 }
