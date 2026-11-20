@@ -92,7 +92,7 @@ ADCInfinite::ADCInfinite() : ADC() {}
 
 float ADCInfinite::convert(const float current, float scale, float offset,
                            const char *l_name) {
-    return (current + offset) * scale;
+    return round((current + offset) * scale);
 }
 
 float ADCInfinite::maximum_max_current() {
