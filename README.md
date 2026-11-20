@@ -51,6 +51,9 @@ mappings that accumulate a signed column current (the differential ones) require
 mappings whose column current is positive-only (`I_UINT_W_OFFS`, `BNN_III`, `BNN_IV`, `BNN_V`, `TNN_IV`, `TNN_V`)
 require `POS_RANGE_ONLY_ADC`. `INF_ADC` models an ideal ADC without quantization and clipping and is always allowed.
 
+`SYM_LEVEL_ADC` is a symmetric ADC for the differential INT mappings whose step is calibrated to the cell levels: a column current of zero gives code 0 and the step is a whole fraction of one cell level of the converted slice, so without noise the result is exact as soon as `resolution` resolves one level over the range set by `adc_calib_mode`. With fewer bits, a code spans a whole number of levels and the range stays covered.
+`SYM_RANGE_ADC` divides its range uniformly instead, so ideal column currents usually lie between two codes.
+
 ## Requirements
 
 To build the project, you will require:

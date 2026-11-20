@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <execution>
 #include <iostream>
 
@@ -90,9 +91,9 @@ void ADC::profile_inputs(const std::vector<float> &in, const int32_t len,
 
 ADCInfinite::ADCInfinite() : ADC() {}
 
-float ADCInfinite::convert(const float current, float scale, float offset,
-                           const char *l_name) {
-    return (current + offset) * scale;
+float ADCInfinite::convert(const float current, double scale, float offset,
+                           const char *l_name, float level) {
+    return (current + offset) * static_cast<float>(scale);
 }
 
 float ADCInfinite::maximum_max_current() {
@@ -105,8 +106,8 @@ float ADCInfinite::maximum_min_current() {
 
 ADCUnsigned::ADCUnsigned() : ADC() {}
 
-float ADCUnsigned::convert(const float current, float scale, float offset,
-                           const char *l_name) {
+float ADCUnsigned::convert(const float current, double scale, float offset,
+                           const char *l_name, float level) {
     float tmp;
     // Get current ranges
     std::pair<float, float> currs = get_currents(l_name);
@@ -132,7 +133,7 @@ float ADCUnsigned::convert(const float current, float scale, float offset,
     tmp = tmp * step_size + min_curr;
 
     // Scale and round final output
-    return round(tmp * scale);
+    return round(tmp * static_cast<float>(scale));
 }
 
 float ADCUnsigned::maximum_max_current() {
@@ -154,12 +155,57 @@ float ADCSigned::maximum_min_current() {
     return -static_cast<float>(CFG.capacity().n) * (CFG.LRS - CFG.HRS);
 }
 
+ADCSignedLevel::ADCSignedLevel() : ADCSigned() {}
+
+float ADCSignedLevel::convert(const float current, double scale, float offset,
+                              const char *l_name, float level) {
+    if (level <= 0.0) {
+        return ADCSigned::convert(current, scale, offset, l_name);
+    }
+    // Get current ranges
+    std::pair<float, float> currs = get_currents(l_name);
+    double step = step_size(currs.second - currs.first, level);
+
+    // A current of zero gives code 0, so every whole number of levels lies on
+    // a code. Only the codes within the current range exist.
+    constexpr double eps = 1e-9;
+    int64_t min_code =
+        static_cast<int64_t>(std::ceil(currs.first / step - eps));
+    int64_t max_code =
+        static_cast<int64_t>(std::floor(currs.second / step + eps));
+    if (min_code > max_code) {
+        min_code = max_code = std::llround(
+            (static_cast<double>(currs.first) + currs.second) / (2.0 * step));
+    }
+
+    // Quantization with clipping
+    int64_t code = std::clamp<int64_t>(std::llround((current + offset) / step),
+                                       min_code, max_code);
+
+    // Scale and round final output
+    return static_cast<float>(std::round(code * step * scale));
+}
+
+double ADCSignedLevel::step_size(double curr_range, float level) const {
+    constexpr double eps = 1e-9;
+    // Step size of an ADCSigned with the same range
+    double step = curr_range / (steps_ - 1);
+    // Enough resolution: the finest whole fraction of a level. Otherwise the
+    // smallest whole number of levels, so that the range stays covered.
+    if (step <= level * (1.0 + eps)) {
+        return level / std::floor(level / step + eps);
+    }
+    return level * std::ceil(step / level - eps);
+}
+
 std::unique_ptr<ADC> ADCFactory::createADC(ADCType type) {
     switch (type) {
     case ADCType::INF_ADC:
         return std::make_unique<ADCInfinite>();
     case ADCType::SYM_RANGE_ADC:
         return std::make_unique<ADCSigned>();
+    case ADCType::SYM_LEVEL_ADC:
+        return std::make_unique<ADCSignedLevel>();
     case ADCType::POS_RANGE_ONLY_ADC:
         return std::make_unique<ADCUnsigned>();
     default:
